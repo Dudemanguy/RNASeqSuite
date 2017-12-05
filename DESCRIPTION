@@ -1,0 +1,20 @@
+Package: RNAseqsuite
+Version: 00.00.01
+Title: Convienent R wrapper of popular RNAseq pipelines desgined to 
+       simply data analysis
+Author: Alec Perez <aiperez@uh.edu>
+Maintainer: Alec Perez <aiperez@uh.edu>
+Depends: methods
+Imports: utils, XML, RCurl, AnnotationDbi, progress, stringr, biomaRt, edgeR, DESeq2, HTSFilter
+Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+biocViews: Annotation
+Description: In the world of bioinformatics, there are many different possible pipelines
+             and protocols that one can employ. Unfortunately, rapidly switching between
+			 different approaches is generally not easy and often requires a lot of manual
+			 work. The aim of RNAseqsuite is to provide a convienent cli wrapper over 
+			 popular RNAseq software and algorithms to simplify the process for performing
+			 RNAseq and different analyses on the fly.
+License: GPL (>= 2)
+LazyLoad: yes
+NeedsCompilation: no
