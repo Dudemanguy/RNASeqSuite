@@ -1,4 +1,4 @@
-##RNASeqSuite
+## RNASeqSuite
 
 **Note**: This is a WIP and is only here for convenience. Don't expect anything to work properly at this stage.
 
