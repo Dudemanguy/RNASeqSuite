@@ -42,14 +42,16 @@ group <- function(x, group1, group2) {
 	}
 
 
+#Cfilter
 #Custom filter function based around standard deviation of normalized vectors
+
 #TODO: Rewrite function to apply to matrix of arbitrary n
-Cfilter <- function(x, y) {
+Cfilter <- function(x, y, groups) {
 	if (class(x) != "data.frame") {
 		stop("Error, please enter a data frame for x")
 	}
-	if (class(y) != "numeric") {
-		stop("Error, please enter a data frame for y")
+	if ((class(y) != "numeric") & (y < 1)) {
+		stop("Error, please enter an integer greater than one for y")
 	}
 	else {
 		x_filter <- x[rowSums(x) != 0,]
@@ -89,5 +91,5 @@ Cfilter <- function(x, y) {
 #	}
 #
 #	else {
-#		datagroup <- group(x, y)
+#		datagroup <- group(x, group1, group2)
 #		if (HTSFilter == TRUE) {
