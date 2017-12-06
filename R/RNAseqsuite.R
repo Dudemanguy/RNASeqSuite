@@ -19,8 +19,8 @@ argumentinvalid <- function (dataframe, number, string1, string2) {
 
 	}
 
-	if (is.null(string1) & is.null(string2)) {
-		string1 = FALSE & string2 = FALSE 
+	if (is.null(string1) & is.null(string2) | is.null(string2)) {
+		string1 = FALSE
 	}
 	else if (class(string1) != "character") {
 		return(paste("Error,", deparse(substitute(string1)), "is not a character"))
