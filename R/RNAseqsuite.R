@@ -1,6 +1,3 @@
-#source code for RNAseqsuite
-
-
 #countmatrixsubset
 #create subset of count matrix based upon entered group
 
@@ -21,15 +18,15 @@ countmatrixsubset <- function (x, y, group1, group2) {
 		matrixselection <- subset(x, select = eval(parse(text=list(columnstokeep))))
 		return(matrixselection)
 	}
-
+}
 
 #group
 #obtains the group from a supplied tab-delimited list
 
 #TODO: only supports two groups. Add support for abitrary n?
 group <- function(x, group1, group2) {
-	if (class(x) != "factor") {
-		stop("Error, x must be a factor")
+	if (class(x) != "data.frame") {
+		stop("Error, x must be a data frame")
 	}
 	if (!((group1 %in% x[,2]) & (group2 %in% x[,2]))) {
 		stop("Error, invalid group names")
@@ -38,15 +35,16 @@ group <- function(x, group1, group2) {
 		groupselection <- subset(x, V2 == group1 | V2 == group2)
 		getgroup <- groupselection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
-		return(getgroup)
+		return(list(getgroup, group1, group2))
 	}
+}
 
 
-#Cfilter
+#CFilter
 #Custom filter function based around standard deviation of normalized vectors
 
 #TODO: Rewrite function to apply to matrix of arbitrary n
-Cfilter <- function(x, y, groups) {
+CFilter <- function(x, y, group) {
 	if (class(x) != "data.frame") {
 		stop("Error, please enter a data frame for x")
 	}
@@ -74,22 +72,35 @@ Cfilter <- function(x, y, groups) {
 #countmatrixFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
-#countmatrixFilter <- function(x, y, HTSFilter, CFilter) {
-#
-#	if(missing(HTSFilter)) {
-#		HTSFilter = TRUE
-#	}
-#	if (HTSFilter != (TRUE | FALSE)) {
-#		stop("Error, HTSFilter is a boolean value.")
-#	}
-#
-#	if(missing(CFilter)) {
-#		CFilter = FALSE
-#	}
-#	if (CFilter != (TRUE | FALSE)) {
-#		stop("Error, CFilter is a boolean value.")
-#	}
-#
-#	else {
-#		datagroup <- group(x, group1, group2)
-#		if (HTSFilter == TRUE) {
+countmatrixFilter <- function(x, y, HTSFilter, Cfilter) {
+
+	if(missing(HTSFilter)) {
+		HTSFilter = TRUE
+	}
+	if (HTSFilter != (TRUE | FALSE)) {
+		stop("Error, HTSFilter is a boolean value.")
+	}
+
+	if(missing(Cfilter)) {
+		Cfilter = FALSE
+	}
+	if (Cfilter != (TRUE | FALSE)) {
+		stop("Error, CFilter is a boolean value.")
+	}
+
+	else {
+		datagroup <- group(x, y[[2]], y[[3]])
+		if (HTSFilter == TRUE) {
+			htsfilter <- HTSFilter(countmatrixsubset, group, s.min=1, s.max=200, s.len=25)
+			countmatrixhtsfilter <- filter$filteredData
+
+			if (Cfilter == TRUE) {
+				countmatrixcfilter <- Cfilter(x, 1, group)
+				return(countmatrixcfilter)
+			}
+			else {
+				return(countmatrixhtsfilter)
+			}
+		}
+	}
+}
