@@ -28,9 +28,9 @@ group <- function(x, group1, group2) {
 	if (class(x) != "data.frame") {
 		stop("Error, x must be a data frame")
 	}
-	if (!((group1 %in% x[,2]) & (group2 %in% x[,2]))) {
-		stop("Error, invalid group names")
-	}
+	#if (!((group1 %in% x[,2]) & (group2 %in% x[,2]))) {
+	#	stop("Error, invalid group names")
+	#}
 	else {
 		groupselection <- subset(x, V2 == group1 | V2 == group2)
 		getgroup <- groupselection[,2]
@@ -44,10 +44,10 @@ group <- function(x, group1, group2) {
 #Custom filter function based around standard deviation of normalized vectors
 
 #TODO: Rewrite function to apply to matrix of arbitrary n
-CFilter <- function(x, y, group) {
-	if (class(x) != "data.frame") {
-		stop("Error, please enter a data frame for x")
-	}
+CFilter <- function(x, y, z) {
+	#if (class(x) != "data.frame") {
+	#	stop("Error, please enter a data frame for x")
+	#}
 	if ((class(y) != "numeric") & (y < 1)) {
 		stop("Error, please enter an integer greater than one for y")
 	}
@@ -61,7 +61,7 @@ CFilter <- function(x, y, group) {
 		x_compressed <- x_diff[(mean_x - (y*std_x)) <= x_filter[,1, drop=FALSE] & 
 				x_filter[,1, drop=FALSE] <= (mean_x + (y*std_x)), 1, drop=FALSE]
 		print(paste(nrow(x) - nrow(x_filter), "zero elements discarded"))
-		print(paste(nrow(x_diff - nrow(x_compressed), "outliers removed")))
+		print(paste(nrow(x_diff - nrow(x_compressed)), "outliers removed"))
 		return(x_compressed)
 	}
 }
@@ -72,35 +72,35 @@ CFilter <- function(x, y, group) {
 #countmatrixFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
-countmatrixFilter <- function(x, y, HTSFilter, Cfilter) {
+countmatrixFilter <- function(x, y, htsfilter, cfilter=z) {
 
-	if(missing(HTSFilter)) {
-		HTSFilter = TRUE
+	if(missing(htsfilter)) {
+		htsfilter = TRUE
 	}
-	if (HTSFilter != (TRUE | FALSE)) {
-		stop("Error, HTSFilter is a boolean value.")
-	}
+	#if (HTSFilter != (TRUE | FALSE)) {
+	#	stop("Error, HTSFilter is a boolean value.")
+	#}
 
-	if(missing(Cfilter)) {
-		Cfilter = FALSE
-	}
-	if (Cfilter != (TRUE | FALSE)) {
-		stop("Error, CFilter is a boolean value.")
-	}
+	#if(missing(Cfilter)) {
+	#	Cfilter = FALSE
+	#}
+	#if (Cfilter != (TRUE | FALSE)) {
+	#	stop("Error, CFilter is a boolean value.")
+	#}
 
 	else {
-		datagroup <- group(x, y[[2]], y[[3]])
-		if (HTSFilter == TRUE) {
-			htsfilter <- HTSFilter(countmatrixsubset, group, s.min=1, s.max=200, s.len=25)
-			countmatrixhtsfilter <- filter$filteredData
+		#datagroup <- group(x, y[[2]], y[[3]])
+		if (htsfilter == TRUE) {
+			htsfilter <- HTSFilter(x, y[[1]], s.min=1, s.max=200, s.len=25)
+			filter2 <- htsfilter$filteredData
 
-			if (Cfilter == TRUE) {
-				countmatrixcfilter <- Cfilter(x, 1, group)
+			if (cfilter > 0) {
+				countmatrixcfilter <- CFilter(filter2, 1, y[[1]])
 				return(countmatrixcfilter)
 			}
-			else {
-				return(countmatrixhtsfilter)
-			}
+			#else {
+			#	return(countmatrixhtsfilter)
+			#}
 		}
 	}
 }
