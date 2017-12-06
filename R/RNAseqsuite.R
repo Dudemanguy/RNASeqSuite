@@ -43,7 +43,8 @@ group <- function(x, group1, group2) {
 #CFilter
 #Custom filter function based around standard deviation of normalized vectors
 
-#TODO: Rewrite function to apply to matrix of arbitrary n
+#TODO: Rewrite function to apply to abitrary n conditions?
+#TODO: Finish porting to arbitrary dimension
 CFilter <- function(x, y, z) {
 	#if (class(x) != "data.frame") {
 	#	stop("Error, please enter a data frame for x")
@@ -53,13 +54,15 @@ CFilter <- function(x, y, z) {
 	}
 	else {
 		x_filter <- x[rowSums(x) != 0,]
+		x_avg_mat1 <- colMeans(x, dims=(1:nrow(subset(x, V2==grouping[[2]]))))
+		x_avg_mat2 <- colMeans(x, dims=(nrow(subset(x, V2==grouping[[2]])):nrow(x)))
 		x_filter[,1] <- x_filter[,1]/norm(data.matrix(x[,1]), type="f")
 		x_filter[,2] <- x_filter[,2]/norm(data.matrix(x[,2]), type="f")
 		x_diff <- x_filter[,1, drop=FALSE] - x_filter[,2, drop=FALSE]
 		mean_x <- mean(x_diff[,1])
 		std_x <- sd(x_diff[,1])
 		x_compressed <- x_diff[(mean_x - (y*std_x)) <= x_filter[,1, drop=FALSE] & 
-				x_filter[,1, drop=FALSE] <= (mean_x + (y*std_x)), 1, drop=FALSE]
+						x_filter[,1, drop=FALSE] <= (mean_x + (y*std_x)), 1, drop=FALSE]
 		print(paste(nrow(x) - nrow(x_filter), "zero elements discarded"))
 		print(paste(nrow(x_diff - nrow(x_compressed)), "outliers removed"))
 		return(x_compressed)
