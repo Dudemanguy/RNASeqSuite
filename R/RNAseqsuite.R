@@ -1,14 +1,49 @@
+#argumentinvalid
+#general function to check argument input types and ensure they are valid
+
+argumentinvalid <- function (dataframe, number, string1, string2) {
+	if (is.null(dataframe)) {
+		dataframe = FALSE
+	}
+	else if (class(dataframe) != "data.frame") {
+		return(paste("Error,", deparse(substitute(dataframe)), "is not a dataframe"))
+		return(TRUE)
+	}
+
+	if (is.null(number)) {
+		number = FALSE
+	}
+	else if (class(number) != "numeric") {
+		return(paste("Error,", deparse(substitute(number)), "is not numeric"))
+		return(TRUE)
+
+	}
+
+	if (is.null(string1) & is.null(string2)) {
+		string1 = FALSE & string2 = FALSE 
+	}
+	else if (class(string1) != "character") {
+		return(paste("Error,", deparse(substitute(string1)), "is not a character"))
+		return(TRUE)
+	}
+	else if (class(string2) != "character") {
+		return(paste("Error,", deparse(substitute(string2)), "is not a character"))
+		return(TRUE)
+	}
+}
+
+
 #countmatrixsubset
 #create subset of count matrix based upon entered group
 
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
 countmatrixsubset <- function (x, y, group1, group2) {
-	if (class(x) != "data.frame") {
-		stop("Error, count matrix must be a data frame")
-	}
-	if (class(y) != "data.frame") {
-		stop("Error, list of groups must be a data frame")
-	}
+	#if (inputinvalid(x, y)) {
+	#	stop("Error, invalid input")
+	#}
+	#if (class(y) != "data.frame") {
+	#	stop("Error, list of groups must be a data frame")
+	#}
 	if (!((group1 %in% y[,2]) & (group2 %in% y[,2]))) {
 		stop("Error, invalid group names")
 	}
