@@ -33,6 +33,19 @@ argumentinvalid <- function (dataframe, number, string1, string2) {
 }
 
 
+#stringmatch
+#general function to match strings across dataframes
+
+stringmatch <- function (dataframe, index, string1, string2) {
+	if (!((string1 %in% dataframe[,index]) & string2 %in% dataframe[,index])) {
+		return(FALSE)
+	}
+	else {
+		return(TRUE)
+	}
+}
+
+
 #countmatrixsubset
 #create subset of count matrix based upon entered group
 
