@@ -133,8 +133,6 @@ CFilter <- function(df, sd, groupfactor) {
 	}
 }
 
-#countmatrix
-
 
 #countmatrixFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
