@@ -20,7 +20,6 @@ argumentvalid <- function (dataframe1, dataframe2, number, string1, string2) {
 		return(FALSE)
 	}
 
-
 	if (is.null(number)) {
 		number = FALSE
 	}
@@ -65,17 +64,17 @@ stringmatch <- function (dataframe, index, string1, string2) {
 #create subset of count matrix based upon entered group
 
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
-countmatrixsubset <- function (x, y, group1, group2) {
-	if (!(argumentvalid(x, y, NULL, group1, group2))) {
+countmatrixsubset <- function (dataframe, groupframe, group1, group2) {
+	if (!(argumentvalid(dataframe, groupframe, NULL, group1, group2))) {
 		stop()
 	}
-	if (!(stringmatch(y, 2, group1, group2))) {
-		stop(paste("Error, no entries in", deparse(substitute(y)), "match the arguments."))
+	if (!(stringmatch(groupframe, 2, group1, group2))) {
+		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
-		groupselection <- subset(y, V2 == group1 | V2 == group2)
+		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
 		columnstokeep <- as.vector(groupselection[,1])
-		matrixselection <- subset(x, select = eval(parse(text=list(columnstokeep))))
+		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
 		return(matrixselection)
 	}
 }
@@ -84,15 +83,16 @@ countmatrixsubset <- function (x, y, group1, group2) {
 #obtains the group from a supplied tab-delimited list
 
 #TODO: only supports two groups. Add support for abitrary n?
-group <- function(x, group1, group2) {
-	if (class(x) != "data.frame") {
-		stop("Error, x must be a data frame")
+grouping <- function(groupframe, group1, group2) {
+	if (!(argumentvalid(groupframe, NULL, NULL, group1, group2))) {
+		stop()
 	}
-	if (!(stringmatch(x, 2, group1, group2))) {
-		stop(paste("Error, no entries in", deparse(substitute(y)), "match the arguments."))
+	if (!(stringmatch(groupframe, 2, group1, group2))) {
+		stop(paste("Error, no entries in", deparse(substitute(groupframe)), 
+					"match the arguments."))
 	}
 	else {
-		groupselection <- subset(x, V2 == group1 | V2 == group2)
+		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
 		getgroup <- groupselection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
 		return(list(getgroup, group1, group2))
@@ -105,27 +105,31 @@ group <- function(x, group1, group2) {
 
 #TODO: Rewrite function to apply to abitrary n conditions?
 #TODO: Finish porting to arbitrary dimension
-CFilter <- function(x, y, z) {
+CFilter <- function(df, sd, groupfactor) {
 	#if (class(x) != "data.frame") {
 	#	stop("Error, please enter a data frame for x")
 	#}
-	if ((class(y) != "numeric") & (y < 1)) {
-		stop("Error, please enter an integer greater than one for y")
+	if ((class(sd) != "numeric") & (sd < 1)) {
+		stop("Error, please enter an integer greater than one for sd")
 	}
 	else {
-		x_filter <- x[rowSums(x) != 0,]
-		x_avg_mat1 <- colMeans(x, dims=(1:nrow(subset(x, V2==grouping[[2]]))))
-		x_avg_mat2 <- colMeans(x, dims=(nrow(subset(x, V2==grouping[[2]])):nrow(x)))
-		x_filter[,1] <- x_filter[,1]/norm(data.matrix(x[,1]), type="f")
-		x_filter[,2] <- x_filter[,2]/norm(data.matrix(x[,2]), type="f")
-		x_diff <- x_filter[,1, drop=FALSE] - x_filter[,2, drop=FALSE]
-		mean_x <- mean(x_diff[,1])
-		std_x <- sd(x_diff[,1])
-		x_compressed <- x_diff[(mean_x - (y*std_x)) <= x_filter[,1, drop=FALSE] & 
-						x_filter[,1, drop=FALSE] <= (mean_x + (y*std_x)), 1, drop=FALSE]
-		print(paste(nrow(x) - nrow(x_filter), "zero elements discarded"))
-		print(paste(nrow(x_diff - nrow(x_compressed)), "outliers removed"))
-		return(x_compressed)
+		df_filter <- df[rowSums(df) != 0,]
+		group1width <- table(groupfactor[[1]])[[1]]
+		group2width <- table(groupfactor[[1]])[[2]]
+		df_group1 <- df_filter[(1:group1width)]
+		df_group2 <- df_filter[((group1width+1):(group1width+group2width))]
+		df_avg1 <- data.matrix(rowMeans(df_group1))
+		df_avg2 <- data.matrix(rowMeans(df_group2))
+		df_norm1 <- data.matrix(df_avg1/norm(df_avg2, type="f"))
+		df_norm2 <- data.matrix(df_avg2/norm(df_avg2, type="f"))
+		df_diff <- data.matrix(df_norm1 - df_norm2)
+		mean_df <- mean(df_diff)
+		sd_df <- sd(df_diff)
+		df_compressed <- df_diff[(mean_df - (sd*sd_df)) <= df_norm1 &
+						df_norm2 <= (mean_df + (sd*sd_df)), 1, drop=FALSE]
+		print(paste(nrow(df) - nrow(df_filter), "zero elements discarded"))
+		print(paste(nrow(df_diff) - nrow(df_compressed), "outliers removed"))
+		return(df_compressed)
 	}
 }
 
