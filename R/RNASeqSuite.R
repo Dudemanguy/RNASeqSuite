@@ -3,44 +3,50 @@
 
 #TODO: Generalize arguments instead of explicitly stating them
 #TODO: Make error messages cleaner
-argumentvalid <- function (dataframe1, dataframe2, number, string1, string2) {
-	if (is.null(dataframe1)) {
-		dataframe1 = FALSE
+argumentvalid <- function (x) {
+	type <- c("data.frame", "numeric", "character", "logical")
+	possiblearguments <- data.frame(type)
+	if (x %in% possiblearguments[,1]) {
+			truthentry <- setNames(list(TRUE), x)
 	}
-	else if (class(dataframe1) != "data.frame") {
-		return(message(paste("Error, argument is missing a dataframe")))
-		return(FALSE)
+	else if (!(x %in% possiblearguments[,1])) {
+			truthentry <- setNames(list(FALSE), x)
 	}
+	return(truthentry)
+}
 
-	if (is.null(dataframe2)) {
-		dataframe2 = FALSE
-	}
-	else if (class(dataframe2) != "data.frame") {
-		return(message(paste("Error, argument is missing a dataframe")))
-		return(FALSE)
-	}
+argumentvalidreturn <- function (...) {
+	argumentlist <-	lapply(c(...), argumentvalid)
+	argumentframe <- data.frame(argumentlist)
+	return(argumentframe)
+}
 
-	if (is.null(number)) {
-		number = FALSE
+errormessages <- function (x) {
+	if (!(is.null(x$data.frame))) {
+		if (x$data.frame == FALSE) {
+			return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
+		}
 	}
-	else if (class(number) != "numeric") {
-		return(message(paste("Error, argument is not numeric")))
-		return(FALSE)
-
+	if (!(is.null(x$numeric))) {
+		if (x$numeric == FALSE) {
+			return(message(paste("Error, function does not accept objects with class 'numeric'.")))
+		}
 	}
-
-	if (is.null(string1) & is.null(string2) | is.null(string2)) {
-		string1 = FALSE
+	if (!(is.null(x$character))) {
+		if (x$character == FALSE) {
+			return(message(paste("Error, function does not accept objects with class 'character'.")))
+		}	
 	}
-	else if (class(string1) != "character") {
-		return(message(paste("Error, argument is not a character")))
-		return(FALSE)
+	if (!(is.null(x$logical))) {
+		if (x$logical == FALSE) {
+			return(message(paste("Error, function does not accept objects with class 'logical'.")))
+		}
 	}
-	else if (class(string2) != "character") {
-		return(message(paste("Error, argument is not a character")))
-		return(FALSE)
+	if (!(is.null(x$function.))) {
+		if (x$function. == FALSE) {
+			return(message(paste("Error, function does not accept objects with class 'function'.")))
+		}
 	}
-
 	else {
 		return(TRUE)
 	}
@@ -65,26 +71,28 @@ stringmatch <- function (dataframe, index, string1, string2) {
 
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
 countmatrixsubset <- function (dataframe, groupframe, group1, group2) {
-	if (!(argumentvalid(dataframe, groupframe, NULL, group1, group2))) {
+	argumentcheck <- c(class(dataframe),class(groupframe),class(group1),class(group2))
+	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
 		stop()
 	}
-	if (!(stringmatch(groupframe, 2, group1, group2))) {
-		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
-	}
-	else {
-		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
-		columnstokeep <- as.vector(groupselection[,1])
-		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
-		return(matrixselection)
-	}
+	#if (!(stringmatch(groupframe, 2, group1, group2))) {
+	#	stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
+	#}
+#	else {
+#		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
+#		columnstokeep <- as.vector(groupselection[,1])
+#		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
+#		return(matrixselection)
+#	}
 }
+
 
 #group
 #obtains the group from a supplied tab-delimited list
 
 #TODO: only supports two groups. Add support for abitrary n?
 grouping <- function(groupframe, group1, group2) {
-	if (!(argumentvalid(groupframe, NULL, NULL, group1, group2))) {
+	if (!(argumentvalid(groupframe, NULL, NULL, group1, group2, NULL, NULL))) {
 		stop()
 	}
 	if (!(stringmatch(groupframe, 2, group1, group2))) {
