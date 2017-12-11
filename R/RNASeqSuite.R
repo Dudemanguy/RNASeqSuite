@@ -177,3 +177,55 @@ countFilter <- function(data, frame, group, htsfilter, cfilter) {
 		}
 	}
 }
+
+#edgeR
+#uses edgeR to compute an exact test and find differentially expressed genes
+
+edgeR <- function (data, frame, group, htsfilter, cfilter) {
+
+	if(missing(htsfilter)) {
+		htsfilter = TRUE
+	}
+	if(missing(cfilter)) {
+		cfilter = 0
+	}
+	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
+	if (!(valid(argumentValidreturn(check)))) {
+		stop()
+	}
+
+	else {
+		count <- countSelection(data, frame, group)	
+		count <- countFilter(data, frame, group, htsfilter, cfilter)
+		y <- DGEList(counts=count, group=group[[1]])
+		y <- calcNormFactors(y)
+		y <- estimateDisp(y)
+		et <- exactTest(y) 
+		et_results <- topTags(et, n=Inf, sort.by="none")
+		return(et_results)
+	}
+}
+
+DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
+
+	if(missing(htsfilter)) {
+		htsfilter = TRUE
+	}
+	if(missing(cfilter)) {
+		cfilter = 0
+	}
+	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
+	if (!(valid(argumentValidreturn(check)))) {
+		stop()
+	}
+	
+	else {
+		count <- countSelection(data, frame, group)
+		count <- countFilter(data, frame, group, htsfilter, cfilter)
+		groupframe <- data.frame(group[[1]])
+		dds <- DESeqDataSetFromMatrix(countData=count, colData=groupframe, design=~group)
+		dds <- DESeq(dds)
+		res <- results(dds)
+		return(res)
+	}
+}
