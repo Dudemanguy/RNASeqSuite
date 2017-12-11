@@ -70,20 +70,20 @@ stringmatch <- function (dataframe, index, string1, string2) {
 #create subset of count matrix based upon entered group
 
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
-countmatrixsubset <- function (dataframe, groupframe, group1, group2) {
-	argumentcheck <- c(class(dataframe),class(groupframe),class(group1),class(group2))
+countmatrixsubset <- function (dataframe, groupframe, grouplist) {
+	argumentcheck <- c(class(dataframe),class(groupframe),class(grouplist[[2]]),class(grouplist[[3]]))
 	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
 		stop()
 	}
-	#if (!(stringmatch(groupframe, 2, group1, group2))) {
-	#	stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
-	#}
-#	else {
-#		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
-#		columnstokeep <- as.vector(groupselection[,1])
-#		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
-#		return(matrixselection)
-#	}
+	if (!(stringmatch(groupframe, 2, grouplist[[2]], grouplist[[3]]))) {
+		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
+	}
+	else {
+		groupselection <- subset(groupframe, V2 == grouplist[[2]] | V2 == grouplist[[3]])
+		columnstokeep <- as.vector(groupselection[,1])
+		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
+		return(matrixselection)
+	}
 }
 
 
@@ -92,7 +92,8 @@ countmatrixsubset <- function (dataframe, groupframe, group1, group2) {
 
 #TODO: only supports two groups. Add support for abitrary n?
 grouping <- function(groupframe, group1, group2) {
-	if (!(argumentvalid(groupframe, NULL, NULL, group1, group2, NULL, NULL))) {
+	argumentcheck <- c(class(groupframe), class(group1), class(group2))
+	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
 		stop()
 	}
 	if (!(stringmatch(groupframe, 2, group1, group2))) {
@@ -114,11 +115,12 @@ grouping <- function(groupframe, group1, group2) {
 #TODO: Rewrite function to apply to abitrary n conditions?
 #TODO: Finish porting to arbitrary dimension
 CFilter <- function(df, sd, groupfactor) {
-	#if (class(x) != "data.frame") {
-	#	stop("Error, please enter a data frame for x")
-	#}
-	if ((class(sd) != "numeric") & (sd < 1)) {
-		stop("Error, please enter an integer greater than one for sd")
+	argumentcheck <- c(class(df), class(sd), class(groupfactor))
+	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+		stop()
+	}
+	if (sd < 0) {
+		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
 	}
 	else {
 		df_filter <- df[rowSums(df) != 0,]
@@ -145,21 +147,18 @@ CFilter <- function(df, sd, groupfactor) {
 #countmatrixFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
-countmatrixFilter <- function(x, y, htsfilter, cfilter=z) {
+countmatrixFilter <- function(x, y, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
 		htsfilter = TRUE
 	}
-	#if (HTSFilter != (TRUE | FALSE)) {
-	#	stop("Error, HTSFilter is a boolean value.")
-	#}
-
-	#if(missing(Cfilter)) {
-	#	Cfilter = FALSE
-	#}
-	#if (Cfilter != (TRUE | FALSE)) {
-	#	stop("Error, CFilter is a boolean value.")
-	#}
+	if(missing(cfilter)) {
+		cfilter = 0
+	}
+	argumentcheck <- c(class(x),class(y),class(htsfilter),class(cfilter))
+	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+		stop()
+	}
 
 	else {
 		#datagroup <- group(x, y[[2]], y[[3]])
@@ -168,12 +167,12 @@ countmatrixFilter <- function(x, y, htsfilter, cfilter=z) {
 			filter2 <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				countmatrixcfilter <- CFilter(filter2, 1, y[[1]])
+				countmatrixcfilter <- CFilter(filter2, cfilter, y[[1]])
 				return(countmatrixcfilter)
 			}
-			#else {
-			#	return(countmatrixhtsfilter)
-			#}
+			else {
+				return(filter2)
+			}
 		}
 	}
 }
