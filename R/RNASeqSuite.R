@@ -126,8 +126,8 @@ CFilter <- function(df, sd, groupfactor) {
 		df_filter <- df[rowSums(df) != 0,]
 		group1width <- table(groupfactor[[1]])[[1]]
 		group2width <- table(groupfactor[[1]])[[2]]
-		df_group1 <- df_filter[(1:group1width)]
-		df_group2 <- df_filter[((group1width+1):(group1width+group2width))]
+		df_group1 <- data.matrix(df_filter[,(1:group1width)])
+		df_group2 <- data.matrix(df_filter[,((group1width+1):(group1width+group2width))])
 		df_avg1 <- data.matrix(rowMeans(df_group1))
 		df_avg2 <- data.matrix(rowMeans(df_group2))
 		df_norm1 <- data.matrix(df_avg1/norm(df_avg2, type="f"))
@@ -147,7 +147,7 @@ CFilter <- function(df, sd, groupfactor) {
 #countmatrixFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
-countmatrixFilter <- function(x, y, htsfilter, cfilter) {
+countmatrixFilter <- function(dataframe, groupframe, grouplist, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
 		htsfilter = TRUE
@@ -155,20 +155,21 @@ countmatrixFilter <- function(x, y, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	argumentcheck <- c(class(x),class(y),class(htsfilter),class(cfilter))
+	argumentcheck <- c(class(dataframe),class(groupframe),class(grouplist),class(htsfilter),class(cfilter))
 	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
 		stop()
 	}
 
 	else {
-		#datagroup <- group(x, y[[2]], y[[3]])
+		count <- countmatrixsubset(dataframe, groupframe, grouplist)
 		if (htsfilter == TRUE) {
-			htsfilter <- HTSFilter(x, y[[1]], s.min=1, s.max=200, s.len=25)
+			htsfilter <- HTSFilter(count, grouplist[[1]], s.min=1, s.max=200, s.len=25)
 			filter2 <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				countmatrixcfilter <- CFilter(filter2, cfilter, y[[1]])
-				return(countmatrixcfilter)
+				countmatrixcfilter <- CFilter(filter2, cfilter, grouplist[[1]])
+				countmatrixallfilter <- count[rownames(count) %in% rownames(countmatrixcfilter),]
+				return(countmatrixallfilter)
 			}
 			else {
 				return(filter2)
