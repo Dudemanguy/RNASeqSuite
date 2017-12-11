@@ -1,27 +1,27 @@
-#argumentvalid
+#argumentValid
 #general function to check argument input types and ensure they are valid
 
 #TODO: Generalize arguments instead of explicitly stating them
-#TODO: Make error messages cleaner
-argumentvalid <- function (x) {
+#TODO: Make valid messages cleaner
+argumentValid <- function (x) {
 	type <- c("data.frame", "numeric", "character", "logical")
-	possiblearguments <- data.frame(type)
-	if (x %in% possiblearguments[,1]) {
-			truthentry <- setNames(list(TRUE), x)
+	possibleArguments <- data.frame(type)
+	if (x %in% possibleArguments[,1]) {
+			truthEntry <- setNames(list(TRUE), x)
 	}
-	else if (!(x %in% possiblearguments[,1])) {
-			truthentry <- setNames(list(FALSE), x)
+	else if (!(x %in% possibleArguments[,1])) {
+			truthEntry <- setNames(list(FALSE), x)
 	}
-	return(truthentry)
+	return(truthEntry)
 }
 
-argumentvalidreturn <- function (...) {
-	argumentlist <-	lapply(c(...), argumentvalid)
-	argumentframe <- data.frame(argumentlist)
-	return(argumentframe)
+argumentValidreturn <- function (...) {
+	argumentList <-	lapply(c(...), argumentValid)
+	argumentFrame <- data.frame(argumentList)
+	return(argumentFrame)
 }
 
-errormessages <- function (x) {
+valid <- function (x) {
 	if (!(is.null(x$data.frame))) {
 		if (x$data.frame == FALSE) {
 			return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
@@ -53,11 +53,11 @@ errormessages <- function (x) {
 }
 
 
-#stringmatch
+#stringMatch
 #general function to match strings across dataframes
 
-stringmatch <- function (dataframe, index, string1, string2) {
-	if (!((string1 %in% dataframe[,index]) & string2 %in% dataframe[,index])) {
+stringMatch <- function (data, index, string1, string2) {
+	if (!((string1 %in% data[,index]) & string2 %in% data[,index])) {
 		return(FALSE)
 	}
 	else {
@@ -66,23 +66,23 @@ stringmatch <- function (dataframe, index, string1, string2) {
 }
 
 
-#countmatrixsubset
+#countSelection
 #create subset of count matrix based upon entered group
 
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
-countmatrixsubset <- function (dataframe, groupframe, grouplist) {
-	argumentcheck <- c(class(dataframe),class(groupframe),class(grouplist[[2]]),class(grouplist[[3]]))
-	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+countSelection <- function (data, frame, group) {
+	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
+	if (!(valid(argumentValidreturn(check)))) {
 		stop()
 	}
-	if (!(stringmatch(groupframe, 2, grouplist[[2]], grouplist[[3]]))) {
+	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
-		groupselection <- subset(groupframe, V2 == grouplist[[2]] | V2 == grouplist[[3]])
-		columnstokeep <- as.vector(groupselection[,1])
-		matrixselection <- subset(dataframe, select = eval(parse(text=list(columnstokeep))))
-		return(matrixselection)
+		selection <- subset(frame, V2 == group[[2]] | V2 == group[[3]])
+		columns <- as.vector(selection[,1])
+		matframe <- subset(data, select = eval(parse(text=list(columns))))
+		return(matframe)
 	}
 }
 
@@ -91,32 +91,32 @@ countmatrixsubset <- function (dataframe, groupframe, grouplist) {
 #obtains the group from a supplied tab-delimited list
 
 #TODO: only supports two groups. Add support for abitrary n?
-grouping <- function(groupframe, group1, group2) {
-	argumentcheck <- c(class(groupframe), class(group1), class(group2))
-	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+grouplist <- function(frame, group1, group2) {
+	check <- c(class(frame), class(group1), class(group2))
+	if (!(valid(argumentValidreturn(check)))) {
 		stop()
 	}
-	if (!(stringmatch(groupframe, 2, group1, group2))) {
-		stop(paste("Error, no entries in", deparse(substitute(groupframe)), 
+	if (!(stringMatch(frame, 2, group1, group2))) {
+		stop(paste("Error, no entries in", deparse(substitute(frame)), 
 					"match the arguments."))
 	}
 	else {
-		groupselection <- subset(groupframe, V2 == group1 | V2 == group2)
-		getgroup <- groupselection[,2]
+		selection <- subset(frame, V2 == group1 | V2 == group2)
+		getgroup <- selection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
 		return(list(getgroup, group1, group2))
 	}
 }
 
 
-#CFilter
+#cFilter
 #Custom filter function based around standard deviation of normalized vectors
 
 #TODO: Rewrite function to apply to abitrary n conditions?
 #TODO: Finish porting to arbitrary dimension
-CFilter <- function(df, sd, groupfactor) {
-	argumentcheck <- c(class(df), class(sd), class(groupfactor))
-	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+cFilter <- function(df, sd, group) {
+	check <- c(class(df), class(sd), class(group))
+	if (!(valid(argumentValidreturn(check)))) {
 		stop()
 	}
 	if (sd < 0) {
@@ -124,10 +124,10 @@ CFilter <- function(df, sd, groupfactor) {
 	}
 	else {
 		df_filter <- df[rowSums(df) != 0,]
-		group1width <- table(groupfactor[[1]])[[1]]
-		group2width <- table(groupfactor[[1]])[[2]]
-		df_group1 <- data.matrix(df_filter[,(1:group1width)])
-		df_group2 <- data.matrix(df_filter[,((group1width+1):(group1width+group2width))])
+		width1 <- table(group[[1]])[[1]]
+		width2 <- table(group[[1]])[[2]]
+		df_group1 <- data.matrix(df_filter[,(1:width1)])
+		df_group2 <- data.matrix(df_filter[,((width1+1):(width1+width2))])
 		df_avg1 <- data.matrix(rowMeans(df_group1))
 		df_avg2 <- data.matrix(rowMeans(df_group2))
 		df_norm1 <- data.matrix(df_avg1/norm(df_avg2, type="f"))
@@ -144,10 +144,10 @@ CFilter <- function(df, sd, groupfactor) {
 }
 
 
-#countmatrixFilter
+#countFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
-countmatrixFilter <- function(dataframe, groupframe, grouplist, htsfilter, cfilter) {
+countFilter <- function(data, frame, group, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
 		htsfilter = TRUE
@@ -155,24 +155,24 @@ countmatrixFilter <- function(dataframe, groupframe, grouplist, htsfilter, cfilt
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	argumentcheck <- c(class(dataframe),class(groupframe),class(grouplist),class(htsfilter),class(cfilter))
-	if (!(errormessages(argumentvalidreturn(argumentcheck)))) {
+	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
+	if (!(valid(argumentValidreturn(check)))) {
 		stop()
 	}
 
 	else {
-		count <- countmatrixsubset(dataframe, groupframe, grouplist)
+		count <- countSelection(data, frame, group)
 		if (htsfilter == TRUE) {
-			htsfilter <- HTSFilter(count, grouplist[[1]], s.min=1, s.max=200, s.len=25)
-			filter2 <- htsfilter$filteredData
+			htsfilter <- HTSFilter(count, group[[1]], s.min=1, s.max=200, s.len=25)
+			htsfiltered <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				countmatrixcfilter <- CFilter(filter2, cfilter, grouplist[[1]])
-				countmatrixallfilter <- count[rownames(count) %in% rownames(countmatrixcfilter),]
-				return(countmatrixallfilter)
+				countcfilter <- CFilter(htsfiltered, cfilter, group[[1]])
+				allfilter <- count[rownames(count) %in% rownames(countcfilter),]
+				return(allfilter)
 			}
 			else {
-				return(filter2)
+				return(htsfiltered)
 			}
 		}
 	}
