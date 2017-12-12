@@ -1,8 +1,6 @@
-#argumentValid
-#general function to check argument input types and ensure they are valid
-
-#TODO: Generalize arguments instead of explicitly stating them
+#general functions to check argument input types and ensure they are valid
 #TODO: Make valid messages cleaner
+
 argumentValid <- function (x) {
 	type <- c("data.frame", "numeric", "character", "logical")
 	possibleArguments <- data.frame(type)
@@ -53,7 +51,6 @@ valid <- function (x) {
 }
 
 
-#stringMatch
 #general function to match strings across dataframes
 
 stringMatch <- function (data, index, string1, string2) {
@@ -66,10 +63,9 @@ stringMatch <- function (data, index, string1, string2) {
 }
 
 
-#countSelection
 #create subset of count matrix based upon entered group
-
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
+
 countSelection <- function (data, frame, group) {
 	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
 	if (!(valid(argumentValidreturn(check)))) {
@@ -87,10 +83,9 @@ countSelection <- function (data, frame, group) {
 }
 
 
-#group
 #obtains the group from a supplied tab-delimited list
-
 #TODO: only supports two groups. Add support for abitrary n?
+
 grouplist <- function(frame, group1, group2) {
 	check <- c(class(frame), class(group1), class(group2))
 	if (!(valid(argumentValidreturn(check)))) {
@@ -109,11 +104,9 @@ grouplist <- function(frame, group1, group2) {
 }
 
 
-#cFilter
 #Custom filter function based around standard deviation of normalized vectors
-
 #TODO: Rewrite function to apply to abitrary n conditions?
-#TODO: Finish porting to arbitrary dimension
+
 cFilter <- function(df, sd, group) {
 	check <- c(class(df), class(sd), class(group))
 	if (!(valid(argumentValidreturn(check)))) {
@@ -144,7 +137,6 @@ cFilter <- function(df, sd, group) {
 }
 
 
-#countFilter
 #reads the supplied count matrix of reads and group data; filters data according to group
 
 countFilter <- function(data, frame, group, htsfilter, cfilter) {
@@ -167,7 +159,7 @@ countFilter <- function(data, frame, group, htsfilter, cfilter) {
 			htsfiltered <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				countcfilter <- CFilter(htsfiltered, cfilter, group[[1]])
+				countcfilter <- cFilter(htsfiltered, cfilter, group[[1]])
 				allfilter <- count[rownames(count) %in% rownames(countcfilter),]
 				return(allfilter)
 			}
@@ -178,7 +170,6 @@ countFilter <- function(data, frame, group, htsfilter, cfilter) {
 	}
 }
 
-#edgeR
 #uses edgeR to compute an exact test and find differentially expressed genes
 
 edgeR <- function (data, frame, group, htsfilter, cfilter) {
@@ -206,6 +197,7 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 	}
 }
 
+#use DESeq2 to compute a Wald test and find differentially expressed genes
 DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
