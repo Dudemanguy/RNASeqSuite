@@ -192,8 +192,18 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 		y <- calcNormFactors(y)
 		y <- estimateDisp(y)
 		et <- exactTest(y) 
-		et_results <- topTags(et, n=Inf, sort.by="none")
-		return(et_results)
+		et_raw <- topTags(et, n=Inf, sort.by="none")
+		et_frame <-  et_raw[[1]]
+		width <- table(group[[1]])[[1]]
+		a <- count[,1:width]
+		b <- count[,(width+1):ncol(count)]
+		c <- data.frame(rowMeans(a))
+		d <- data.frame(rowMeans(b))
+		et_frame["Avg Ct A"] <- c
+		et_frame["Avg Ct B"] <- d
+		et_frame <- et_frame[,c(4,5,1,2,3)]
+		et_frame <- et_frame[order(et_frame$FDR, decreasing=FALSE),]
+		return(et_frame)
 	}
 }
 
