@@ -63,10 +63,10 @@ stringMatch <- function (data, index, string1, string2) {
 }
 
 
-#create subset of count matrix based upon entered group
+#create subset of ct matrix based upon entered group
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
 
-countSelection <- function (data, frame, group) {
+ctSelection <- function (data, frame, group) {
 	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
 	if (!(valid(argumentValidreturn(check)))) {
 		stop()
@@ -137,9 +137,9 @@ cFilter <- function(df, sd, group) {
 }
 
 
-#reads the supplied count matrix of reads and group data; filters data according to group
+#reads the supplied ct matrix of reads and group data; filters data according to group
 
-countFilter <- function(data, frame, group, htsfilter, cfilter) {
+ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
 		htsfilter = TRUE
@@ -153,14 +153,14 @@ countFilter <- function(data, frame, group, htsfilter, cfilter) {
 	}
 
 	else {
-		count <- countSelection(data, frame, group)
+		ct <- ctSelection(data, frame, group)
 		if (htsfilter == TRUE) {
-			htsfilter <- HTSFilter(count, group[[1]], s.min=1, s.max=200, s.len=25)
+			htsfilter <- HTSFilter(ct, group[[1]], s.min=1, s.max=200, s.len=25)
 			htsfiltered <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				countcfilter <- cFilter(htsfiltered, cfilter, group[[1]])
-				allfilter <- count[rownames(count) %in% rownames(countcfilter),]
+				ctcfilter <- cFilter(htsfiltered, cfilter, group[[1]])
+				allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
 				return(allfilter)
 			}
 			else {
@@ -186,22 +186,22 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 	}
 
 	else {
-		count <- countSelection(data, frame, group)	
-		count <- countFilter(data, frame, group, htsfilter, cfilter)
-		y <- DGEList(counts=count, group=group[[1]])
+		ct <- ctSelection(data, frame, group)	
+		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+		y <- DGEList(counts=ct, group=group[[1]])
 		y <- calcNormFactors(y)
 		y <- estimateDisp(y)
 		et <- exactTest(y) 
 		et_raw <- topTags(et, n=Inf, sort.by="none")
 		et_frame <-  et_raw[[1]]
 		width <- table(group[[1]])[[1]]
-		a <- count[,1:width]
-		b <- count[,(width+1):ncol(count)]
+		a <- ct[,1:width]
+		b <- ct[,(width+1):ncol(ct)]
 		c <- data.frame(rowMeans(a))
 		d <- data.frame(rowMeans(b))
 		et_frame["Avg Ct A"] <- c
 		et_frame["Avg Ct B"] <- d
-		et_frame <- et_frame[,c(4,5,1,2,3)]
+		et_frame <- et_frame[,c(5,6,1,2,3,4)]
 		et_frame <- et_frame[order(et_frame$FDR, decreasing=FALSE),]
 		return(et_frame)
 	}
@@ -222,12 +222,22 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 	}
 	
 	else {
-		count <- countSelection(data, frame, group)
-		count <- countFilter(data, frame, group, htsfilter, cfilter)
+		ct <- ctSelection(data, frame, group)
+		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 		groupframe <- data.frame(group[[1]])
-		dds <- DESeqDataSetFromMatrix(countData=count, colData=groupframe, design=~group)
+		colnames(groupframe) <- c("groupframe")
+		dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
 		dds <- DESeq(dds)
-		res <- results(dds)
+		res <- data.frame(results(dds))
+		width <- table(group[[1]])[[1]]
+		a <- ct[,1:width]
+		b <- ct[,(width+1):ncol(ct)]
+		c <- data.frame(rowMeans(a))
+		d <- data.frame(rowMeans(b))
+		res["Avg Ct A"] <- c
+		res["Avg Ct B"] <- d
+		resOrder <- res[,c(7,8,1,2,3,4,5,6)]
+		resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
 		return(res)
 	}
 }
