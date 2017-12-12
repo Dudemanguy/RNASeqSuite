@@ -5,7 +5,7 @@ Title: Convienent R wrapper of popular RNAseq pipelines desgined to
 Author: Alec Perez <aiperez@uh.edu>
 Maintainer: Alec Perez <aiperez@uh.edu>
 Depends: methods
-Imports: utils, XML, RCurl, AnnotationDbi, progress, stringr, biomaRt, edgeR, DESeq2, HTSFilter
+Imports: edgeR, DESeq2, HTSFilter
 Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: Annotation

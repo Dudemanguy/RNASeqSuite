@@ -4,6 +4,9 @@
 
 RNASeqSuite is intended to be a handy cli wrapper in R around common RNASeq processing libraries to ease the workflow, simplify user input, and allow for quick, on-the-fly switching of algorithms and statistical tests. The main focus is on differential gene expression. Currently depends on edgeR, DESeq2, and HTSFilter for backend calcuations. This will likely be phased out in the future.
 
+## Installation
+Using the R package, ``devtools`` run ``devtools::install_github("Dudemanguy911/RNASeqSuite")``.
+
 ## Preliminary Inputs
 RNASeqSuite needs only a few inputs in order to make use of its internal functions. At this time, RNASeqSuite does not create a data frame of read counts, so that must be supplied in R (`subread` is recommended for obtaining the data frame). In addition, RNASeqSuite needs a data frame with one column containing the column names of the matrix of read counts, and the other column containing the corresponding group/condition. Currently, RNASeqSuite only supports pairwise differential expression.
 
