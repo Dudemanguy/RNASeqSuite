@@ -238,6 +238,6 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 		res["Avg Ct B"] <- d
 		resOrder <- res[,c(7,8,1,2,3,4,5,6)]
 		resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
-		return(res)
+		return(resOrder)
 	}
 }
