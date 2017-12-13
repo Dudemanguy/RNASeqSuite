@@ -13,13 +13,10 @@ argumentValid <- function (x) {
 	return(truthEntry)
 }
 
-argumentValidreturn <- function (...) {
+validReturn <- function (...) {
 	argumentList <-	lapply(c(...), argumentValid)
-	argumentFrame <- data.frame(argumentList)
-	return(argumentFrame)
-}
+	x <- data.frame(argumentList)
 
-valid <- function (x) {
 	if (!(is.null(x$data.frame))) {
 		if (x$data.frame == FALSE) {
 			return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
@@ -68,7 +65,7 @@ stringMatch <- function (data, index, string1, string2) {
 
 ctSelection <- function (data, frame, group) {
 	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
@@ -88,7 +85,7 @@ ctSelection <- function (data, frame, group) {
 
 grouplist <- function(frame, group1, group2) {
 	check <- c(class(frame), class(group1), class(group2))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 	if (!(stringMatch(frame, 2, group1, group2))) {
@@ -109,7 +106,7 @@ grouplist <- function(frame, group1, group2) {
 
 cFilter <- function(df, sd, group) {
 	check <- c(class(df), class(sd), class(group))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 	if (sd < 0) {
@@ -148,7 +145,7 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 
@@ -181,7 +178,7 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 
@@ -217,7 +214,7 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(valid(argumentValidreturn(check)))) {
+	if (!(validReturn(check))) {
 		stop()
 	}
 	
