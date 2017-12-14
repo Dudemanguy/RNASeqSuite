@@ -1,7 +1,9 @@
 #general functions to check argument input types and ensure they are valid
 #TODO: Make valid messages cleaner
 
-argumentValid <- function (x) {
+argumentValid <- function (...) {
+
+	validReturn <- function (x) {
 	type <- c("data.frame", "numeric", "character", "logical")
 	possibleArguments <- data.frame(type)
 	if (x %in% possibleArguments[,1]) {
@@ -11,37 +13,38 @@ argumentValid <- function (x) {
 			truthEntry <- setNames(list(FALSE), x)
 	}
 	return(truthEntry)
-}
+	}
 
-validReturn <- function (...) {
-	argumentList <-	lapply(c(...), argumentValid)
+	argumentList <-	lapply(c(...), validReturn)
 	x <- data.frame(argumentList)
 
-	if (!(is.null(x$data.frame))) {
-		if (x$data.frame == FALSE) {
-			return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
+
+		if (!(is.null(x$data.frame))) {
+			if (x$data.frame == FALSE) {
+				return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
+			}
 		}
-	}
-	if (!(is.null(x$numeric))) {
-		if (x$numeric == FALSE) {
-			return(message(paste("Error, function does not accept objects with class 'numeric'.")))
+		if (!(is.null(x$numeric))) {
+			if (x$numeric == FALSE) {
+				return(message(paste("Error, function does not accept objects with class 'numeric'.")))
+			}
 		}
-	}
-	if (!(is.null(x$character))) {
-		if (x$character == FALSE) {
-			return(message(paste("Error, function does not accept objects with class 'character'.")))
-		}	
-	}
-	if (!(is.null(x$logical))) {
-		if (x$logical == FALSE) {
-			return(message(paste("Error, function does not accept objects with class 'logical'.")))
+		if (!(is.null(x$character))) {
+			if (x$character == FALSE) {
+				return(message(paste("Error, function does not accept objects with class 'character'.")))
+			}	
 		}
-	}
-	if (!(is.null(x$function.))) {
-		if (x$function. == FALSE) {
-			return(message(paste("Error, function does not accept objects with class 'function'.")))
+		if (!(is.null(x$logical))) {
+			if (x$logical == FALSE) {
+				return(message(paste("Error, function does not accept objects with class 'logical'.")))
+			}
 		}
-	}
+		if (!(is.null(x$function.))) {
+			if (x$function. == FALSE) {
+				return(message(paste("Error, function does not accept objects with class 'function'.")))
+			}
+		}
+
 	else {
 		return(TRUE)
 	}
@@ -65,7 +68,7 @@ stringMatch <- function (data, index, string1, string2) {
 
 ctSelection <- function (data, frame, group) {
 	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
@@ -85,7 +88,7 @@ ctSelection <- function (data, frame, group) {
 
 grouplist <- function(frame, group1, group2) {
 	check <- c(class(frame), class(group1), class(group2))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 	if (!(stringMatch(frame, 2, group1, group2))) {
@@ -106,7 +109,7 @@ grouplist <- function(frame, group1, group2) {
 
 cFilter <- function(df, sd, group) {
 	check <- c(class(df), class(sd), class(group))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 	if (sd < 0) {
@@ -145,7 +148,7 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 
@@ -178,7 +181,7 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 
@@ -214,7 +217,7 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 		cfilter = 0
 	}
 	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(validReturn(check))) {
+	if (!(argumentValid(check))) {
 		stop()
 	}
 	
