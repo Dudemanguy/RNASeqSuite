@@ -15,7 +15,9 @@ argumentValid <- function (x, y) {
 		if (is(x[[i]], "logical") & (!(y[[i]] == "logical"))) {
 			stop(paste(deparse(substitute(x[[i]])), "is not a boolean value."))
 		}
-
+		if (is(x[[i]], "list") & (!(y[[i]] == "list"))) {
+			stop(paste(deparse(substitute(x[[i]])), "is not a list."))
+		}
 	}
 }
 
@@ -35,10 +37,9 @@ stringMatch <- function (data, index, string1, string2) {
 #TODO: currently this function will only consider pairs. Add support for abitrary n?
 
 ctSelection <- function (data, frame, group) {
-	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
-#	if (!(argumentValid(check))) {
-#		stop()
-#	}
+	check <- list(data, frame, group)
+	ref <- list("data.frame","data.frame","list")
+	argumentValid(check, ref)
 	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
@@ -55,11 +56,9 @@ ctSelection <- function (data, frame, group) {
 #TODO: only supports two groups. Add support for abitrary n?
 
 grouplist <- function(frame, group1, group2) {
-	check <- list(class(frame), class(group1), class(group2))
-	object <- list("dataframe","string","string")
-	#if (!(argumentValid(check, object))) {
-	#	stop()
-	#}
+	check <- list(frame, group1, group2)
+	ref <- list("data.frame","character","character")
+	argumentValid(check, ref)
 	if (!(stringMatch(frame, 2, group1, group2))) {
 		stop(paste("Error, no entries in", deparse(substitute(frame)), 
 					"match the arguments."))
@@ -77,10 +76,9 @@ grouplist <- function(frame, group1, group2) {
 #TODO: Rewrite function to apply to abitrary n conditions?
 
 cFilter <- function(df, sd, group) {
-	check <- c(class(df), class(sd), class(group))
-	if (!(argumentValid(check))) {
-		stop()
-	}
+	check <- list(df, sd, group)
+	ref <- list("data.frame", "numeric", "list")
+	argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
 	}
@@ -116,11 +114,9 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(argumentValid(check))) {
-		stop()
-	}
-
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)
 	else {
 		ct <- ctSelection(data, frame, group)
 		if (htsfilter == TRUE) {
@@ -149,11 +145,9 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(argumentValid(check))) {
-		stop()
-	}
-
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)
 	else {
 		ct <- ctSelection(data, frame, group)	
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
@@ -185,11 +179,9 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- c(class(data),class(frame),class(group),class(htsfilter),class(cfilter))
-	if (!(argumentValid(check))) {
-		stop()
-	}
-	
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)	
 	else {
 		ct <- ctSelection(data, frame, group)
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
