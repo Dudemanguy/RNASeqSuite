@@ -114,10 +114,10 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)
 	else {
+		check <- list(data, frame, group, htsfilter, cfilter)
+		ref <- list("data.frame","data.frame","list","logical","numeric")
+		argumentValid(check, ref)
 		ct <- ctSelection(data, frame, group)
 		if (htsfilter == TRUE) {
 			htsfilter <- HTSFilter(ct, group[[1]], s.min=1, s.max=200, s.len=25)
@@ -145,10 +145,10 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)
 	else {
+		check <- list(data, frame, group, htsfilter, cfilter)
+		ref <- list("data.frame","data.frame","list","logical","numeric")
+		argumentValid(check, ref)
 		ct <- ctSelection(data, frame, group)	
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 		y <- DGEList(counts=ct, group=group[[1]])
@@ -179,10 +179,10 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 	if(missing(cfilter)) {
 		cfilter = 0
 	}
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)	
 	else {
+		check <- list(data, frame, group, htsfilter, cfilter)
+		ref <- list("data.frame","data.frame","list","logical","numeric")
+		argumentValid(check, ref)	
 		ct <- ctSelection(data, frame, group)
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 		groupframe <- data.frame(group[[1]])
