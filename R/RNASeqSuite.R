@@ -1,55 +1,23 @@
 #general functions to check argument input types and ensure they are valid
 #TODO: Make valid messages cleaner
 
-argumentValid <- function (...) {
-
-	validReturn <- function (x) {
-	type <- c("data.frame", "numeric", "character", "logical")
-	possibleArguments <- data.frame(type)
-	if (x %in% possibleArguments[,1]) {
-			truthEntry <- setNames(list(TRUE), x)
-	}
-	else if (!(x %in% possibleArguments[,1])) {
-			truthEntry <- setNames(list(FALSE), x)
-	}
-	return(truthEntry)
-	}
-
-	argumentList <-	lapply(c(...), validReturn)
-	x <- data.frame(argumentList)
-
-
-		if (!(is.null(x$data.frame))) {
-			if (x$data.frame == FALSE) {
-				return(message(paste("Error, function does not accept objects with class 'data.frame'.")))
-			}
+argumentValid <- function (x, y) {
+	for (i in seq_along(x)) {
+		if (is(x[[i]], "data.frame") & (!(y[[i]] == "data.frame"))) {
+			stop(paste(deparse(substitute(x[[i]])), "is not a data frame."))
 		}
-		if (!(is.null(x$numeric))) {
-			if (x$numeric == FALSE) {
-				return(message(paste("Error, function does not accept objects with class 'numeric'.")))
-			}
+		if (is(x[[i]], "numeric") & (!(y[[i]] == "numeric"))) {
+			stop(paste(deparse(substitute(x[[i]])), "is not numeric."))
 		}
-		if (!(is.null(x$character))) {
-			if (x$character == FALSE) {
-				return(message(paste("Error, function does not accept objects with class 'character'.")))
-			}	
+		if (is(x[[i]], "character") & (!(y[[i]] == "character"))) {
+			stop(paste(deparse(substitute(x[[i]])), "is not a character vector."))
 		}
-		if (!(is.null(x$logical))) {
-			if (x$logical == FALSE) {
-				return(message(paste("Error, function does not accept objects with class 'logical'.")))
-			}
-		}
-		if (!(is.null(x$function.))) {
-			if (x$function. == FALSE) {
-				return(message(paste("Error, function does not accept objects with class 'function'.")))
-			}
+		if (is(x[[i]], "logical") & (!(y[[i]] == "logical"))) {
+			stop(paste(deparse(substitute(x[[i]])), "is not a boolean value."))
 		}
 
-	else {
-		return(TRUE)
 	}
 }
-
 
 #general function to match strings across dataframes
 
@@ -68,9 +36,9 @@ stringMatch <- function (data, index, string1, string2) {
 
 ctSelection <- function (data, frame, group) {
 	check <- c(class(data),class(frame),class(group[[2]]),class(group[[3]]))
-	if (!(argumentValid(check))) {
-		stop()
-	}
+#	if (!(argumentValid(check))) {
+#		stop()
+#	}
 	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
@@ -87,10 +55,11 @@ ctSelection <- function (data, frame, group) {
 #TODO: only supports two groups. Add support for abitrary n?
 
 grouplist <- function(frame, group1, group2) {
-	check <- c(class(frame), class(group1), class(group2))
-	if (!(argumentValid(check))) {
-		stop()
-	}
+	check <- list(class(frame), class(group1), class(group2))
+	object <- list("dataframe","string","string")
+	#if (!(argumentValid(check, object))) {
+	#	stop()
+	#}
 	if (!(stringMatch(frame, 2, group1, group2))) {
 		stop(paste("Error, no entries in", deparse(substitute(frame)), 
 					"match the arguments."))
