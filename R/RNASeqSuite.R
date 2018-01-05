@@ -90,7 +90,7 @@ cFilter <- function(df, sd, group) {
 		df_group2 <- data.matrix(df_filter[,((width1+1):(width1+width2))])
 		df_avg1 <- data.matrix(rowMeans(df_group1))
 		df_avg2 <- data.matrix(rowMeans(df_group2))
-		df_norm1 <- data.matrix(df_avg1/norm(df_avg2, type="f"))
+		df_norm1 <- data.matrix(df_avg1/norm(df_avg1, type="f"))
 		df_norm2 <- data.matrix(df_avg2/norm(df_avg2, type="f"))
 		df_diff <- data.matrix(df_norm1 - df_norm2)
 		mean_df <- mean(df_diff)
