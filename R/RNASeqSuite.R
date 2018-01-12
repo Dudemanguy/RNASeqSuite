@@ -53,21 +53,25 @@ ctSelection <- function (data, frame, group) {
 
 
 #obtains the group from a supplied tab-delimited list
-#TODO: only supports two groups. Add support for abitrary n?
 
-grouplist <- function(frame, group1, group2, ...) {
-	check <- list(frame, group1, group2)
-	ref <- list("data.frame","character","character")
+grouplist <- function(frame, groupselect) {
+	check <- list(frame, groupselect)
+	ref <- list("data.frame","list")
 	argumentValid(check, ref)
-	if (!(stringMatch(frame, 2, group1, group2))) {
-		stop(paste("Error, no entries in", deparse(substitute(frame)), 
-					"match the arguments."))
+	if (!(stringMatch(frame, 2, groupselect))) {
+		stop(paste("Error, some entries in", deparse(substitute(frame)), 
+					"do not match the arguments."))
 	}
 	else {
-		selection <- subset(frame, V2 == group1 | V2 == group2)
+		selection_grep <- lapply(groupselect, '==', frame$V2)
+		selection <- data.frame(V1=character(), V2=character())
+		for (i in 1:length(selection_grep)) {
+			selection <- rbind(selection, frame[selection_grep[[i]],])
+		}
 		getgroup <- selection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
-		return(list(getgroup, group1, group2))
+		groupselect[[4]] <- getgroup
+		return(groupselect)
 	}
 }
 
