@@ -12,9 +12,9 @@ RNASeqSuite needs only a few inputs in order to make use of its internal functio
 
 ## Available Functions
 
-``grouplist(frame, group1, group2)``
+``grouplist(frame, groupselect)``
 
-Creates a list selecting the desired groups to use for comparisons. "frame" is a data frame containing all group information while "group1" and "group2" are the character names of the two groups selected for comparison.
+Creates a list selecting the desired groups to use for comparisons. "frame" is a data frame containing all group information while "groupselect" is a list containing character names of the groups selected for comparison.
 
 ``ctFilter(data, frame, group, htsfilter, cfilter)``
 

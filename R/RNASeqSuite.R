@@ -34,7 +34,6 @@ stringMatch <- function (data, index, strings) {
 
 
 #create subset of ct matrix based upon entered group
-#TODO: currently this function will only consider pairs. Add support for abitrary n?
 
 ctSelection <- function (data, frame, group) {
 	check <- list(data, frame, group)
@@ -49,7 +48,6 @@ ctSelection <- function (data, frame, group) {
 		for (i in 1:length(selection_grep)) {
 			selection <- rbind(selection, frame[selection_grep[[i]],])
 		}
-		#selection <- subset(frame, V2 == group[[2]] | V2 == group[[3]])
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select = eval(parse(text=list(columns))))
 		return(matframe)
@@ -129,11 +127,11 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 		argumentValid(check, ref)
 		ct <- ctSelection(data, frame, group)
 		if (htsfilter == TRUE) {
-			htsfilter <- HTSFilter(ct, group[[1]], s.min=1, s.max=200, s.len=25)
+			htsfilter <- HTSFilter(ct, group[["factors"]], s.min=1, s.max=200, s.len=25)
 			htsfiltered <- htsfilter$filteredData
 
 			if (cfilter > 0) {
-				ctcfilter <- cFilter(htsfiltered, cfilter, group[[1]])
+				ctcfilter <- cFilter(htsfiltered, cfilter, group[["factors"]])
 				allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
 				return(allfilter)
 			}
@@ -158,9 +156,9 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 		check <- list(data, frame, group, htsfilter, cfilter)
 		ref <- list("data.frame","data.frame","list","logical","numeric")
 		argumentValid(check, ref)
-		ct <- ctSelection(data, frame, group)	
+		ct <- ctSelection(data, frame, group)
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-		y <- DGEList(counts=ct, group=group[[1]])
+		y <- DGEList(counts=ct, group=group[["factors"]])
 		y <- calcNormFactors(y)
 		y <- estimateDisp(y)
 		et <- exactTest(y) 
