@@ -23,13 +23,13 @@ argumentValid <- function (x, y) {
 
 #general function to match strings across dataframes
 
-stringMatch <- function (data, index, string1, string2) {
-	if (!((string1 %in% data[,index]) & string2 %in% data[,index])) {
-		return(FALSE)
+stringMatch <- function (data, index, strings) {
+	for (i in 1:length(strings)) {
+		if (!(strings[[i]] %in% data[,index])) {
+			return(FALSE)
+		}
 	}
-	else {
-		return(TRUE)
-	}
+	return(TRUE)
 }
 
 
@@ -55,7 +55,7 @@ ctSelection <- function (data, frame, group) {
 #obtains the group from a supplied tab-delimited list
 #TODO: only supports two groups. Add support for abitrary n?
 
-grouplist <- function(frame, group1, group2) {
+grouplist <- function(frame, group1, group2, ...) {
 	check <- list(frame, group1, group2)
 	ref <- list("data.frame","character","character")
 	argumentValid(check, ref)
