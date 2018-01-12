@@ -144,7 +144,7 @@ ctFilter <- function(data, frame, group, htsfilter, cfilter) {
 
 #uses edgeR to compute an exact test and find differentially expressed genes
 
-edgeR <- function (data, frame, group, htsfilter, cfilter) {
+edgeRclassic <- function (data, frame, group, htsfilter, cfilter) {
 
 	if(missing(htsfilter)) {
 		htsfilter = TRUE
@@ -164,7 +164,7 @@ edgeR <- function (data, frame, group, htsfilter, cfilter) {
 		et <- exactTest(y) 
 		et_raw <- topTags(et, n=Inf, sort.by="none")
 		et_frame <-  et_raw[[1]]
-		width <- table(group[[1]])[[1]]
+		width <- table(group[["factors"]])[[1]]
 		a <- ct[,1:width]
 		b <- ct[,(width+1):ncol(ct)]
 		c <- data.frame(rowMeans(a))
@@ -192,12 +192,12 @@ DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 		argumentValid(check, ref)	
 		ct <- ctSelection(data, frame, group)
 		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-		groupframe <- data.frame(group[[1]])
+		groupframe <- data.frame(group[["factors"]])
 		colnames(groupframe) <- c("groupframe")
 		dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
 		dds <- DESeq(dds)
 		res <- data.frame(results(dds))
-		width <- table(group[[1]])[[1]]
+		width <- table(group[["factors"]])[[1]]
 		a <- ct[,1:width]
 		b <- ct[,(width+1):ncol(ct)]
 		c <- data.frame(rowMeans(a))
