@@ -40,11 +40,16 @@ ctSelection <- function (data, frame, group) {
 	check <- list(data, frame, group)
 	ref <- list("data.frame","data.frame","list")
 	argumentValid(check, ref)
-	if (!(stringMatch(frame, 2, group[[2]], group[[3]]))) {
+	if (!(stringMatch(frame, 2, group[["factors"]]))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
-		selection <- subset(frame, V2 == group[[2]] | V2 == group[[3]])
+		selection_grep <- lapply(group[1:(length(group)-1)], '==', frame$V2)
+		selection <- data.frame(V1=character(), V2=character())
+		for (i in 1:length(selection_grep)) {
+			selection <- rbind(selection, frame[selection_grep[[i]],])
+		}
+		#selection <- subset(frame, V2 == group[[2]] | V2 == group[[3]])
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select = eval(parse(text=list(columns))))
 		return(matframe)
@@ -70,7 +75,7 @@ grouplist <- function(frame, groupselect) {
 		}
 		getgroup <- selection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
-		groupselect[[4]] <- getgroup
+		groupselect[["factors"]] <- getgroup
 		return(groupselect)
 	}
 }
