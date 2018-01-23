@@ -177,6 +177,32 @@ edgeRclassic <- function (data, frame, group, htsfilter, cfilter) {
 	}
 }
 
+edgeRGLM <- function (data, frame, group, htsfilter, cfilter) {
+
+	if(missing(htsfilter)) {
+		htsfilter = TRUE
+	}
+	if(missing(cfilter)) {
+		cfilter = 0
+	}
+	else {
+		check <- list(data, frame, group, htsfilter, cfilter)
+		ref <- list("data.frame","data.frame","list","logical","numeric")
+		argumentValid(check, ref)
+		ct <- ctSelection(data, frame, group)
+		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+		y <- DGEList(counts=ct, group=group[["factors"]])
+		y <- calcNormFactors(y)
+		design <- model.matrix(~group[["factors"]])
+		y <- estimateDisp(y, design, robust=TRUE)
+		fit <- glmQLFit(y, design, robust=TRUE)
+		qlf <- glmQLFTest(fit, coef=c(2,ncol(design)))
+		qlf_raw <- topTags(qlf, n=Inf)
+		qlf_frame <- qlf_raw[[1]]
+		return(qlf_frame)
+		}
+}
+
 #use DESeq2 to compute a Wald test and find differentially expressed genes
 DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
 
