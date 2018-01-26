@@ -113,125 +113,93 @@ cFilter <- function(df, sd, group) {
 
 #reads the supplied ct matrix of reads and group data; filters data according to group
 
-ctFilter <- function(data, frame, group, htsfilter, cfilter) {
+ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0) {
 
-	if(missing(htsfilter)) {
-		htsfilter = TRUE
-	}
-	if(missing(cfilter)) {
-		cfilter = 0
-	}
-	else {
-		check <- list(data, frame, group, htsfilter, cfilter)
-		ref <- list("data.frame","data.frame","list","logical","numeric")
-		argumentValid(check, ref)
-		ct <- ctSelection(data, frame, group)
-		if (htsfilter == TRUE) {
-			htsfilter <- HTSFilter(ct, group[["factors"]], s.min=1, s.max=200, s.len=25)
-			htsfiltered <- htsfilter$filteredData
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)
+	ct <- ctSelection(data, frame, group)
+	if (htsfilter == TRUE) {
+		htsfilter <- HTSFilter(ct, group[["factors"]], s.min=1, s.max=200, s.len=25)
+		htsfiltered <- htsfilter$filteredData
 
-			if (cfilter > 0) {
-				ctcfilter <- cFilter(htsfiltered, cfilter, group[["factors"]])
-				allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
-				return(allfilter)
-			}
-			else {
-				return(htsfiltered)
-			}
+		if (cfilter > 0) {
+			ctcfilter <- cFilter(htsfiltered, cfilter, group[["factors"]])
+			allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
+			return(allfilter)
+		}
+		else {
+			return(htsfiltered)
 		}
 	}
 }
 
 #uses edgeR to compute an exact test and find differentially expressed genes
 
-edgeRclassic <- function (data, frame, group, htsfilter, cfilter) {
+edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
-	if(missing(htsfilter)) {
-		htsfilter = TRUE
-	}
-	if(missing(cfilter)) {
-		cfilter = 0
-	}
-	else {
-		check <- list(data, frame, group, htsfilter, cfilter)
-		ref <- list("data.frame","data.frame","list","logical","numeric")
-		argumentValid(check, ref)
-		ct <- ctSelection(data, frame, group)
-		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-		y <- DGEList(counts=ct, group=group[["factors"]])
-		y <- calcNormFactors(y)
-		y <- estimateDisp(y)
-		et <- exactTest(y) 
-		et_raw <- topTags(et, n=Inf, sort.by="none")
-		et_frame <-  et_raw[[1]]
-		width <- table(group[["factors"]])[[1]]
-		a <- ct[,1:width]
-		b <- ct[,(width+1):ncol(ct)]
-		c <- data.frame(rowMeans(a))
-		d <- data.frame(rowMeans(b))
-		et_frame["Avg Ct A"] <- c
-		et_frame["Avg Ct B"] <- d
-		et_frame <- et_frame[,c(5,6,1,2,3,4)]
-		et_frame <- et_frame[order(et_frame$FDR, decreasing=FALSE),]
-		return(et_frame)
-	}
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)
+	ct <- ctSelection(data, frame, group)
+	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	y <- DGEList(counts=ct, group=group[["factors"]])
+	y <- calcNormFactors(y)
+	y <- estimateDisp(y)
+	et <- exactTest(y) 
+	et_raw <- topTags(et, n=Inf, sort.by="none")
+	et_frame <-  et_raw[[1]]
+	width <- table(group[["factors"]])[[1]]
+	a <- ct[,1:width]
+	b <- ct[,(width+1):ncol(ct)]
+	c <- data.frame(rowMeans(a))
+	d <- data.frame(rowMeans(b))
+	et_frame["Avg Ct A"] <- c
+	et_frame["Avg Ct B"] <- d
+	et_frame <- et_frame[,c(5,6,1,2,3,4)]
+	et_frame <- et_frame[order(et_frame$FDR, decreasing=FALSE),]
+	return(et_frame)
 }
 
-edgeRGLM <- function (data, frame, group, htsfilter, cfilter) {
+edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
-	if(missing(htsfilter)) {
-		htsfilter = TRUE
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)
+	ct <- ctSelection(data, frame, group)
+	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	y <- DGEList(counts=ct, group=group[["factors"]])
+	y <- calcNormFactors(y)
+	design <- model.matrix(~group[["factors"]])
+	y <- estimateDisp(y, design, robust=TRUE)
+	fit <- glmQLFit(y, design, robust=TRUE)
+	qlf <- glmQLFTest(fit, coef=c(2,ncol(design)))
+	qlf_raw <- topTags(qlf, n=Inf)
+	qlf_frame <- qlf_raw[[1]]
+	return(qlf_frame)
 	}
-	if(missing(cfilter)) {
-		cfilter = 0
-	}
-	else {
-		check <- list(data, frame, group, htsfilter, cfilter)
-		ref <- list("data.frame","data.frame","list","logical","numeric")
-		argumentValid(check, ref)
-		ct <- ctSelection(data, frame, group)
-		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-		y <- DGEList(counts=ct, group=group[["factors"]])
-		y <- calcNormFactors(y)
-		design <- model.matrix(~group[["factors"]])
-		y <- estimateDisp(y, design, robust=TRUE)
-		fit <- glmQLFit(y, design, robust=TRUE)
-		qlf <- glmQLFTest(fit, coef=c(2,ncol(design)))
-		qlf_raw <- topTags(qlf, n=Inf)
-		qlf_frame <- qlf_raw[[1]]
-		return(qlf_frame)
-		}
-}
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
-DESeq2 <- function (data, frame, group, htsfilter, cfilter) {
+DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
-	if(missing(htsfilter)) {
-		htsfilter = TRUE
-	}
-	if(missing(cfilter)) {
-		cfilter = 0
-	}
-	else {
-		check <- list(data, frame, group, htsfilter, cfilter)
-		ref <- list("data.frame","data.frame","list","logical","numeric")
-		argumentValid(check, ref)	
-		ct <- ctSelection(data, frame, group)
-		ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-		groupframe <- data.frame(group[["factors"]])
-		colnames(groupframe) <- c("groupframe")
-		dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
-		dds <- DESeq(dds)
-		res <- data.frame(results(dds))
-		width <- table(group[["factors"]])[[1]]
-		a <- ct[,1:width]
-		b <- ct[,(width+1):ncol(ct)]
-		c <- data.frame(rowMeans(a))
-		d <- data.frame(rowMeans(b))
-		res["Avg Ct A"] <- c
-		res["Avg Ct B"] <- d
-		resOrder <- res[,c(7,8,1,2,3,4,5,6)]
-		resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
-		return(resOrder)
-	}
+	check <- list(data, frame, group, htsfilter, cfilter)
+	ref <- list("data.frame","data.frame","list","logical","numeric")
+	argumentValid(check, ref)	
+	ct <- ctSelection(data, frame, group)
+	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	groupframe <- data.frame(group[["factors"]])
+	colnames(groupframe) <- c("groupframe")
+	dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
+	dds <- DESeq(dds)
+	res <- data.frame(results(dds))
+	width <- table(group[["factors"]])[[1]]
+	a <- ct[,1:width]
+	b <- ct[,(width+1):ncol(ct)]
+	c <- data.frame(rowMeans(a))
+	d <- data.frame(rowMeans(b))
+	res["Avg Ct A"] <- c
+	res["Avg Ct B"] <- d
+	resOrder <- res[,c(7,8,1,2,3,4,5,6)]
+	resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
+	return(resOrder)
 }

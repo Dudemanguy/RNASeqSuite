@@ -1,9 +1,9 @@
 Package: RNASeqSuite
 Version: 00.00.01
 Title: Convienent R wrapper of popular RNAseq pipelines desgined to 
-       simply data analysis
-Author: Alec Perez <aiperez@uh.edu>
-Maintainer: Alec Perez <aiperez@uh.edu>
+       simplify data analysis
+Author: <random342@airmail.cc>
+Maintainer: <random342@airmail.cc>
 Depends: methods
 Imports: edgeR, DESeq2, HTSFilter
 Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
