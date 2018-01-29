@@ -43,8 +43,8 @@ ctSelection <- function (data, frame, group) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
-		selection_grep <- lapply(group[1:(length(group)-1)], '==', frame$V2)
-		selection <- data.frame(V1=character(), V2=character())
+		selection_grep <- lapply(group[1:(length(group)-1)], '==', frame[,2])
+		selection <- data.frame()
 		for (i in 1:length(selection_grep)) {
 			selection <- rbind(selection, frame[selection_grep[[i]],])
 		}
@@ -66,8 +66,8 @@ grouplist <- function(frame, groupselect) {
 					"do not match the arguments."))
 	}
 	else {
-		selection_grep <- lapply(groupselect, '==', frame$V2)
-		selection <- data.frame(V1=character(), V2=character())
+		selection_grep <- lapply(groupselect, '==', frame[,2])
+		selection <- data.frame()
 		for (i in 1:length(selection_grep)) {
 			selection <- rbind(selection, frame[selection_grep[[i]],])
 		}
