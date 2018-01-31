@@ -78,6 +78,12 @@ grouplist <- function(frame, groupselect) {
 	}
 }
 
+#helper function for normalizing vectors
+
+norm_vector <- function(vec, norm_type) {
+	normalized <- vec/norm(data.matrix(vec), type=norm_type)
+	return(normalized)
+}
 
 #Custom filter function based around standard deviation of normalized vectors
 #TODO: Rewrite function to apply to abitrary n conditions?
