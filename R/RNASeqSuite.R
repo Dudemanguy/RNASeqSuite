@@ -4,15 +4,13 @@ ctSelection <- function (data, frame, group) {
 	check <- list(data, frame, group)
 	ref <- list("data.frame","data.frame","list")
 	.argumentValid(check, ref)
-	if (!(.stringMatch(frame, 2, group[["factors"]]))) {
+	if (!(.stringMatch(frame, 2, group))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
-		selection_grep <- lapply(group[1:(length(group)-1)], '==', frame[,2])
-		selection <- data.frame()
-		for (i in 1:length(selection_grep)) {
-			selection <- rbind(selection, frame[selection_grep[[i]],])
-		}
+		selection_grep <- sapply(levels(group), '==', frame[,2])
+		selection_list <- apply(selection_grep, 2, .select, frame)
+		selection <- do.call("rbind", selection_list)
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select = eval(parse(text=list(columns))))
 		return(matframe)
