@@ -79,11 +79,11 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0) {
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	if (htsfilter == TRUE) {
-		htsfilter <- HTSFilter(ct, group[["factors"]], s.min=1, s.max=200, s.len=25)
+		htsfilter <- HTSFilter(ct, group, s.min=1, s.max=200, s.len=25)
 		htsfiltered <- htsfilter$filteredData
 
 		if (cfilter > 0) {
-			ctcfilter <- cFilter(htsfiltered, cfilter, group[["factors"]])
+			ctcfilter <- cFilter(htsfiltered, cfilter, group)
 			allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
 			return(allfilter)
 		}
@@ -102,13 +102,13 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-	y <- DGEList(counts=ct, group=group[["factors"]])
+	y <- DGEList(counts=ct, group=group)
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
 	et <- exactTest(y) 
 	et_raw <- topTags(et, n=Inf, sort.by="none")
 	et_frame <-  et_raw[[1]]
-	width <- table(group[["factors"]])[[1]]
+	width <- table(group)[[1]]
 	a <- ct[,1:width]
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
@@ -129,9 +129,9 @@ edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-	y <- DGEList(counts=ct, group=group[["factors"]])
+	y <- DGEList(counts=ct, group=group)
 	y <- calcNormFactors(y)
-	design <- model.matrix(~group[["factors"]])
+	design <- model.matrix(~group)
 	y <- estimateDisp(y, design, robust=TRUE)
 	fit <- glmQLFit(y, design, robust=TRUE)
 	qlf <- glmQLFTest(fit, coef=c(2,ncol(design)))
@@ -149,12 +149,12 @@ DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 	.argumentValid(check, ref)	
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
-	groupframe <- data.frame(group[["factors"]])
+	groupframe <- data.frame(group)
 	colnames(groupframe) <- c("groupframe")
 	dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
 	dds <- DESeq(dds)
 	res <- data.frame(results(dds))
-	width <- table(group[["factors"]])[[1]]
+	width <- table(group)[[1]]
 	a <- ct[,1:width]
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
