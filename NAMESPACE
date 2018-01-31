@@ -1,3 +1,6 @@
-import(edgeR,DESeq2,HTSFilter)
+import(edgeR)
+import(DESeq2)
+import(HTSFilter)
+import(methods)
 
-export(grouplist, ctFilter, edgeRclassic, edgeRGLM, DESeq2)
+export(grouplist, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2)
