@@ -3,4 +3,4 @@ import(DESeq2)
 import(HTSFilter)
 import(methods)
 
-export(grouplist, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2)
+export(grpSelection, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2)

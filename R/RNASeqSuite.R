@@ -2,7 +2,7 @@
 
 ctSelection <- function (data, frame, group) {
 	check <- list(data, frame, group)
-	ref <- list("data.frame","data.frame","list")
+	ref <- list("data.frame","data.frame","character")
 	.argumentValid(check, ref)
 	if (!(.stringMatch(frame, 2, group))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))

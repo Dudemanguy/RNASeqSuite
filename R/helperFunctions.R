@@ -45,24 +45,3 @@
 	output <- y[x,]
 	return(output)
 }
-
-#grouplist <- function(frame, groupselect) {
-#	check <- list(frame, groupselect)
-#	ref <- list("data.frame","list")
-#	.argumentValid(check, ref)
-#	if (!(.stringMatch(frame, 2, groupselect))) {
-#		stop(paste("Error, some entries in", deparse(substitute(frame)), 
-#					"do not match the arguments."))
-#	}
-#	else {
-#		selection_grep <- lapply(groupselect, '==', frame[,2])
-#		selection <- data.frame()
-#		for (i in 1:length(selection_grep)) {
-#			selection <- rbind(selection, frame[selection_grep[[i]],])
-#		}
-#		getgroup <- selection[,2]
-#		getgroup <- factor(getgroup, levels=unique(getgroup))
-#		groupselect[["factors"]] <- getgroup
-#		return(groupselect)
-#	}
-#}

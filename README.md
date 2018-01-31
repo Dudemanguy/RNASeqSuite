@@ -12,13 +12,17 @@ RNASeqSuite needs only a few inputs in order to make use of its internal functio
 
 ## Available Functions
 
-``grouplist(frame, groupselect)``
+``grpSelection(frame, groupselect)``
 
-Creates a list selecting the desired groups to use for comparisons. "frame" is a data frame containing all group information while "groupselect" is a list containing character names of the groups selected for comparison.
+Creates a list selecting the desired groups to use for comparisons. "frame" is a data frame containing all group information while "groupselect" is a character vector the names of the groups selected for comparison.
+
+``ctSelection(data, frame, group)``
+
+Simple function to easily subset read counts based on selected groups. "data" denotes the matrix of read counts, "frame" is the data frame containing group and column information, and "group" is the is the factor object of groups obtained from the grpSelection function.
 
 ``ctFilter(data, frame, group, htsfilter, cfilter)``
 
-Creates a data frame of filtered counts from the data frame of read counts. "data" is the read counts, "frame" is the data frame containing groups, and "group" is the list of groups obtained by the grouplist function. "htsfilter" is a boolean value that enables the use of HTSFilter, an R package that filters counts based on the Jaccard index. This argument is optional and if omitted, defaults to TRUE. "cfilter" is a positive, numeric value that is used to remove outliers. Outlier detection is based on an internal function that calculates normalized vectors and removes those that are outside the standard deviation. The cfilter value is simply a multiplier of the standard deviation, so a cfilter=1 input will preserve all vectors whose values lie within a standard deviation of the mean. A lower value of cfilter, will be more stringent. A value of 0 will disable this filter. This argument is optional and if omitted, defaults to 0 (disabling this filter).
+Creates a data frame of filtered counts from the data frame of read counts. "data" is the read counts, "frame" is the data frame containing groups, and "group" is the factor object of groups obtained by the grpSelection function. "htsfilter" is a boolean value that enables the use of HTSFilter, an R package that filters counts based on the Jaccard index. This argument is optional and if omitted, defaults to TRUE. "cfilter" is a positive, numeric value that is used to remove outliers. Outlier detection is based on an internal function that calculates normalized vectors and removes those that are outside the standard deviation. The cfilter value is simply a multiplier of the standard deviation, so a cfilter=1 input will preserve all vectors whose values lie within a standard deviation of the mean. A lower value of cfilter, will be more stringent. A value of 0 will disable this filter. This argument is optional and if omitted, defaults to 0 (disabling this filter).
 
 ``edgeRclassic(data, frame, group, htsfilter, cfilter)``
 
