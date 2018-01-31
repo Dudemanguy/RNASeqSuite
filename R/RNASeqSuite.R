@@ -1,45 +1,10 @@
-#general functions to check argument input types and ensure they are valid
-#TODO: Make valid messages cleaner
-
-argumentValid <- function (x, y) {
-	for (i in seq_along(x)) {
-		if (is(x[[i]], "data.frame") & (!(y[[i]] == "data.frame"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a data frame."))
-		}
-		if (is(x[[i]], "numeric") & (!(y[[i]] == "numeric"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not numeric."))
-		}
-		if (is(x[[i]], "character") & (!(y[[i]] == "character"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a character vector."))
-		}
-		if (is(x[[i]], "logical") & (!(y[[i]] == "logical"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a boolean value."))
-		}
-		if (is(x[[i]], "list") & (!(y[[i]] == "list"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a list."))
-		}
-	}
-}
-
-#general function to match strings across dataframes
-
-stringMatch <- function (data, index, strings) {
-	for (i in 1:length(strings)) {
-		if (!(strings[[i]] %in% data[,index])) {
-			return(FALSE)
-		}
-	}
-	return(TRUE)
-}
-
-
 #create subset of ct matrix based upon entered group
 
 ctSelection <- function (data, frame, group) {
 	check <- list(data, frame, group)
 	ref <- list("data.frame","data.frame","list")
-	argumentValid(check, ref)
-	if (!(stringMatch(frame, 2, group[["factors"]]))) {
+	.argumentValid(check, ref)
+	if (!(.stringMatch(frame, 2, group[["factors"]]))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
 	}
 	else {
@@ -60,8 +25,8 @@ ctSelection <- function (data, frame, group) {
 grouplist <- function(frame, groupselect) {
 	check <- list(frame, groupselect)
 	ref <- list("data.frame","list")
-	argumentValid(check, ref)
-	if (!(stringMatch(frame, 2, groupselect))) {
+	.argumentValid(check, ref)
+	if (!(.stringMatch(frame, 2, groupselect))) {
 		stop(paste("Error, some entries in", deparse(substitute(frame)), 
 					"do not match the arguments."))
 	}
@@ -78,20 +43,13 @@ grouplist <- function(frame, groupselect) {
 	}
 }
 
-#helper function for normalizing vectors
-
-norm_vector <- function(vec, norm_type) {
-	normalized <- vec/norm(data.matrix(vec), type=norm_type)
-	return(normalized)
-}
-
 #Custom filter function based around standard deviation of normalized vectors
 #TODO: Rewrite function to apply to abitrary n conditions?
 
 cFilter <- function(df, sd, group) {
 	check <- list(df, sd, group)
 	ref <- list("data.frame", "numeric", "list")
-	argumentValid(check, ref)
+	.argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
 	}
@@ -123,7 +81,7 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 	check <- list(data, frame, group, htsfilter, cfilter)
 	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)
+	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	if (htsfilter == TRUE) {
 		htsfilter <- HTSFilter(ct, group[["factors"]], s.min=1, s.max=200, s.len=25)
@@ -146,7 +104,7 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 	check <- list(data, frame, group, htsfilter, cfilter)
 	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)
+	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 	y <- DGEList(counts=ct, group=group[["factors"]])
@@ -167,11 +125,13 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 	return(et_frame)
 }
 
+#preliminary wrapper for using the glmQLFTest
+
 edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 	check <- list(data, frame, group, htsfilter, cfilter)
 	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)
+	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 	y <- DGEList(counts=ct, group=group[["factors"]])
@@ -186,11 +146,12 @@ edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 	}
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
+
 DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 	check <- list(data, frame, group, htsfilter, cfilter)
 	ref <- list("data.frame","data.frame","list","logical","numeric")
-	argumentValid(check, ref)	
+	.argumentValid(check, ref)	
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
 	groupframe <- data.frame(group[["factors"]])
