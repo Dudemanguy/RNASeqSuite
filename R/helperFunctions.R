@@ -41,7 +41,7 @@
 
 #abstract selection operations for apply
 
-.select <- function(x, y) {
-	output <- y[x,]
+.select <- function(sub, whole) {
+	output <- whole[sub,]
 	return(output)
 }
