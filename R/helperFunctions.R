@@ -46,6 +46,12 @@
 	return(output)
 }
 
+#abstract operation to remove rows with rowsums equal to zeros
+
+.removeZeros <- function(df) {
+	df_nozero <- df[rowSums(df) != 0,]
+}
+
 #split by group and seperate dataframe into lists
 
 .ctSplit <- function (data, frame, group) {
@@ -67,18 +73,15 @@
 			if (!(selection[i,2] == selection[i+1,2])) {
 				subframe <- matframe[,(j-k):j]
 				sublist[[i]] <- subframe
-				print(j)
-				print(k)
 				j <- j+1
 				k <- 0
 			}
 		}
 		if (i == nrow(selection)) {
-			print(j)
-			print(k)
 			subframe <- matframe[,(j-k):j]
 			sublist[[i]] <- subframe
 		}
 	}
+	sublist[sapply(sublist, is.null)] <- NULL
 	return(sublist)
 }
