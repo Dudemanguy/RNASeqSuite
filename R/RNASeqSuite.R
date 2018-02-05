@@ -13,7 +13,7 @@ ctSelection <- function (data, frame, group) {
 		selection <- do.call("rbind", selection_list)
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select = eval(parse(text=list(columns))))
-		return(selection)
+		return(matframe)
 	}
 }
 
