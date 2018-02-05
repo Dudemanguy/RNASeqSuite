@@ -13,7 +13,7 @@ ctSelection <- function (data, frame, group) {
 		selection <- do.call("rbind", selection_list)
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select = eval(parse(text=list(columns))))
-		return(matframe)
+		return(selection)
 	}
 }
 
@@ -38,30 +38,37 @@ grpSelection <- function(frame, groupselect) {
 }
 
 #Custom filter function based around standard deviation of normalized vectors
-#TODO: Rewrite function to apply to abitrary n conditions?
 
-cFilter <- function(df, sd, group) {
-	check <- list(df, sd, group)
-	ref <- list("data.frame", "numeric", "factor")
+cFilter <- function(dflist, sd, group) {
+	check <- list(dflist, sd, group)
+	ref <- list("list", "numeric", "factor")
 	.argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
 	}
 	else {
-		df_filter <- df[rowSums(df) != 0,]
-		width1 <- table(group[[1]])[[1]]
-		width2 <- table(group[[1]])[[2]]
-		df_group1 <- data.matrix(df_filter[,(1:width1)])
-		df_group2 <- data.matrix(df_filter[,((width1+1):(width1+width2))])
-		df_avg1 <- data.matrix(rowMeans(df_group1))
-		df_avg2 <- data.matrix(rowMeans(df_group2))
-		df_norm1 <- data.matrix(df_avg1/norm(df_avg1, type="f"))
-		df_norm2 <- data.matrix(df_avg2/norm(df_avg2, type="f"))
-		df_diff <- data.matrix(df_norm1 - df_norm2)
-		mean_df <- mean(df_diff)
-		sd_df <- sd(df_diff)
-		df_compressed <- df_diff[(mean_df - (sd*sd_df)) <= df_norm1 &
-						df_norm2 <= (mean_df + (sd*sd_df)), 1, drop=FALSE]
+		combine <- do.call("cbind", dflist)
+		combine_nozero <- .removeZeros(combine)
+		gene_vector <- rownames(combine_nozero)
+		list_filter <- list()
+		list_norm <- list()
+		for (i in seq_along(dflist)) {
+			df_filter <- .select(gene_vector, dflist[[i]])
+			list_filter[[i]] <- df_filter
+		}
+		for (i in seq_along(list_filter)) {
+			norms <- apply(list_filter[[i]], 2, .norm_vector, 'f')
+			list_norm[[i]] <- norms
+		}
+		list_avgs <- lapply(list_norm, rowMeans)
+		avg_mat <- do.call("cbind", list_avgs)
+		avg_row <- data.frame(rowMeans(avg_mat))
+		diff <- apply(avg_mat, 1, max) - apply(avg_mat, 1, min)
+		df_diff <- data.frame(diff)
+		mean_df <- mean(df_diff[,1])
+		sd_df <- sd(df_diff[,1])
+		df_compressed <- df_diff[(mean_df - (sd*sd_df)) <= avg_row 
+									& avg_row <= (mean_df + (sd*sd_df)), 1, drop=FALSE]
 		print(paste(nrow(df) - nrow(df_filter), "zero elements discarded"))
 		print(paste(nrow(df_diff) - nrow(df_compressed), "outliers removed"))
 		return(df_compressed)
@@ -81,7 +88,8 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0) {
 		htsfiltered <- htsfilter$filteredData
 
 		if (cfilter > 0) {
-			ctcfilter <- cFilter(htsfiltered, cfilter, group)
+			dflist <- .ctSplit(data, frame, group)
+			ctcfilter <- cFilter(dflist, cfilter, group)
 			allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
 			return(allfilter)
 		}
