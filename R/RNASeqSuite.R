@@ -69,18 +69,16 @@ cFilter <- function(dflist, sd, group) {
 		sd_df <- sd(df_diff[,1])
 		df_compressed <- rownames(df_diff[(mean_df - (sd*sd_df)) <= avg_row 
 									& avg_row <= (mean_df + (sd*sd_df)), 1, drop=FALSE])
-		print(paste(nrow(df) - nrow(df_filter), "zero elements discarded"))
-		print(paste(nrow(df_diff) - nrow(df_compressed), "outliers removed"))
 		return(df_compressed)
 	}
 }
 
 #reads the supplied ct matrix of reads and group data; filters data according to group
 
-ctFilter <- function(data, frame, group, cutoff=0, htsfilter=TRUE, cfilter=0) {
+ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","factor","logical","numeric")
+	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
+	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	name_list <- list()
@@ -100,7 +98,6 @@ ctFilter <- function(data, frame, group, cutoff=0, htsfilter=TRUE, cfilter=0) {
 	if (cfilter > 0) {
 		dflist <- .ctSplit(data, frame, group)
 		cfilter_names <- cFilter(dflist, cfilter, group)
-		#allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
 	}
 	if (exists('cutoff_names')) {
 		name_list[["cutoff"]] <- cutoff_names
@@ -118,13 +115,13 @@ ctFilter <- function(data, frame, group, cutoff=0, htsfilter=TRUE, cfilter=0) {
 
 #uses edgeR to compute an exact test and find differentially expressed genes
 
-edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
+edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","factor","logical","numeric")
+	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
+	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	ct <- ctFilter(data, frame, group, cutoff, htsfilter, cfilter)
 	y <- DGEList(counts=ct, group=group)
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
@@ -145,13 +142,13 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 #preliminary wrapper for using the glmQLFTest
 
-edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
+edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","factor","logical","numeric")
+	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
+	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	y <- DGEList(counts=ct, group=group)
 	y <- calcNormFactors(y)
 	design <- model.matrix(~group)
@@ -165,13 +162,13 @@ edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
 
-DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0) {
+DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter)
-	ref <- list("data.frame","data.frame","factor","logical","numeric")
+	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
+	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)	
 	ct <- ctSelection(data, frame, group)
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter)
+	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	groupframe <- data.frame(group)
 	colnames(groupframe) <- c("groupframe")
 	dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
