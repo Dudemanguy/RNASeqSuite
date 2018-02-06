@@ -67,8 +67,8 @@ cFilter <- function(dflist, sd, group) {
 		df_diff <- data.frame(diff)
 		mean_df <- mean(df_diff[,1])
 		sd_df <- sd(df_diff[,1])
-		df_compressed <- df_diff[(mean_df - (sd*sd_df)) <= avg_row 
-									& avg_row <= (mean_df + (sd*sd_df)), 1, drop=FALSE]
+		df_compressed <- rownames(df_diff[(mean_df - (sd*sd_df)) <= avg_row 
+									& avg_row <= (mean_df + (sd*sd_df)), 1, drop=FALSE])
 		print(paste(nrow(df) - nrow(df_filter), "zero elements discarded"))
 		print(paste(nrow(df_diff) - nrow(df_compressed), "outliers removed"))
 		return(df_compressed)
@@ -77,26 +77,43 @@ cFilter <- function(dflist, sd, group) {
 
 #reads the supplied ct matrix of reads and group data; filters data according to group
 
-ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0) {
+ctFilter <- function(data, frame, group, cutoff=0, htsfilter=TRUE, cfilter=0) {
 
 	check <- list(data, frame, group, htsfilter, cfilter)
 	ref <- list("data.frame","data.frame","factor","logical","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
+	name_list <- list()
+	if (cutoff > 0) {
+		ct_split <- .ctSplit(data, frame, group)
+		ct_splitavgs <- lapply(ct_split, rowMeans)
+		ct_filter <- list()
+		for (i in seq_along(ct_splitavgs)) {
+			ct_filter[[i]] <- names(ct_splitavgs[[i]])[ct_splitavgs[[i]] > cutoff]
+		}
+		cutoff_names <- Reduce(intersect, ct_filter)
+	}
 	if (htsfilter == TRUE) {
 		htsfilter <- HTSFilter(ct, group, s.min=1, s.max=200, s.len=25)
-		htsfiltered <- htsfilter$filteredData
-
-		if (cfilter > 0) {
-			dflist <- .ctSplit(data, frame, group)
-			ctcfilter <- cFilter(dflist, cfilter, group)
-			allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
-			return(allfilter)
-		}
-		else {
-			return(htsfiltered)
-		}
+		hts_names <- rownames(htsfilter[[1]])
 	}
+	if (cfilter > 0) {
+		dflist <- .ctSplit(data, frame, group)
+		cfilter_names <- cFilter(dflist, cfilter, group)
+		#allfilter <- ct[rownames(ct) %in% rownames(ctcfilter),]
+	}
+	if (exists('cutoff_names')) {
+		name_list[["cutoff"]] <- cutoff_names
+	}
+	if (exists('hts_names')) {
+		name_list[["hts_names"]] <- hts_names
+	}
+	if (exists('cfilter_names')) {
+		name_list[["cfilter_names"]] <- cfilter_names
+	}
+	total_names <- Reduce(intersect, name_list)
+	allfilter <- .select(total_names, data)
+	return(allfilter)
 }
 
 #uses edgeR to compute an exact test and find differentially expressed genes
