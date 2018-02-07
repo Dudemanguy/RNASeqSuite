@@ -1,8 +1,8 @@
 #create subset of ct matrix based upon entered group
 
 ctSelection <- function (data, frame, group) {
-	check <- list(data, frame, group)
-	ref <- list("data.frame","data.frame","factor")
+	check <- list(data=data, frame=frame, group=group)
+	ref <- c("data.frame","data.frame","factor")
 	.argumentValid(check, ref)
 	if (!(.stringMatch(frame, 2, group))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
@@ -20,8 +20,8 @@ ctSelection <- function (data, frame, group) {
 #obtains the group from a supplied tab-delimited list
 
 grpSelection <- function(frame, groupselect) {
-	check <- list(frame, groupselect)
-	ref <- list("data.frame","character")
+	check <- list(frame=frame, groupselect=groupselect)
+	ref <- c("data.frame","character")
 	.argumentValid(check, ref)
 	if (!(.stringMatch(frame, 2, groupselect))) {
 		stop(paste("Error, some entries in", deparse(substitute(frame)), 
@@ -40,8 +40,8 @@ grpSelection <- function(frame, groupselect) {
 #Custom filter function based around standard deviation of normalized vectors
 
 cFilter <- function(dflist, sd, group) {
-	check <- list(dflist, sd, group)
-	ref <- list("list", "numeric", "factor")
+	check <- list(dflist=dflist, sd=sd, group=group)
+	ref <- c("list", "numeric", "factor")
 	.argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
@@ -77,8 +77,8 @@ cFilter <- function(dflist, sd, group) {
 
 ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
-	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
+	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	name_list <- list()
@@ -117,8 +117,8 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
-	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
+	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
@@ -144,8 +144,8 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=
 
 edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
-	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
+	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
@@ -164,8 +164,8 @@ edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
-	check <- list(data, frame, group, htsfilter, cfilter, cutoff)
-	ref <- list("data.frame","data.frame","factor","logical","numeric","numeric")
+	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)	
 	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
