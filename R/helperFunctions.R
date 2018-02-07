@@ -1,9 +1,9 @@
 #general functions to check argument input types and ensure they are valid
 
-.argumentValid <- function (x, y) {
+.argumentValid <- function (check, ref) {
 	classframe <- data.frame(names(check[]))
 	classlist <- list()
-	for (i in seq_along(x)) {
+	for (i in seq_along(check)) {
 		classlist[[i]] <- class(check[[i]])
 	}
 	classvector <- unlist(classlist)
