@@ -1,22 +1,17 @@
 #general functions to check argument input types and ensure they are valid
-#TODO: Make valid messages cleaner
 
 .argumentValid <- function (x, y) {
+	classframe <- data.frame(names(check[]))
+	classlist <- list()
 	for (i in seq_along(x)) {
-		if (is(x[[i]], "data.frame") & (!(y[[i]] == "data.frame"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a data frame."))
-		}
-		if (is(x[[i]], "numeric") & (!(y[[i]] == "numeric"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not numeric."))
-		}
-		if (is(x[[i]], "character") & (!(y[[i]] == "character"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a character vector."))
-		}
-		if (is(x[[i]], "logical") & (!(y[[i]] == "logical"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a boolean value."))
-		}
-		if (is(x[[i]], "list") & (!(y[[i]] == "list"))) {
-			stop(paste(deparse(substitute(x[[i]])), "is not a list."))
+		classlist[[i]] <- class(check[[i]])
+	}
+	classvector <- unlist(classlist)
+	classframe["class"] <- classvector
+	classframe["ref"] <- ref
+	for (i in nrow(classframe)) {
+		if (classframe[i,2] != classframe[i,3]) {
+			stop(paste(classframe[i,2], " is an invalid class for ", classframe[i,1], ". It must be a ", classframe[i,3], sep=""), call.=FALSE)
 		}
 	}
 }
