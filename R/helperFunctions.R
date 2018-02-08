@@ -1,14 +1,14 @@
 #general functions to check argument input types and ensure they are valid
 
-.argumentValid <- function (check, ref) {
-	classframe <- data.frame(names(check[]))
+.argumentValid <- function (classnames, refnames) {
+	classframe <- data.frame(names(classnames[]))
 	classlist <- list()
-	for (i in seq_along(check)) {
-		classlist[[i]] <- class(check[[i]])
+	for (i in seq_along(classnames)) {
+		classlist[[i]] <- class(classnames[[i]])
 	}
 	classvector <- unlist(classlist)
 	classframe["class"] <- classvector
-	classframe["ref"] <- ref
+	classframe["ref"] <- refnames
 	for (i in nrow(classframe)) {
 		if (classframe[i,2] != classframe[i,3]) {
 			stop(paste(classframe[i,2], " is an invalid class for ", classframe[i,1], ". It must be a ", classframe[i,3], sep=""), call.=FALSE)
