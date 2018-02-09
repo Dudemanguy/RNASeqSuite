@@ -109,7 +109,7 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 		name_list[["cfilter_names"]] <- cfilter_names
 	}
 	total_names <- Reduce(intersect, name_list)
-	allfilter <- .select(total_names, data)
+	allfilter <- .select(total_names, ct)
 	return(allfilter)
 }
 
@@ -120,24 +120,24 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
-	ct <- ctSelection(data, frame, group)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	y <- DGEList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
 	et <- exactTest(y) 
-	et_raw <- topTags(et, n=Inf, sort.by="none")
-	et_frame <-  et_raw[[1]]
+	et_FDR <- topTags(et, n=Inf, sort.by="none")
+	et$table["FDR"] <- et_FDR$table$FDR
 	width <- table(group)[[1]]
 	a <- ct[,1:width]
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
 	d <- data.frame(rowMeans(b))
-	et_frame["Avg Ct A"] <- c
-	et_frame["Avg Ct B"] <- d
-	et_frame <- et_frame[,c(5,6,1,2,3,4)]
-	et_frame <- et_frame[order(et_frame$FDR, decreasing=FALSE),]
-	return(et_frame)
+	et$table["Avg Ct A"] <- c
+	et$table["Avg Ct B"] <- d
+	et$table <- et$table[,c(5,6,1,2,3, 4)]
+	et$table <- et$table[order(et$table$FDR, decreasing=FALSE),]
+	y$results <- et
+	return(y)
 }
 
 #preliminary wrapper for using the glmQLFTest
