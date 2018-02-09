@@ -186,8 +186,8 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 #make directory and output results
 
-write.output <- function(dge, directory, p) {
-	check <- list(dge=dge, directory=directory, p=p)
+write.output <- function(dge, directory, fdr) {
+	check <- list(dge=dge, directory=directory, fdr=fdr)
 	ref <- c("DGEList","character","numeric")
 	.argumentValid(check, ref)
 	dir.create(directory)
@@ -196,7 +196,7 @@ write.output <- function(dge, directory, p) {
 	print(dge)
 	sink()
 	write.table(dge$results$table, file="full_results", sep="\t", quote=FALSE)
-	dge_cutoff <- dge$results$table[which(dge$results$table$FDR<p),]
+	dge_cutoff <- dge$results$table[which(dge$results$table$FDR<fdr),]
 	write.table(dge_cutoff, file="significant_results", sep="\t", quote=FALSE)
 	setwd('..')
 }

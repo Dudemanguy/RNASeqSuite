@@ -1,6 +1,7 @@
 import(edgeR)
 import(DESeq2)
 import(HTSFilter)
+import(biomaRt)
 import(methods)
 
-export(grpSelection, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2)
+export(grpSelection, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2, write.output)

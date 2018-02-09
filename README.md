@@ -33,5 +33,9 @@ Inputs are exactly the same as `ctFilter`. The `edgeR` function calls a DGEList 
 
 Inputs are exactly the same as `ctFilter`. The `DESeq2` function calls the DESeq function from the DESeq2 library and returns a data frame containing differential genes ordered by their padj along with count numbers. Currently, this function is limited to only pairwise comparisons. It will only handle the default values of DESeq2's internal functions and will likely be phased out in the future.
 
+``write.table(dge, directory, fdr)``
+
+A convenience wrapper function to output results from the edgeRclassic analysis. `dge` is the DGEList generated frome edgeRclassic. `directory` is the name of the desired directory for output. `fdr` denotes the cutoff fdr for the significant results output. `write.table` outputs 3 text files: the output from the DGEList, the full table of results from the exactTest, and the table of results with the fdr cutoff.
+
 ## License
 GPLv2 or later.
