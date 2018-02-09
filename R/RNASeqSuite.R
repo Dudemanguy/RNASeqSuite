@@ -76,7 +76,6 @@ cFilter <- function(dflist, sd, group) {
 #reads the supplied ct matrix of reads and group data; filters data according to group
 
 ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
@@ -114,10 +113,9 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 }
 
 #uses edgeR to compute an exact test and find differentially expressed genes
-
-edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 #TODO: Remove hardcoded .idConvert options
 
+edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
@@ -147,7 +145,6 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 #preliminary wrapper for using the glmQLFTest
 
 edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)
@@ -166,7 +163,6 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 #use DESeq2 to compute a Wald test and find differentially expressed genes
 
 DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
 	.argumentValid(check, ref)	
@@ -186,4 +182,21 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	resOrder <- res[,c(7,8,1,2,3,4,5,6)]
 	resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
 	return(resOrder)
+}
+
+#make directory and output results
+
+write.output <- function(dge, directory, p) {
+	check <- list(dge=dge, directory=directory, p=p)
+	ref <- c("DGEList","character","numeric")
+	.argumentValid(check, ref)
+	dir.create(directory)
+	setwd(directory)
+	sink("dgelist_output")
+	print(dge)
+	sink()
+	write.table(dge$results$table, file="full_results", sep="\t", quote=FALSE)
+	dge_cutoff <- dge$results$table[which(dge$results$table$FDR<p),]
+	write.table(dge_cutoff, file="significant_results", sep="\t", quote=FALSE)
+	setwd('..')
 }
