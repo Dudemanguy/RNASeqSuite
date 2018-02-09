@@ -1,6 +1,6 @@
 #general functions to check argument input types and ensure they are valid
 
-.argumentValid <- function (classnames, refnames) {
+.argumentValid <- function(classnames, refnames) {
 	classframe <- data.frame(names(classnames[]))
 	classlist <- list()
 	for (i in seq_along(classnames)) {
@@ -18,7 +18,7 @@
 
 #general function to match strings across dataframes
 
-.stringMatch <- function (data, index, strings) {
+.stringMatch <- function(data, index, strings) {
 	for (i in 1:length(strings)) {
 		if (!(strings[[i]] %in% data[,index])) {
 			return(FALSE)
@@ -49,7 +49,7 @@
 
 #split by group and seperate dataframe into lists
 
-.ctSplit <- function (data, frame, group) {
+.ctSplit <- function(data, frame, group) {
 	selection_grep <- sapply(levels(group), '==', frame[,2])
 	selection_list <- apply(selection_grep, 2, .select, frame)
 	selection <- do.call("rbind", selection_list)
@@ -81,10 +81,65 @@
 	return(sublist)
 }
 
+#use biomaRt to convert gene ids
+
+.idConvert <- function(count, gene, org, attr_in, attr_out) {
+	ensembl <- useMart("ensembl")
+	if (org == "mouse") {
+		ensembl <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
+	}
+	else if (org == "human") {
+		ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
+	}
+	else if (org == "rat") {
+		ensembl <- useMart("ensembl", dataset="rnorvegicus_gene_ensembl")
+	}
+	else if (org %in% listDatasets(ensembl)$dataset) {
+		ensembl <- useMart("ensembl", dataset=org)
+	}
+	else {
+		print("Invalid organism input. Please choose 'mouse', 'human', 'rat' or the exact dataset name from biomaRt.")
+		stop()
+	}
+
+	attr_matrix <- listAttributes(ensembl)
+
+	if (attr_in %in% attr_matrix$name) {
+		id_input <- attr_in
+	}
+	else {
+		attr_in_grep <- grep(attr_in, attr_matrix$name, ignore.case=TRUE)
+		attr_in_filtered <- attr_matrix[attr_in_grep,]
+		if (nrow(attr_in_filtered) == 0) {
+			print("No results found for attribute input. Please try again.")
+			stop()
+		}
+	}
+
+	#handle the output attribute
+	if (attr_out %in% attr_matrix$name) {
+		id_output <- attr_out
+	}
+	else {
+		attr_out_grep <- grep(attr_out, attr_matrix$name, ignore.case=TRUE)
+		attr_out_filtered <- attr_matrix[attr_out_grep,]
+		if (nrow(attr_out_filtered) == 0) {
+			print("No results found for attribute output. Please try again.")
+			stop()
+		}
+	}
+
+	converted <- getBM(attributes=c(id_input, id_output, "description"), filters=id_input, values=c(gene), mart=ensembl)
+	m <- match(count$genes$genes, converted[,1])
+	count$genes$Symbol <- converted$mgi_symbol[m]
+	count$genes$Description <- converted$description[m]
+	return(count)
+}
+
 #fetch additional annotation from org R packages and insert into DGEList
 #TODO: remove hardcoded options for species and annotations
 
-.annotationFetch <- function (count, species) {
+.annotationFetch <- function(count, species) {
 	selection <- paste("org.",species,".eg.db",sep="")
 	library(selection, character.only=TRUE)
 	if (selection == 'org.Mm.eg.db') {

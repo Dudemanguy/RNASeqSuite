@@ -1,6 +1,6 @@
 #create subset of ct matrix based upon entered group
 
-ctSelection <- function (data, frame, group) {
+ctSelection <- function(data, frame, group) {
 	check <- list(data=data, frame=frame, group=group)
 	ref <- c("data.frame","data.frame","factor")
 	.argumentValid(check, ref)
@@ -115,7 +115,8 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 #uses edgeR to compute an exact test and find differentially expressed genes
 
-edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+#TODO: Remove hardcoded .idConvert options
 
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
@@ -132,9 +133,12 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
 	d <- data.frame(rowMeans(b))
+	biomart <- .idConvert(et, rownames(et$genes), 'mouse', 'refseq_mrna', 'mgi_symbol')
+	et$table["Symbol"] <- biomart$genes$Symbol
+	et$table["Description"] <- biomart$genes$Description
 	et$table["Avg Ct A"] <- c
 	et$table["Avg Ct B"] <- d
-	et$table <- et$table[,c(5,6,1,2,3, 4)]
+	et$table <- et$table[,c(5,6,7,8,1,2,3,4)]
 	et$table <- et$table[order(et$table$FDR, decreasing=FALSE),]
 	y$results <- et
 	return(y)
@@ -142,7 +146,7 @@ edgeRclassic <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=
 
 #preliminary wrapper for using the glmQLFTest
 
-edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
@@ -161,7 +165,7 @@ edgeRGLM <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
 
-DESeq2 <- function (data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
