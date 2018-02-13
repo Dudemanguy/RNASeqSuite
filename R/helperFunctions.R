@@ -83,7 +83,7 @@
 
 #use biomaRt to convert gene ids
 
-.idConvert <- function(count, gene, org, attr_in, attr_out) {
+.idConvert <- function(gene, org, attr_in, attr_out) {
 	ensembl <- useMart("ensembl")
 	if (org == "mouse") {
 		ensembl <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
@@ -130,10 +130,7 @@
 	}
 
 	converted <- getBM(attributes=c(id_input, id_output, "description"), filters=id_input, values=c(gene), mart=ensembl)
-	m <- match(count$genes$genes, converted[,1])
-	count$genes$Symbol <- converted$mgi_symbol[m]
-	count$genes$Description <- converted$description[m]
-	return(count)
+	return(converted)
 }
 
 #fetch additional annotation from org R packages and insert into DGEList

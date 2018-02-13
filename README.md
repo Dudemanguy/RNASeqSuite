@@ -28,10 +28,13 @@ Creates a data frame of filtered counts from the data frame of read counts. "dat
 
 Inputs are exactly the same as `ctFilter`. The `edgeR` function calls a DGEList from the edgeR library and returns a data frame containing differential genes ordered by their FDR along with count numbers. Currently, this function is limited to classic mode and only pairwise comparisons. It will only handle the default values of edgeR's internal functions and will likely be phased out in the future.
 
-
 ``DESeq2(data, frame, group, htsfilter, cfilter, cutoff)``
 
 Inputs are exactly the same as `ctFilter`. The `DESeq2` function calls the DESeq function from the DESeq2 library and returns a data frame containing differential genes ordered by their padj along with count numbers. Currently, this function is limited to only pairwise comparisons. It will only handle the default values of DESeq2's internal functions and will likely be phased out in the future.
+
+``idAdd(dge, org, input_id, output_id)``
+
+This function takes the gene names in the DGEList generated from edgeR and uses biomaRt to convert into a different ID, provide description, and add it back to the results section of the DGEList.
 
 ``write.table(dge, directory, fdr)``
 

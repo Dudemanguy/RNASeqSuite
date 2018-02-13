@@ -113,7 +113,6 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 }
 
 #uses edgeR to compute an exact test and find differentially expressed genes
-#TODO: Remove hardcoded .idConvert options
 
 edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
@@ -131,12 +130,9 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
 	d <- data.frame(rowMeans(b))
-	biomart <- .idConvert(et, rownames(et$genes), 'mouse', 'refseq_mrna', 'mgi_symbol')
-	et$table["Symbol"] <- biomart$genes$Symbol
-	et$table["Description"] <- biomart$genes$Description
 	et$table["Avg Ct A"] <- c
 	et$table["Avg Ct B"] <- d
-	et$table <- et$table[,c(5,6,7,8,1,2,3,4)]
+	et$table <- et$table[,c(5,6,1,2,3,4)]
 	et$table <- et$table[order(et$table$FDR, decreasing=FALSE),]
 	y$results <- et
 	return(y)
@@ -182,6 +178,24 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	resOrder <- res[,c(7,8,1,2,3,4,5,6)]
 	resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
 	return(resOrder)
+}
+
+#add annotations to DGEList
+#TODO: Write a better way to rearrange table order
+
+idAdd <- function(dge, org, input_id, output_id) {
+	check <- list(dge=dge, org=org, input_id=input_id, output_id=output_id)
+	ref <- c("DGEList", "character", "character", "character")
+	.argumentValid(check, ref)
+	biomart <- .idConvert(dge$genes$genes, org, input_id, output_id)
+	m <- match(dge$genes$genes, biomart[,1])
+	dge$genes$Symbol <- biomart$mgi_symbol[m]
+	dge$genes$Description <- biomart$description[m]
+	dge$results$table["Symbol"] <- dge$genes$Symbol
+	dge$results$table["Description"] <- dge$genes$Description
+	dge$results$table <- dge$results$table[,c(7,8,1,2,3,4,5,6)]
+	dge$results$table <- dge$results$table[order(dge$results$table$FDR, decreasing=FALSE),]
+	return(dge)
 }
 
 #make directory and output results
