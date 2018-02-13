@@ -114,6 +114,20 @@
 			print("No results found for attribute input. Please try again.")
 			stop()
 		}
+		else {
+			if (nrow(attr_in_filtered) > nrow(head(attr_in_filtered))) {
+				print(head(attr_in_filtered))
+				id_input <- readline("Type in the name of the input id from the list. Type 'show' to see full matrix. \n")
+				while (id_input == "show") {
+					print(attr_in_filtered)
+					id_input <- readline("Type in the name of the input id from the list. \n")
+				}
+			}
+			else {
+				print(attr_in_filtered)
+				id_input <- readline("Type in the name of the input id from the list. \n")
+			}
+		}
 	}
 
 	#handle the output attribute
@@ -126,6 +140,20 @@
 		if (nrow(attr_out_filtered) == 0) {
 			print("No results found for attribute output. Please try again.")
 			stop()
+		}
+		else {
+			if (nrow(attr_out_filtered) > nrow(head(attr_out_filtered))) {
+				print(head(attr_in_filtered))
+				id_output <- readline("Type in the name of the output id from the list. Type 'show' to see full matrix. \n")
+				while (id_output == "show") {
+					print(attr_out_filtered)
+					id_output <- readline("Type in the name of the output id from the list. \n")
+				}
+			}
+			else {
+				print(attr_out_filtered)
+				id_output <- readline("Type in the name of the output id from the list. \n")
+			}
 		}
 	}
 
