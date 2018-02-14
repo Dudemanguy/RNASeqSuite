@@ -187,5 +187,9 @@
 	egSYMBOL <- toTable(org.Mm.egSYMBOL)
 	m <- match(count$genes$EntrezGene, egSYMBOL$gene_id)
 	count$genes$Symbol <- egSYMBOL$symbol[m]
+	o <- order(count$table$PValue)
+	count <- count[o,]
+	d <- duplicated(count$genes$EntrezGene)
+	count <- count[!d,]
 	return(count)
 }
