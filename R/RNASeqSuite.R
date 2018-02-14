@@ -2,7 +2,7 @@
 
 ctSelection <- function(data, frame, group) {
 	check <- list(data=data, frame=frame, group=group)
-	ref <- c("data.frame","data.frame","factor")
+	ref <- c("data.frame", "data.frame", "factor")
 	.argumentValid(check, ref)
 	if (!(.stringMatch(frame, 2, group))) {
 		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
@@ -12,7 +12,7 @@ ctSelection <- function(data, frame, group) {
 		selection_list <- apply(selection_grep, 2, .select, frame)
 		selection <- do.call("rbind", selection_list)
 		columns <- as.vector(selection[,1])
-		matframe <- subset(data, select = eval(parse(text=list(columns))))
+		matframe <- subset(data, select=eval(parse(text=list(columns))))
 		return(matframe)
 	}
 }
@@ -21,7 +21,7 @@ ctSelection <- function(data, frame, group) {
 
 grpSelection <- function(frame, groupselect) {
 	check <- list(frame=frame, groupselect=groupselect)
-	ref <- c("data.frame","character")
+	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
 	if (!(.stringMatch(frame, 2, groupselect))) {
 		stop(paste("Error, some entries in", deparse(substitute(frame)), 
@@ -77,7 +77,7 @@ cFilter <- function(dflist, sd, group) {
 
 ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
+	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	ct <- ctSelection(data, frame, group)
 	name_list <- list()
@@ -116,7 +116,7 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
+	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	y <- DGEList(counts=ct, group=group, genes=rownames(ct))
@@ -132,7 +132,7 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 	d <- data.frame(rowMeans(b))
 	et$table["Avg Ct A"] <- c
 	et$table["Avg Ct B"] <- d
-	et$table <- et$table[,c(5,6,1,2,3,4)]
+	et$table <- et$table[,c(5, 6, 1, 2, 3, 4)]
 	et$table <- et$table[order(et$table$FDR, decreasing=FALSE),]
 	y$results <- et
 	return(y)
@@ -142,7 +142,7 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 
 edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
+	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	y <- DGEList(counts=ct, group=group, genes=rownames(ct))
@@ -150,7 +150,7 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	design <- model.matrix(~group)
 	y <- estimateDisp(y, design, robust=TRUE)
 	fit <- glmQLFit(y, design, robust=TRUE)
-	qlf <- glmQLFTest(fit, coef=c(2,ncol(design)))
+	qlf <- glmQLFTest(fit, coef=c(2, ncol(design)))
 	qlf_raw <- topTags(qlf, n=Inf)
 	qlf_frame <- qlf_raw[[1]]
 	return(qlf_frame)
@@ -160,7 +160,7 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame","data.frame","factor","logical","numeric","numeric")
+	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)	
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
 	groupframe <- data.frame(group)
@@ -175,7 +175,7 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	d <- data.frame(rowMeans(b))
 	res["Avg Ct A"] <- c
 	res["Avg Ct B"] <- d
-	resOrder <- res[,c(7,8,1,2,3,4,5,6)]
+	resOrder <- res[,c(7, 8, 1, 2, 3, 4, 5, 6)]
 	resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
 	return(resOrder)
 }
@@ -193,7 +193,7 @@ idAdd <- function(dge, org, input_id, output_id) {
 	dge$genes$Description <- biomart$description[m]
 	dge$results$table["Symbol"] <- dge$genes$Symbol
 	dge$results$table["Description"] <- dge$genes$Description
-	dge$results$table <- dge$results$table[,c(7,8,1,2,3,4,5,6)]
+	dge$results$table <- dge$results$table[,c(7, 8, 1, 2, 3, 4, 5, 6)]
 	dge$results$table <- dge$results$table[order(dge$results$table$FDR, decreasing=FALSE),]
 	return(dge)
 }
@@ -202,7 +202,7 @@ idAdd <- function(dge, org, input_id, output_id) {
 
 write.output <- function(dge, directory, fdr) {
 	check <- list(dge=dge, directory=directory, fdr=fdr)
-	ref <- c("DGEList","character","numeric")
+	ref <- c("DGEList", "character", "numeric")
 	.argumentValid(check, ref)
 	dir.create(directory)
 	setwd(directory)

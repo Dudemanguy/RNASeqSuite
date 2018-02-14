@@ -10,8 +10,8 @@
 	classframe["class"] <- classvector
 	classframe["ref"] <- refnames
 	for (i in nrow(classframe)) {
-		if (classframe[i,2] != classframe[i,3]) {
-			stop(paste(classframe[i,2], " is an invalid class for ", classframe[i,1], ". It must be a ", classframe[i,3], sep=""), call.=FALSE)
+		if (classframe[i, 2] != classframe[i, 3]) {
+			stop(paste(classframe[i, 2], " is an invalid class for ", classframe[i, 1], ". It must be a ", classframe[i, 3], sep=""), call.=FALSE)
 		}
 	}
 }
@@ -54,18 +54,18 @@
 	selection_list <- apply(selection_grep, 2, .select, frame)
 	selection <- do.call("rbind", selection_list)
 	columns <- as.vector(selection[,1])
-	matframe <- subset(data, select = eval(parse(text=list(columns))))
+	matframe <- subset(data, select=eval(parse(text=list(columns))))
 	subframe <- data.frame()
 	sublist <- list()
 	j <- 1
 	k <- 0
 	for (i in 1:(nrow(selection))) {
 		if (i != nrow(selection)) {
-			if (selection[i,2] == selection[i+1,2]) {
+			if (selection[i, 2] == selection[i+1, 2]) {
 				j <- j+1
 				k <- k+1
 			}
-			if (!(selection[i,2] == selection[i+1,2])) {
+			if (!(selection[i, 2] == selection[i+1, 2])) {
 				subframe <- matframe[,(j-k):j]
 				sublist[[i]] <- subframe
 				j <- j+1
@@ -165,7 +165,7 @@
 #TODO: remove hardcoded options for species and annotations
 
 .annotationFetch <- function(count, species) {
-	selection <- paste("org.",species,".eg.db",sep="")
+	selection <- paste("org.", species, ".eg.db", sep="")
 	library(selection, character.only=TRUE)
 	if (selection == 'org.Mm.eg.db') {
 		idfound <- count$genes$genes %in% mappedRkeys(org.Mm.egREFSEQ)
