@@ -1,11 +1,13 @@
+export(grpSelection, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2, idAdd, write.output)
+exportClasses("DataList")
+exportMethods("show")
+
 import(edgeR)
 import(DESeq2)
 import(HTSFilter)
 import(biomaRt)
 import(methods)
 
-export(grpSelection, ctSelection, ctFilter, edgeRclassic, edgeRGLM, DESeq2, idAdd, write.output)
-exportClasses("DataList")
 
 S3method(as.matrix, DataList)
 S3method(aveLogCPM, DataList)

@@ -187,8 +187,8 @@ idAdd <- function(dge, org, input_id, output_id) {
 	check <- list(dge=dge, org=org, input_id=input_id, output_id=output_id)
 	ref <- c("DGEList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(dge$genes$genes, org, input_id, output_id)
-	m <- match(dge$genes$genes, biomart[,1])
+	biomart <- .idConvert(rownames(dge$results$table), org, input_id, output_id)
+	m <- match(rownames(dge$results$table), biomart[,1])
 	dge$genes$Symbol <- biomart$mgi_symbol[m]
 	dge$genes$Description <- biomart$description[m]
 	dge$results$table["Symbol"] <- dge$genes$Symbol
