@@ -82,6 +82,13 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 		smallp=exactTestBySmallP(y1,y2,dispersion=dispersion)
 	)
 
+#	grab raw counts and average by group
+	width1 <- table(object$samples$group)[[1]]
+	a <- object$counts[,1:width1]
+	b <- object$counts[,(width1+1):ncol(object$counts)]
+	c <- rowMeans(a)
+	d <- rowMeans(b)
+
 #	adjust.pvalues
 	FWER.methods <- c("holm", "hochberg", "hommel", "bonferroni")
 	FDR.methods <- c("BH", "BY", "fdr")
@@ -91,7 +98,7 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 #	add to DataList
 	AveLogCPM <- object$AveLogCPM
 	if(is.null(AveLogCPM)) AveLogCPM <- aveLogCPM(object)
-	de.out <- data.frame(logFC=logFC, logCPM=AveLogCPM, PValue=exact.pvals, FDR=adj.p.val)
+	de.out <- data.frame('Avg Ct A'=c, 'Avg Ct B'=d, logFC=logFC, logCPM=AveLogCPM, PValue=exact.pvals, FDR=adj.p.val)
 	rn <- rownames(object$counts)
 	if(!is.null(rn)) rownames(de.out) <- make.unique(rn)
 	o <- switch(sort.by,
