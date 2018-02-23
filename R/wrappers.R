@@ -13,7 +13,7 @@ ctSelection <- function(data, frame, group) {
 		selection <- do.call("rbind", selection_list)
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select=eval(parse(text=list(columns))))
-		return(matframe)
+		matframe
 	}
 }
 
@@ -33,7 +33,7 @@ grpSelection <- function(frame, groupselect) {
 		selection <- do.call("rbind", selection_list)
 		getgroup <- selection[,2]
 		getgroup <- factor(getgroup, levels=unique(getgroup))
-		return(getgroup)
+		getgroup
 	}
 }
 
@@ -69,7 +69,7 @@ cFilter <- function(dflist, sd, group) {
 		sd_df <- sd(df_diff[,1])
 		df_compressed <- rownames(df_diff[(mean_df - (sd*sd_df)) <= avg_row 
 									& avg_row <= (mean_df + (sd*sd_df)), 1, drop=FALSE])
-		return(df_compressed)
+		df_compressed
 	}
 }
 
@@ -109,7 +109,7 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	}
 	total_names <- Reduce(intersect, name_list)
 	allfilter <- .select(total_names, ct)
-	return(allfilter)
+	allfilter
 }
 
 #uses edgeR to compute an exact test and find differentially expressed genes
@@ -122,20 +122,8 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 	y <- DataList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
-	et <- exactTest(y) 
-	et_FDR <- topTags(et, n=Inf, sort.by="none")
-	et$table["FDR"] <- et_FDR$table$FDR
-	width <- table(group)[[1]]
-	a <- ct[,1:width]
-	b <- ct[,(width+1):ncol(ct)]
-	c <- data.frame(rowMeans(a))
-	d <- data.frame(rowMeans(b))
-	et$table["Avg Ct A"] <- c
-	et$table["Avg Ct B"] <- d
-	et$table <- et$table[,c(5, 6, 1, 2, 3, 4)]
-	et$table <- et$table[order(et$table$FDR, decreasing=FALSE),]
-	y$results <- et
-	return(y)
+	y <- exactTest(y)
+	y
 }
 
 #preliminary wrapper for using the glmQLFTest
@@ -153,7 +141,7 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	qlf <- glmQLFTest(fit, coef=c(2, ncol(design)))
 	qlf_raw <- topTags(qlf, n=Inf)
 	qlf_frame <- qlf_raw[[1]]
-	return(qlf_frame)
+	qlf_frame
 }
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
@@ -177,7 +165,7 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	res["Avg Ct B"] <- d
 	resOrder <- res[,c(7, 8, 1, 2, 3, 4, 5, 6)]
 	resOrder <- resOrder[order(resOrder$padj, decreasing=FALSE),]
-	return(resOrder)
+	resOrder
 }
 
 #add annotations to DataList
@@ -195,7 +183,7 @@ idAdd <- function(dl, org, input_id, output_id) {
 	dl$results$table["Description"] <- dl$genes$Description
 	dl$results$table <- dl$results$table[,c(7, 8, 1, 2, 3, 4, 5, 6)]
 	dl$results$table <- dl$results$table[order(dl$results$table$FDR, decreasing=FALSE),]
-	return(dl)
+	dl
 }
 
 #make directory and output results
