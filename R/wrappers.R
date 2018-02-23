@@ -112,9 +112,9 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	allfilter
 }
 
-#uses edgeR to compute an exact test and find differentially expressed genes
+#uses wrapper function around the exactTest to find differentially expressed genes and store them in a DataList object
 
-edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+exactWrapper <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
