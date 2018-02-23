@@ -1,4 +1,4 @@
-exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="doubletail", big.count=900, prior.count=0.125)
+exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="doubletail", big.count=900, prior.count=0.125, adjust.method="BH", sort.by="FDR")
 #	Calculates exact p-values for the differential expression levels of tags in the two groups being compared.
 #	Davis McCarthy, Gordon Smyth.
 #	Created September 2009. Last modified 8 July 2012.
@@ -82,12 +82,28 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 		smallp=exactTestBySmallP(y1,y2,dispersion=dispersion)
 	)
 
+#	adjust.pvalues
+	FWER.methods <- c("holm", "hochberg", "hommel", "bonferroni")
+	FDR.methods <- c("BH", "BY", "fdr")
+	adjust.method <- match.arg(adjust.method,c(FWER.methods,FDR.methods,"none"))
+	adj.p.val <- p.adjust(exact.pvals, method=adjust.method)
+
+#	add to DataList
 	AveLogCPM <- object$AveLogCPM
 	if(is.null(AveLogCPM)) AveLogCPM <- aveLogCPM(object)
-	de.out <- data.frame(logFC=logFC, logCPM=AveLogCPM, PValue=exact.pvals)
+	de.out <- data.frame(logFC=logFC, logCPM=AveLogCPM, PValue=exact.pvals, FDR=adj.p.val)
 	rn <- rownames(object$counts)
 	if(!is.null(rn)) rownames(de.out) <- make.unique(rn)
+	o <- switch(sort.by,
+		"logFC" = order(de.out$logFC, decreasing=TRUE),
+		"logCPM" = order(de.out$logCPM, decreasing=TRUE),
+		"PValue" = order(de.out$PValue, decreasing=FALSE),
+		"FDR" = order(de.out$FDR, decreasing=FALSE),
+		"none" = 1:nrow(de.out)
+	)
+	de.out <- de.out[o,]
 	object[["comparison"]] <- pair
+	object[["adjust.method"]] <- adjust.method
 	object[["et_results"]] <- de.out
 	object
 }

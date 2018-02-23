@@ -5,7 +5,8 @@ Title: Convienent R wrapper of popular RNAseq pipelines desgined to
 Author: <random342@airmail.cc>
 Maintainer: <random342@airmail.cc>
 Depends: methods
-Imports: edgeR, DESeq2, HTSFilter
+Imports: edgeR, DESeq2, HTSFilter,
+    Rcpp
 Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: Annotation
@@ -18,3 +19,4 @@ Description: In the world of bioinformatics, there are many different possible p
 License: GPL (>= 2)
 LazyLoad: yes
 NeedsCompilation: no
+LinkingTo: Rcpp
