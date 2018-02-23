@@ -6,7 +6,7 @@
 Exports the results in the DataList object to a directory
 }
 \usage{
-\method{write.output}(dl, directory, fdr=0.05)
+write.output(dl, directory, fdr=0.05)
 }
 
 \arguments{

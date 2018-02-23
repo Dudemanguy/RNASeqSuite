@@ -6,7 +6,7 @@
 Creates a factor of group names from the selected character vector.
 }
 \usage{
-\method{grpSelection}(frame, groupselect)
+grpSelection(frame, groupselect)
 }
 
 \arguments{

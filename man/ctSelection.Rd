@@ -5,8 +5,9 @@
 \description{
 Subsets the count matrix into selected columns based on group.
 }
+
 \usage{
-\method{ctSelection}(data, frame, group)
+ctSelection(data, frame, group)
 }
 
 \arguments{
