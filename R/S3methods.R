@@ -15,7 +15,7 @@ dimnames.DataList <- function(x) {
 	dimnames(x$counts)
 }
 
-assign("dimnames<.DataList", function(x, value) {
+assign("dimnames<-.DataList", function(x, value) {
 	dimnames(x$counts) <- value
 	if (!is.null(x$samples)) {
 		row.names(x$samples) <- value[[2]]
