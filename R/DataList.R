@@ -73,6 +73,17 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 	x
 }
 
+.isAllZero <- function(y) 
+# Function to check if all counts are zero in a memory-efficient manner.
+# Also checks and throws an error if NA or negative counts are present.
+{
+    check.range <- suppressWarnings(range(y))
+    if (any(is.na(check.range)) || check.range[1] < 0) {
+        stop("counts must be positive finite values")
+    }
+    return(check.range[2]==0);
+}
+
 .dropEmptyLevels <- function(x) {
 	if(is.factor(x)) {
 		i <- which(tabulate(as.integer(x))>0L)

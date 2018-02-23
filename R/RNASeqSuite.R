@@ -119,7 +119,7 @@ edgeRclassic <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
-	y <- DGEList(counts=ct, group=group, genes=rownames(ct))
+	y <- DataList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
 	et <- exactTest(y) 
@@ -145,7 +145,7 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
-	y <- DGEList(counts=ct, group=group, genes=rownames(ct))
+	y <- DataList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
 	design <- model.matrix(~group)
 	y <- estimateDisp(y, design, robust=TRUE)
@@ -180,37 +180,37 @@ DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	return(resOrder)
 }
 
-#add annotations to DGEList
+#add annotations to DataList
 #TODO: Write a better way to rearrange table order
 
-idAdd <- function(dge, org, input_id, output_id) {
-	check <- list(dge=dge, org=org, input_id=input_id, output_id=output_id)
-	ref <- c("DGEList", "character", "character", "character")
+idAdd <- function(dl, org, input_id, output_id) {
+	check <- list(dl=dl, org=org, input_id=input_id, output_id=output_id)
+	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(rownames(dge$results$table), org, input_id, output_id)
-	m <- match(rownames(dge$results$table), biomart[,1])
-	dge$genes$Symbol <- biomart$mgi_symbol[m]
-	dge$genes$Description <- biomart$description[m]
-	dge$results$table["Symbol"] <- dge$genes$Symbol
-	dge$results$table["Description"] <- dge$genes$Description
-	dge$results$table <- dge$results$table[,c(7, 8, 1, 2, 3, 4, 5, 6)]
-	dge$results$table <- dge$results$table[order(dge$results$table$FDR, decreasing=FALSE),]
-	return(dge)
+	biomart <- .idConvert(rownames(dl$results$table), org, input_id, output_id)
+	m <- match(rownames(dl$results$table), biomart[,1])
+	dl$genes$Symbol <- biomart$mgi_symbol[m]
+	dl$genes$Description <- biomart$description[m]
+	dl$results$table["Symbol"] <- dl$genes$Symbol
+	dl$results$table["Description"] <- dl$genes$Description
+	dl$results$table <- dl$results$table[,c(7, 8, 1, 2, 3, 4, 5, 6)]
+	dl$results$table <- dl$results$table[order(dl$results$table$FDR, decreasing=FALSE),]
+	return(dl)
 }
 
 #make directory and output results
 
-write.output <- function(dge, directory, fdr) {
-	check <- list(dge=dge, directory=directory, fdr=fdr)
-	ref <- c("DGEList", "character", "numeric")
+write.output <- function(dl, directory, fdr) {
+	check <- list(dl=dl, directory=directory, fdr=fdr)
+	ref <- c("DataList", "character", "numeric")
 	.argumentValid(check, ref)
 	dir.create(directory)
 	setwd(directory)
-	sink("dgelist_output")
-	print(dge)
+	sink("datalist_output")
+	print(dl)
 	sink()
-	write.table(dge$results$table, file="full_results", sep="\t", quote=FALSE)
-	dge_cutoff <- dge$results$table[which(dge$results$table$FDR<fdr),]
-	write.table(dge_cutoff, file="significant_results", sep="\t", quote=FALSE)
+	write.table(dl$results$table, file="full_results", sep="\t", quote=FALSE)
+	dl_cutoff <- dl$results$table[which(dl$results$table$FDR<fdr),]
+	write.table(dl_cutoff, file="significant_results", sep="\t", quote=FALSE)
 	setwd('..')
 }
