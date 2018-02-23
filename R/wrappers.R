@@ -188,7 +188,7 @@ idAdd <- function(dl, org, input_id, output_id) {
 
 #make directory and output results
 
-write.output <- function(dl, directory, fdr) {
+write.output <- function(dl, directory, fdr=0.05) {
 	check <- list(dl=dl, directory=directory, fdr=fdr)
 	ref <- c("DataList", "character", "numeric")
 	.argumentValid(check, ref)
@@ -197,8 +197,8 @@ write.output <- function(dl, directory, fdr) {
 	sink("datalist_output")
 	print(dl)
 	sink()
-	write.table(dl$results$table, file="full_results", sep="\t", quote=FALSE)
-	dl_cutoff <- dl$results$table[which(dl$results$table$FDR<fdr),]
+	write.table(dl$et_results, file="full_results", sep="\t", quote=FALSE)
+	dl_cutoff <- dl$et_results[which(dl$et_results$FDR<fdr),]
 	write.table(dl_cutoff, file="significant_results", sep="\t", quote=FALSE)
 	setwd('..')
 }
