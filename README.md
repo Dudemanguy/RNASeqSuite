@@ -14,10 +14,10 @@ To use RNASeqSuite, one only needs a data frame of read counts and data frame of
 data <- read.table('/path/to/count/matrix')
 frame <- read.table('/path/to/colnames/and/group')
 group <- grpSelection(frame, c('name of group A', 'name of group B'))
-y <- edgeRclassic(data, frame, group)
+y <- exactWrapper(data, frame, group)
 ```
 
-``y`` is the DataList object containing all the information on the count matrix, samples, pvalues, comparison, etc. By default, edgeRclassic will filter data for you based on ``HTSFilter`` which uses a Jaccard index to remove low, constant expression genes. There are more options available in the manpages. To quickly write results to a file, use the write.output wrapper.
+``y`` is the DataList object containing all the information on the count matrix, samples, pvalues, comparison, etc. By default, exactWrapper will filter data for you based on ``HTSFilter`` which uses a Jaccard index to remove low, constant expression genes. There are more options available in the manpages. To quickly write results to a file, use the write.output wrapper.
 
 ``write.output(DataList, Directory, fdr)``
 
