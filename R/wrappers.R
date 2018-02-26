@@ -175,14 +175,14 @@ idAdd <- function(dl, org, input_id, output_id) {
 	check <- list(dl=dl, org=org, input_id=input_id, output_id=output_id)
 	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(rownames(dl$results$table), org, input_id, output_id)
-	m <- match(rownames(dl$results$table), biomart[,1])
+	biomart <- .idConvert(rownames(dl$et_results), org, input_id, output_id)
+	m <- match(rownames(dl$et_results), biomart[,1])
 	dl$genes$Symbol <- biomart$mgi_symbol[m]
 	dl$genes$Description <- biomart$description[m]
-	dl$results$table["Symbol"] <- dl$genes$Symbol
-	dl$results$table["Description"] <- dl$genes$Description
-	dl$results$table <- dl$results$table[,c(7, 8, 1, 2, 3, 4, 5, 6)]
-	dl$results$table <- dl$results$table[order(dl$results$table$FDR, decreasing=FALSE),]
+	dl$et_results["Symbol"] <- dl$genes$Symbol
+	dl$et_results["Description"] <- dl$genes$Description
+	dl$et_results <- dl$et_results[,c(7, 8, 1, 2, 3, 4, 5, 6)]
+	dl$et_results <- dl$et_results[order(dl$et_results$FDR, decreasing=FALSE),]
 	dl
 }
 
