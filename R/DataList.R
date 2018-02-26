@@ -39,7 +39,7 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 		else
 			group <- rep(1,ncol(counts))
 	}
-	group <- .dropEmptyLevels(group)
+	group <- dropEmptyLevels(group)
 	if (nlib != length(group)) {
 		stop("Length of 'group' must equal number of columns in 'counts'")
 	}
@@ -82,17 +82,4 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
         stop("counts must be positive finite values")
     }
     return(check.range[2]==0);
-}
-
-.dropEmptyLevels <- function(x) {
-	if(is.factor(x)) {
-		i <- which(tabulate(as.integer(x))>0L)
-		if (length(i) < nlevels(x)) {
-			x <- factor(x, levels=levels(x)[i])
-		}
-		return(x)
-	}
-		else {
-			return(factor(x))
-	}
 }
