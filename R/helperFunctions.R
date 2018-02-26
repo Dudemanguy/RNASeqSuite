@@ -296,3 +296,64 @@ condLogLikDerDelta <- function(y,delta,der=1L)
 		condLogLikDerSize(y,r,der=1L)*2*(delta^(-3))+condLogLikDerSize(y,r,der=2)*(delta^(-4))
 	)
 }
+
+getDispersion <- function(y)
+#	Get most complex dispersion values from DGEList object
+#	Gordon Smyth
+#	Created 12 Dec 2011.  Last modified 3 Oct 2012.
+{
+	if( !is.null(y$tagwise.dispersion) ) {
+		dispersion <- y$tagwise.dispersion
+		attr(dispersion,"type") <- "tagwise"
+	} else {
+		if( !is.null(y$trended.dispersion) ) {
+			dispersion <- y$trended.dispersion
+			attr(dispersion,"type") <- "trended"
+		} else {
+			if( !is.null(y$common.dispersion) ) {
+				dispersion <- y$common.dispersion
+				attr(dispersion,"type") <- "common"
+			} else
+				dispersion <- NULL
+		}
+	}
+	dispersion
+}
+
+locfitByCol <- function(y, x=NULL, weights=1, span=0.5, degree=0)
+#	Gordon Smyth
+#	20 Aug 2012.  Last modified 15 June 2016.
+{
+	y <- as.matrix(y)
+	ntags <- nrow(y)
+	weights <- rep_len(weights,ntags)
+	if(is.null(x)) x <- 1:ntags
+	if(span*ntags<2 || ntags<=1) return(y)
+	for (j in 1:ncol(y)) y[,j] <- fitted(locfit(y[,j]~x,weights=weights, alpha=span,deg=degree))
+	y
+}
+
+maximizeInterpolant <- function( x, y ) 
+# maximizeInterpolant: written by Aaron Lun
+#
+# This function takes an ordered set of spline points and a likelihood matrix where each row 
+# corresponds to a tag and each column corresponds to a spline point. It then calculates the 
+# position at which the maximum interpolated likelihood occurs for each by solving the derivative
+# of the spline function.
+{
+    if (is.vector(y)) {
+        y<-rbind(y)
+        warning("coverting vector of likelihoods to matrix format for interpolation")
+    }
+    if (length(x)!=ncol(y)) { 
+        stop("number of columns must equal number of spline points")
+    } else if (is.unsorted(x) || anyDuplicated(x)) {
+        stop("spline points must be unique and sorted")
+    }
+
+#	Performing some type checking.
+	if (!is.double(x)) storage.mode(x)<-"double"
+	if (!is.double(y)) storage.mode(y)<-"double"
+    out<-.Call(.cxx_maximize_interpolant, x, y)
+    return(out)
+}
