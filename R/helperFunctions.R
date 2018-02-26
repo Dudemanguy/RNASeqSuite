@@ -193,3 +193,106 @@
 	count <- count[!d,]
 	return(count)
 }
+
+validDataList <- function(y)
+#	Check for standard components of DGEList object
+#	Gordon Smyth
+#	20 Nov 2013
+{
+	if(is.null(y$counts)) stop("No count matrix")
+	y$counts <- as.matrix(y$counts)
+	nlib <- ncol(y$counts)
+	if(is.null(y$samples$group)) y$samples$group <- gl(1,nlib)
+	if(is.null(y$samples$lib.size)) y$samples$lib.size <- colSums(y$counts)
+	if(is.null(y$samples$norm.factors)) y$samples$norm.factors <- rep.int(1,nlib)
+	y
+}
+
+getOffset <- function(y)
+#	Extract offset vector or matrix from data object and optional arguments.
+#	By default, offset is constructed from the lib.size and norm.factors
+#	but offset supplied explicitly takes precedence
+
+#	Gordon Smyth
+#	26 Jan 2011. Last modified 11 Jan 2012.
+{
+	offset <- y$offset
+	lib.size <- y$samples$lib.size
+	norm.factors <- y$samples$norm.factors
+	
+	if(!is.null(offset)) {
+		return(offset)
+	} else {		
+		if(!is.null(norm.factors)) lib.size <- lib.size*norm.factors
+		return(log(lib.size))
+	}
+}
+
+dropEmptyLevels <- function(x)
+#	Drop levels of a factor that don't occur
+#	Gordon Smyth
+#	Created 25 March 2012.  Last modified 6 March 2015.
+{
+	if(is.factor(x)) {
+		i <- which(tabulate(as.integer(x))>0L)
+		if(length(i) < nlevels(x)) x <- factor(x, levels=levels(x)[i])
+		return(x)
+	} else {
+		return(factor(x))
+	}
+}
+
+condLogLikDerSize <- function(y, r, der=1L)
+#	Derivatives of the conditional log-likelihood function (given the row sum)
+#	with respect to r=1/dispersion
+#	for a single group of replicate libraries, all of the same total size
+{
+#	Vector interpreted as matrix of one row, i.e., one gene
+	if (is.vector(y)) {
+		y <- matrix(y,nrow=1)
+	} else {
+		y <- as.matrix(y)
+	}
+
+	n <- ncol(y)
+	m <- rowMeans(y)
+
+	switch(der+1L,
+		rowSums(lgamma(y+r)) + lgamma(n*r) - lgamma(n*(m+r)) - n*lgamma(r),
+		rowSums(digamma(y+r)) + n*digamma(n*r) - n*digamma(n*(m+r)) - n*digamma(r),
+		rowSums(trigamma(y+r)) + n^2*trigamma(n*r) - n^2*trigamma(n*(m+r)) - n*trigamma(r)
+	)
+}
+
+commonCondLogLikDerDelta <- function(y, delta, der=0) 
+# Calculates the common conditional log-likelihood (i.e. summed over all tags) - necessary so that optimize can be applied in estimateCommonDisp
+# Davis McCarthy, July 2009
+{
+	l0 <- 0
+	for(i in 1:length(y)) {
+		l0 <- condLogLikDerDelta(y[[i]],delta,der=der)+l0
+	}
+	sum(l0)
+}
+
+condLogLikDerDelta <- function(y,delta,der=1L)
+# Derivatives of log-likelihood function wrt to delta
+# r=1/dispersion and delta=1/(1+r)=dispersion/(1+dispersion)
+# der is order of derivative required (0th deriv is the function)
+# Written by Mark Robinson, edited by Davis McCarthy, February 2009
+{
+#	Vector interpreted as matrix of one row, i.e., one gene
+	if (is.vector(y)) {
+		y <- matrix(y,nrow=1)
+	} else {
+		y <- as.matrix(y)
+	}
+	if( !(length(delta)==1 | length(delta)==nrow(y)) ) stop("delta must be of length 1 or nrow(y)")
+
+	r <- (1/delta)-1
+	switch(der+1L,
+		condLogLikDerSize(y,r,der=0L),
+		condLogLikDerSize(y,r,der=1L)*(-delta^(-2)),
+		condLogLikDerSize(y,r,der=1L)*2*(delta^(-3))+condLogLikDerSize(y,r,der=2)*(delta^(-4))
+	)
+}
