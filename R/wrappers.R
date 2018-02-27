@@ -22,18 +22,15 @@ grpSelection <- function(frame, groupselect) {
 
 #create subset of ct matrix based upon entered group
 
-ctSelection <- function(data, frame, group) {
-	check <- list(data=data, frame=frame, group=group)
-	ref <- c("data.frame", "data.frame", "factor")
+ctSelection <- function(data, group) {
+	check <- list(data=data, group=group)
+	ref <- c("data.frame", "list")
 	.argumentValid(check, ref)
-	if (!(.stringMatch(frame, 2, group))) {
-		stop(paste("Error, no entries in", deparse(substitute(groupframe)), "match the arguments."))
+	if (!(.stringMatch(group$frame, 2, group$factor))) {
+		stop(paste("Error, no entries in", deparse(substitute(group)), "match the arguments."))
 	}
 	else {
-		selection_grep <- sapply(levels(group), '==', frame[,2])
-		selection_list <- apply(selection_grep, 2, .select, frame)
-		selection <- do.call("rbind", selection_list)
-		columns <- as.vector(selection[,1])
+		columns <- as.vector(group$frame[,1])
 		matframe <- subset(data, select=eval(parse(text=list(columns))))
 		matframe
 	}
@@ -41,9 +38,9 @@ ctSelection <- function(data, frame, group) {
 
 #Custom filter function based around standard deviation of normalized vectors
 
-cFilter <- function(dflist, sd, group) {
-	check <- list(dflist=dflist, sd=sd, group=group)
-	ref <- c("list", "numeric", "factor")
+cFilter <- function(dflist, sd) {
+	check <- list(dflist=dflist, sd=sd)
+	ref <- c("list", "numeric")
 	.argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
@@ -77,14 +74,14 @@ cFilter <- function(dflist, sd, group) {
 
 #reads the supplied ct matrix of reads and group data; filters data according to group
 
-ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
+ctFilter <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
-	ct <- ctSelection(data, frame, group)
+	ct <- ctSelection(data, group)
 	name_list <- list()
 	if (cutoff > 0) {
-		ct_split <- .ctSplit(data, frame, group)
+		ct_split <- .ctSplit(data, group)
 		ct_splitavgs <- lapply(ct_split, rowMeans)
 		ct_filter <- list()
 		for (i in seq_along(ct_splitavgs)) {
@@ -93,12 +90,12 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 		cutoff_names <- Reduce(intersect, ct_filter)
 	}
 	if (htsfilter == TRUE) {
-		htsfilter <- HTSFilter(ct, group, s.min=1, s.max=200, s.len=25)
+		htsfilter <- HTSFilter(ct, group$factor, s.min=1, s.max=200, s.len=25)
 		hts_names <- rownames(htsfilter[[1]])
 	}
 	if (cfilter > 0) {
-		dflist <- .ctSplit(data, frame, group)
-		cfilter_names <- cFilter(dflist, cfilter, group)
+		dflist <- .ctSplit(data, group)
+		cfilter_names <- cFilter(dflist, cfilter)
 	}
 	if (exists('cutoff_names')) {
 		name_list[["cutoff"]] <- cutoff_names
@@ -116,11 +113,11 @@ ctFilter <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 #uses wrapper function around the exactTest to find differentially expressed genes and store them in a DataList object
 
-exactWrapper <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
+exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
+	ct <- ctFilter(data, group, htsfilter, cfilter, cutoff)
 	y <- DataList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
@@ -130,14 +127,14 @@ exactWrapper <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0
 
 #preliminary wrapper for using the glmQLFTest
 
-edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
+edgeRGLM <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
+	ct <- ctFilter(data, group, htsfilter, cfilter, cutoff)
 	y <- DataList(counts=ct, group=group, genes=rownames(ct))
 	y <- calcNormFactors(y)
-	design <- model.matrix(~group)
+	design <- model.matrix(~group$factor)
 	y <- estimateDisp(y, design, robust=TRUE)
 	fit <- glmQLFit(y, design, robust=TRUE)
 	qlf <- glmQLFTest(fit, coef=c(2, ncol(design)))
@@ -148,17 +145,17 @@ edgeRGLM <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
 
-DESeq2 <- function(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
-	check <- list(data=data, frame=frame, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
-	ref <- c("data.frame", "data.frame", "factor", "logical", "numeric", "numeric")
+DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
+	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)	
-	ct <- ctFilter(data, frame, group, htsfilter, cfilter, cutoff)
-	groupframe <- data.frame(group)
+	ct <- ctFilter(data, group, htsfilter, cfilter, cutoff)
+	groupframe <- data.frame(group$factor)
 	colnames(groupframe) <- c("groupframe")
 	dds <- DESeqDataSetFromMatrix(countData=ct, colData=groupframe, design=~groupframe)
 	dds <- DESeq(dds)
 	res <- data.frame(results(dds))
-	width <- table(group)[[1]]
+	width <- table(group$factor)[[1]]
 	a <- ct[,1:width]
 	b <- ct[,(width+1):ncol(ct)]
 	c <- data.frame(rowMeans(a))
