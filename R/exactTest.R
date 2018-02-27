@@ -1,25 +1,35 @@
-exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="doubletail", big.count=900, prior.count=0.125, adjust.method="BH", sort.by="FDR")
+exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="doubletail", big.count=900, prior.count=0.125, adjust.method="BH", sort.by="FDR") {
 #	Calculates exact p-values for the differential expression levels of tags in the two groups being compared.
 #	Davis McCarthy, Gordon Smyth.
 #	Created September 2009. Last modified 8 July 2012.
-{
+
 #	Check input
-	if(!is(object,"DataList")) stop("Currently only supports DataList objects as the object argument.")
-	if(length(pair)!=2) stop("Pair must be of length 2.")
+	if (!is(object,"DataList")) {
+		stop("Currently only supports DataList objects as the object argument.")
+	}
+	if (length(pair)!=2) {
+		stop("Pair must be of length 2.")
+	}
 	rejection.region <- match.arg(rejection.region,c("doubletail","deviance","smallp"))
 
 #	Get group names
 	group <- as.factor(object$samples$group)
 	levs.group <- levels(group)
-	if(is.numeric(pair))
+	if (is.numeric(pair)) {
 		pair <- levs.group[pair]
-	else
+	}
+	else {
 		pair <- as.character(pair)	
-	if(!all(pair %in% levs.group)) stop("At least one element of given pair is not a group.\n Groups are: ", paste(levs.group, collapse=" "))
+	}
+	if (!all(pair %in% levs.group)) {
+		stop("At least one element of given pair is not a group.\n Groups are: ", paste(levs.group, collapse=" "))
+	}
 
 #	Get dispersion vector
-	if(is.null(dispersion)) dispersion <- "auto"
-	if(is.character(dispersion)) {
+	if (is.null(dispersion)) { 
+		dispersion <- "auto"
+	}
+	if (is.character(dispersion)) {
 		dispersion <- match.arg(dispersion,c("auto","common","trended","tagwise"))
 		dispersion <- switch(dispersion,
 			"common"=object$common.dispersion,
@@ -27,13 +37,21 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 			"tagwise"=object$tagwise.dispersion,
 			"auto"=getDispersion(object)
 		)
-		if(is.null(dispersion)) stop("specified dispersion not found in object")
-		if(is.na(dispersion[1])) stop("dispersion is NA")
+		if (is.null(dispersion)) {
+			stop("specified dispersion not found in object")
+		}
+		if (is.na(dispersion[1])) {
+			stop("dispersion is NA")
+		}
 	}
 	ldisp <- length(dispersion)
 	ntags <- nrow(object$counts)
-	if(ldisp!=1 && ldisp!=ntags) stop("Dispersion provided by user must have length either 1 or the number of tags in the DataList object.")
-	if(ldisp==1) dispersion <- rep(dispersion,ntags)
+	if (ldisp!=1 && ldisp!=ntags) {
+		stop("Dispersion provided by user must have length either 1 or the number of tags in the DataList object.")
+	}
+	if (ldisp==1) {
+		dispersion <- rep(dispersion,ntags)
+	}
 
 #	Reduce to two groups
 	group <- as.character(group)
@@ -42,7 +60,9 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 	lib.size <- object$samples$lib.size[j]
 	norm.factors <- object$samples$norm.factors[j]
 	group <- group[j]
-	if(is.null(rownames(y))) rownames(y) <- paste("tag",1:ntags,sep=".")
+	if (is.null(rownames(y))) {
+		rownames(y) <- paste("tag",1:ntags,sep=".")
+	}
 
 #	Normalized library sizes
 	lib.size <- lib.size * norm.factors
@@ -54,12 +74,16 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 	offset.aug <- log(lib.size+2*prior.count)
 	j1 <- group==pair[1]
 	n1 <- sum(j1)
-	if(n1==0) stop("No libraries for",pair[1])
+	if (n1==0) {
+		stop("No libraries for",pair[1])
+	}
 	y1 <- y[,j1,drop=FALSE]
 	abundance1 <- mglmOneGroup(y1+matrix(prior.count[j1],ntags,n1,byrow=TRUE),offset=offset.aug[j1],dispersion=dispersion)
 	j2 <- group==pair[2]
 	n2 <- sum(j2)
-	if(n1==0) stop("No libraries for",pair[2])
+	if (n1==0) {
+		stop("No libraries for",pair[2])
+	}
 	y2 <- y[,j2,drop=FALSE]
 	abundance2 <- mglmOneGroup(y2+matrix(prior.count[j2],ntags,n2,byrow=TRUE),offset=offset.aug[j2],dispersion=dispersion)
 	logFC <- (abundance2-abundance1)/log(2)
@@ -97,10 +121,14 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 
 #	add to DataList
 	AveLogCPM <- object$AveLogCPM
-	if(is.null(AveLogCPM)) AveLogCPM <- aveLogCPM(object)
+	if (is.null(AveLogCPM)) {
+		AveLogCPM <- aveLogCPM(object)
+	}
 	de.out <- data.frame('Avg Ct A'=c, 'Avg Ct B'=d, logFC=logFC, logCPM=AveLogCPM, PValue=exact.pvals, FDR=adj.p.val)
 	rn <- rownames(object$counts)
-	if(!is.null(rn)) rownames(de.out) <- make.unique(rn)
+	if (!is.null(rn)) {
+		rownames(de.out) <- make.unique(rn)
+	}
 	o <- switch(sort.by,
 		"logFC" = order(de.out$logFC, decreasing=TRUE),
 		"logCPM" = order(de.out$logCPM, decreasing=TRUE),
@@ -129,9 +157,15 @@ exactTestBetaApprox <- function(y1,y2,dispersion=0)
 	ntags <- NROW(y1)
 	n1 <- NCOL(y1)
 	n2 <- NCOL(y2)
-	if(n1>1) y1 <- rowSums(y1)
-	if(n2>1) y2 <- rowSums(y2)
-	if(length(dispersion)==1) dispersion <- rep(dispersion,ntags)
+	if (n1>1) {
+		y1 <- rowSums(y1)
+	}
+	if (n2>1) {
+		y2 <- rowSums(y2)
+	}
+	if (length(dispersion)==1) {
+		dispersion <- rep(dispersion,ntags)
+	}
 
 #	Null fitted values
 	y <- y1+y2
@@ -145,11 +179,11 @@ exactTestBetaApprox <- function(y1,y2,dispersion=0)
 	med <- rep(0,ntags)
 	med[!all.zero] <- qbeta(0.5,alpha1[!all.zero],alpha2[!all.zero])
 	left <- (y1+0.5)/y<med & !all.zero
-	if(any(left)) {
+	if (any(left)) {
 		pvals[left] <- 2*pbeta((y1[left]+0.5)/y[left],alpha1[left],alpha2[left])
 	}
 	right <- (y1-0.5)/y>med & !all.zero
-	if(any(right)) {
+	if (any(right)) {
 		pvals[right] <- 2*pbeta((y1[right]-0.5)/y[right],alpha1[right],alpha2[right],lower.tail=FALSE)
 	}
 	names(pvals) <- names(y1)
@@ -170,26 +204,40 @@ exactTestBySmallP <- function(y1,y2,dispersion=0)
 	y1 <- as.matrix(y1)
 	y2 <- as.matrix(y2)
 	ntags <- nrow(y1)
-	if(ntags!=nrow(y2)) stop("Number of rows of y1 not equal to number of rows of y2")
-	if(any(is.na(y1)) || any(is.na(y2))) stop("NAs not allowed")
+	if (ntags!=nrow(y2)) {
+		stop("Number of rows of y1 not equal to number of rows of y2")
+	}
+	if (any(is.na(y1)) || any(is.na(y2))) {
+		stop("NAs not allowed")
+	}
 	n1 <- ncol(y1)
 	n2 <- ncol(y2)
 
-	if(n1==n2) return(exactTestDoubleTail(y1=y1,y2=y2,dispersion=dispersion))
+	if (n1==n2) {
+		return(exactTestDoubleTail(y1=y1,y2=y2,dispersion=dispersion))
+	}
 
 	sum1 <- round(rowSums(y1))
 	sum2 <- round(rowSums(y2))
 	N <- sum1+sum2
 	mu <- N/(n1+n2)
-	if(all(dispersion==0)) return(binomTest(sum1,sum2,p=n1/(n1+n2)))
-	if(any(dispersion==0)) stop("dispersion must be either all zero or all positive")
-	if(length(dispersion)==1) dispersion <- rep(dispersion,ntags)
+	if (all(dispersion==0)) {
+		return(binomTest(sum1,sum2,p=n1/(n1+n2)))
+	}
+	if (any(dispersion==0)) {
+		stop("dispersion must be either all zero or all positive")
+	}
+	if (length(dispersion)==1) {
+		dispersion <- rep(dispersion,ntags)
+	}
 	r <- 1/dispersion
 	all.zeros <- N==0
 
 	pvals <- rep(1,ntags)
-	if(ntags==0) return(pvals)
-	if(any(all.zeros)) {
+	if (ntags==0) {
+		return(pvals)
+	}
+	if (any(all.zeros)) {
 		pvals[!all.zeros] <- Recall(y1=y1[!all.zeros,,drop=FALSE],y2=y2[!all.zeros,,drop=FALSE],dispersion=dispersion[!all.zeros])
 		return(pvals)
 	}
@@ -220,9 +268,21 @@ exactTestDoubleTail <- function(y1,y2,dispersion=0,big.count=900)
 	ntags <- NROW(y1)
 	n1 <- NCOL(y1)
 	n2 <- NCOL(y2)
-	if(n1>1) s1 <- round(rowSums(y1)) else s1 <- round(y1)
-	if(n2>1) s2 <- round(rowSums(y2)) else s2 <- round(y2)
-	if(length(dispersion)==1) dispersion <- rep(dispersion,ntags)
+	if (n1>1) {
+		s1 <- round(rowSums(y1))
+	}
+	else {
+		s1 <- round(y1)
+	}
+	if (n2>1) {
+		s2 <- round(rowSums(y2)) 
+	}
+	else {
+		s2 <- round(y2)
+	}
+	if (length(dispersion)==1) {
+		dispersion <- rep(dispersion,ntags)
+	}
 
 #	Null fitted values
 	s <- s1+s2
@@ -236,11 +296,13 @@ exactTestDoubleTail <- function(y1,y2,dispersion=0,big.count=900)
 #	Poisson case
 	pois <- dispersion<=0
 #	BINOMTEST DOESN'T USE EQUAL TAILED REJECTION REGION
-	if(any(pois)) pvals[pois] <- binomTest(s1[pois],s2[pois],p=n1/(n1+n2))
+	if (any(pois)) {
+		pvals[pois] <- binomTest(s1[pois],s2[pois],p=n1/(n1+n2))
+	}
 
 #	Use beta approximation for large counts
 	big <- s1>big.count & s2>big.count
-	if(any(big)) {
+	if (any(big)) {
 		y1 <- as.matrix(y1)
 		y2 <- as.matrix(y2)
 		pvals[big] <- exactTestBetaApprox(y1[big,,drop=FALSE],y2[big,,drop=FALSE],dispersion[big])
@@ -248,7 +310,7 @@ exactTestDoubleTail <- function(y1,y2,dispersion=0,big.count=900)
 
 	p.bot <- size1 <- size2 <- rep(0,ntags)
 	left <- s1<mu1 & !pois & !big
-	if(any(left)) {
+	if (any(left)) {
 		p.bot[left] <- dnbinom(s[left],size=(n1+n2)/dispersion[left],mu=s[left])
 		size1[left] <- n1/dispersion[left]
 		size2[left] <- n2/dispersion[left]
@@ -260,7 +322,7 @@ exactTestDoubleTail <- function(y1,y2,dispersion=0,big.count=900)
 		pvals[left] <- pvals[left]/p.bot[left]
 	}
 	right <- s1>mu1 & !pois & !big
-	if(any(right)) {
+	if (any(right)) {
 		p.bot[right] <- dnbinom(s[right],size=(n1+n2)/dispersion[right],mu=s[right])
 		size1[right] <- n1/dispersion[right]
 		size2[right] <- n2/dispersion[right]

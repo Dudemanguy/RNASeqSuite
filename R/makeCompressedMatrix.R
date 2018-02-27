@@ -1,4 +1,4 @@
-makeCompressedMatrix <- function(x, dims, byrow=TRUE) 
+makeCompressedMatrix <- function(x, dims, byrow=TRUE) {
 # Coerces a NULL, scalar, vector or matrix to a compressed matrix,
 # Determines whether the rows or columns are intended to be 
 # repeated, and stores this in the attributes.
@@ -6,24 +6,27 @@ makeCompressedMatrix <- function(x, dims, byrow=TRUE)
 # written by Aaron Lun
 # created 24 September 2016
 # last modified 9 July 2017
-{
+
     repeat.row <- repeat.col <- FALSE
 	if (is.matrix(x)) {
 		if (inherits(x, "CompressedMatrix")) {
 			return(x)
 		}
         dims <- dim(x)
-	} else if (length(x)==1L) {
+	} 
+	else if (length(x)==1L) {
         repeat.row <- repeat.col <- TRUE
 		x <- matrix(x)
-	} else {
+	} 
+	else {
 		if (!byrow) {
             if (dims[1]!=length(x)) { 
                 stop("'dims[1]' should equal length of 'x'")
             }
 			x <- cbind(x)
             repeat.col <- TRUE
-		} else {
+		} 
+		else {
 			x <- rbind(x)
             if (dims[2]!=length(x)) { 
                 stop("'dims[2]' should equal length of 'x'")
@@ -47,31 +50,31 @@ makeCompressedMatrix <- function(x, dims, byrow=TRUE)
     return(x)
 }
 
-dim.CompressedMatrix <- function(x) 
+dim.CompressedMatrix <- function(x) {
 # Getting dimensions.
 #
 # written by Aaron Lun
 # created 21 June 2017
-{
+
     attr(x, "Dims")
 }
 
-length.CompressedMatrix <- function(x)
+length.CompressedMatrix <- function(x) {
 # Getting length. 
 #
 # written by Aaron Lun
 # created 25 January 2018
-{
+
     ncol(x)*nrow(x)
 }
 
-`[.CompressedMatrix` <- function(x, i, j, drop=TRUE)
+`[.CompressedMatrix` <- function(x, i, j, drop=TRUE) {
 # A wrapper function to easily subset a makeCompressedMatrix object.
 #
 # written by Aaron Lun
 # created 24 September 2016
 # last modified 21 June 2017
-{
+
     Nargs <- nargs() - !(missing(drop))
     if (Nargs<3L) {
         return(as.matrix(x)[i])
@@ -112,12 +115,12 @@ length.CompressedMatrix <- function(x)
 	return(raw.mat)
 }
 
-`[<-.CompressedMatrix` <- function(x, i, j, value) 
+`[<-.CompressedMatrix` <- function(x, i, j, value) {
 # Subset assignment, for completeness' sake.
 #
 # written by Aaron Lun
 # created 25 January 2018
-{
+
     ref <- as.matrix(x)
     if (is(value, "CompressedMatrix")) { 
         value <- as.matrix(value)
@@ -125,39 +128,42 @@ length.CompressedMatrix <- function(x)
 
     if (nargs() < 4L) {
         ref[i] <- value
-    } else {
+    }
+	else {
         ref[i,j] <- value
     }
     makeCompressedMatrix(ref, attr(x, "Dims"), TRUE)
 }
 
-as.matrix.CompressedMatrix <- function(x, ...) 
+as.matrix.CompressedMatrix <- function(x, ...) {
 # Expanding it to a full matrix.
 #
 # written by Aaron Lun
 # created 26 September 2016
 # last modified 21 June 2017
-{
+
     raw.mat <- .strip_to_matrix(x)
 	row.status <- attr(x, "repeat.row") 
 	col.status <- attr(x, "repeat.col")
 
     if (row.status) {
         raw.mat <- matrix(raw.mat, nrow(x), ncol(x), byrow=TRUE)                
-    } else if (col.status) {
+    }
+	else if (col.status) {
         raw.mat <- matrix(raw.mat, nrow(x), ncol(x))
-    } else {
+    }
+	else {
         raw.mat <- as.matrix(raw.mat)
     }
     return(raw.mat)
 }
 
-rbind.CompressedMatrix <- function(...) 
+rbind.CompressedMatrix <- function(...) {
 # Rbinding things together.
 # 
 # written by Aaron Lun
 # created 21 June 2017    
-{
+
     everything <- list(...)
     nobjects <- length(everything)
     if (nobjects==1) {
@@ -212,12 +218,12 @@ rbind.CompressedMatrix <- function(...)
     return(makeCompressedMatrix(do.call(rbind, everything)))
 }
 
-cbind.CompressedMatrix <- function(...) 
+cbind.CompressedMatrix <- function(...) {
 # Cbinding things together.
 # 
 # written by Aaron Lun
 # created 21 June 2017    
-{
+
     everything <- list(...)
     nobjects <- length(everything)
     if (nobjects==1) {
@@ -227,14 +233,14 @@ cbind.CompressedMatrix <- function(...)
     
     col.rep <- logical(nobjects)
     row.rep <- logical(nobjects)
-    for (i in seq_along(everything)) { 
+    for (i in seq_along(everything)) {
         x <- everything[[i]]
         col.rep[i] <- attr(x, "repeat.col") 
         row.rep[i] <- attr(x, "repeat.row")
     }
 
     # If everything is row repeats, we can do a naive concatenation. 
-    if (all(row.rep)) { 
+    if (all(row.rep)) {
         collected.vals <- vector("list", nobjects)
         all.nr <- nrow(everything[[1]])
         for (i in seq_along(everything)) {
@@ -272,14 +278,14 @@ cbind.CompressedMatrix <- function(...)
     return(makeCompressedMatrix(do.call(cbind, everything)))
 }
 
-Ops.CompressedMatrix <- function(e1, e2)
+Ops.CompressedMatrix <- function(e1, e2) {
 # A function that performs some binary operation on two CompressedMatrix objects,
 # in a manner that best preserves memory usage.
 #
 # written by Aaron Lun
 # created 26 September 2016
 # last modified 30 June 2017
-{
+
     if (!inherits(e1, "CompressedMatrix")) {
         e1 <- makeCompressedMatrix(e1, dim(e2), byrow=FALSE) # Promoted to column-major CompressedMatrix 
 	}
@@ -299,7 +305,8 @@ Ops.CompressedMatrix <- function(e1, e2)
         e2 <- as.vector(.strip_to_matrix(e2))
         outcome <- NextMethod(.Generic)
         outcome <- makeCompressedMatrix(outcome, new.dim, byrow=row.rep)
-    } else {
+    } 
+	else {
         e1 <- as.matrix(e1)
         e2 <- as.matrix(e2)
         outcome <- NextMethod(.Generic)
@@ -309,7 +316,7 @@ Ops.CompressedMatrix <- function(e1, e2)
 	return(outcome)
 }
 
-.compressOffsets <- function(y, offset, lib.size=NULL) 
+.compressOffsets <- function(y, offset, lib.size=NULL) {
 # A convenience function to avoid repeatedly having to write the code below.
 # If provided, offsets take precedence over the library size.
 # If neither are provided, library sizes are automatically computed
@@ -317,16 +324,20 @@ Ops.CompressedMatrix <- function(e1, e2)
 # A prefunctory check for finite values is performed in the C++ code.
 # If 'offset' is already of the CompressedMatrix class, then 
 # we assume it's already gone through this once so we don't do it again.
-{
+
 	if (inherits(offset, "CompressedMatrix")) {
 		return(offset)
 	}
 
 	if (is.null(offset)) {
-		if (is.null(lib.size)) lib.size <- colSums(y)
+		if (is.null(lib.size)) {
+			lib.size <- colSums(y)
+		}
 		offset <- log(lib.size)
 	}
-	if (!is.double(offset)) storage.mode(offset) <- "double"
+	if (!is.double(offset)) {
+		storage.mode(offset) <- "double"
+	}
 	offset <- makeCompressedMatrix(offset, dim(y), byrow=TRUE)
 
     check.range <- suppressWarnings(range(offset))
@@ -336,19 +347,23 @@ Ops.CompressedMatrix <- function(e1, e2)
 	return(offset)
 }
 
-.compressWeights <- function(y, weights=NULL) 
+.compressWeights <- function(y, weights=NULL) {
 # A convenience function to avoid repeatedly having to write the code below.
 # All weights default to 1 if not specified.
 # A prefunctory check for finite, positive values is performed in the C++ code.
 # If 'weights' is already a CompressedMatrix, then we assume it's 
 # already gone through this and don't do it again.
-{
+
 	if (inherits(weights, "CompressedMatrix")) {
 		return(weights)
 	}
 
-	if (is.null(weights)) weights <- 1
-	if (!is.double(weights)) storage.mode(weights) <- "double"
+	if (is.null(weights)) {
+		weights <- 1
+	}
+	if (!is.double(weights)) {
+		storage.mode(weights) <- "double"
+	}
 	weights <- makeCompressedMatrix(weights, dim(y), byrow=TRUE)
 
 	check.range <- suppressWarnings(range(weights))
@@ -358,15 +373,17 @@ Ops.CompressedMatrix <- function(e1, e2)
 	return(weights)
 }
 
-.compressPrior <- function(y, prior.count) 
+.compressPrior <- function(y, prior.count) {
 # Again for the prior counts, checking for non-negative finite values.
 # Skipping the check if it's already a CompressedMatrix object.
-{
+
 	if (inherits(prior.count, "CompressedMatrix")) {
 		return(prior.count)
 	}
 			
-	if(!is.double(prior.count)) storage.mode(prior.count) <- "double"
+	if (!is.double(prior.count)) {
+		storage.mode(prior.count) <- "double"
+	}
 	prior.count <- makeCompressedMatrix(prior.count, dim(y), byrow=FALSE)
 
     check.range <- suppressWarnings(range(prior.count))
@@ -376,15 +393,17 @@ Ops.CompressedMatrix <- function(e1, e2)
 	return(prior.count)
 }
 
-.compressDispersions <- function(y, dispersion) 
+.compressDispersions <- function(y, dispersion) {
 # Again for the dispersions, checking for non-negative finite values.
 # Skipping the check if it's already a CompressedMatrix object.
-{
+
 	if (inherits(dispersion, "CompressedMatrix")) {
 		return(dispersion)
 	}
 			
-	if(!is.double(dispersion)) storage.mode(dispersion) <- "double"
+	if (!is.double(dispersion)) {
+		storage.mode(dispersion) <- "double"
+	}
 	dispersion <- makeCompressedMatrix(dispersion, dim(y), byrow=FALSE)
 
     check.range <- suppressWarnings(range(dispersion))

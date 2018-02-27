@@ -3,17 +3,25 @@
 glmFit <- function(y, ...)
 UseMethod("glmFit")
 
-glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, start=NULL, ...)
+glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, start=NULL, ...) {
 #	Created 11 May 2011.  Last modified 13 Jul 2017.
-{
-	if(is.null(design)) {
+
+	if (is.null(design)) {
 		design <- y$design
-		if(is.null(design)) design <- model.matrix(~y$samples$group)
+		if (is.null(design)) {
+			design <- model.matrix(~y$samples$group)
+		}
 	}
-	if(is.null(dispersion)) dispersion <- getDispersion(y)
-	if(is.null(dispersion)) stop("No dispersion values found in DGEList object.")
+	if (is.null(dispersion)) {
+		dispersion <- getDispersion(y)
+	}
+	if (is.null(dispersion)) {
+		stop("No dispersion values found in DGEList object.")
+	}
 	offset <- getOffset(y)
-	if(is.null(y$AveLogCPM)) y$AveLogCPM <- aveLogCPM(y)
+	if (is.null(y$AveLogCPM)) {
+		y$AveLogCPM <- aveLogCPM(y)
+	}
 
 	fit <- glmFit(y=y$counts,design=design,dispersion=dispersion,offset=offset,lib.size=NULL,weights=y$weights,prior.count=prior.count,start=start,...)
 	fit$samples <- y$samples
@@ -23,50 +31,70 @@ glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, s
 	new("DGEGLM",fit)
 }
 
-glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.size=NULL, weights=NULL, prior.count=0.125, start=NULL, ...)
+glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.size=NULL, weights=NULL, prior.count=0.125, start=NULL, ...) {
 #	Fit negative binomial generalized linear model for each transcript
 #	to a series of digital expression libraries
 #	Davis McCarthy and Gordon Smyth
 #	Created 17 August 2010. Last modified 14 Dec 2017.
-{
+
 #	Check y
 	y <- as.matrix(y)
-	if(mode(y) != "numeric") stop("y is not a numeric matrix")
+	if (mode(y) != "numeric") {
+		stop("y is not a numeric matrix")
+	}
 	ntag <- nrow(y)
 	nlib <- ncol(y)
 
 #	Check design
-	if(is.null(design)) {
+	if (is.null(design)) {
 		design <- matrix(1,ncol(y),1)
 		rownames(design) <- colnames(y)
 		colnames(design) <- "Intercept"
-	} else {
+	}
+	else {
 		design <- as.matrix(design)
-		if(nrow(design) != nlib) stop("nrow(design) disagrees with ncol(y)")
+		if (nrow(design) != nlib) {
+			stop("nrow(design) disagrees with ncol(y)")
+		}
 		ne <- nonEstimable(design)
-		if(!is.null(ne)) stop(paste("Design matrix not of full rank.  The following coefficients not estimable:\n", paste(ne, collapse = " ")))
+		if (!is.null(ne)) {
+			stop(paste("Design matrix not of full rank.  The following coefficients not estimable:\n", paste(ne, collapse = " ")))
+		}
 	}
 
 #	Check dispersion
-	if(is.null(dispersion)) stop("No dispersion values provided.")
+	if (is.null(dispersion)) {
+		stop("No dispersion values provided.")
+	}
 	dispersion <- as.numeric(dispersion)
-	if(length(dispersion) != 1L && length(dispersion) != ntag) stop("dispersion has wrong length, should agree with nrow(y)")
+	if (length(dispersion) != 1L && length(dispersion) != ntag) {
+		stop("dispersion has wrong length, should agree with nrow(y)")
+	}
 	dispersion.mat <- .compressDispersions(y, dispersion)
 
 #	Check offset
-	if(!is.null(offset)) {
-		if(mode(offset) != "numeric") stop("offset is not numeric")
-		if(is.null(dim(offset))) {
-			if(length(offset) != 1L && length(offset) != nlib) stop("offset has wrong length. As a vector, it should agree with ncol(y)")
-		} else {
-			if( !all(dim(offset)==dim(y)) ) stop("Dimensions of offset don't agree with dimensions of y")
+	if (!is.null(offset)) {
+		if (mode(offset) != "numeric") {
+			stop("offset is not numeric")
+		}
+		if (is.null(dim(offset))) {
+			if (length(offset) != 1L && length(offset) != nlib) {
+				stop("offset has wrong length. As a vector, it should agree with ncol(y)")
+			}
+		} 
+		else {
+			if (!all(dim(offset)==dim(y))) {
+				stop("Dimensions of offset don't agree with dimensions of y")
+			}
 		}
 	}
 
 #	Check lib.size
-	if(!is.null(lib.size)) {
+	if (!is.null(lib.size)) {
 		lib.size <- as.numeric(lib.size)
-		if(length(lib.size) != 1L && length(lib.size) != nlib) stop("lib.size has wrong length, should agree with ncol(y)")
+		if (length(lib.size) != 1L && length(lib.size) != nlib) {
+			stop("lib.size has wrong length, should agree with ncol(y)")
+		}
 	}
 
 #	Comsolidate lib.size and offset into a compressed matrix
@@ -77,18 +105,19 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 #	Fit the tagwise glms
 #	If the design is equivalent to a oneway layout, use a shortcut algorithm
 	group <- designAsFactor(design)
-	if(nlevels(group)==ncol(design)) {
+	if (nlevels(group)==ncol(design)) {
 		fit <- mglmOneWay(y,design=design,group=group,dispersion=dispersion.mat,offset=offset,weights=weights,coef.start=start)
 		fit$deviance <- nbinomDeviance(y=y,mean=fit$fitted.values,dispersion=dispersion.mat,weights=weights)
 		fit$method <- "oneway"
-	} else {
+	} 
+	else {
 		fit <- mglmLevenberg(y,design=design,dispersion=dispersion.mat,offset=offset,weights=weights,coef.start=start,maxit=250)
 		fit$method <- "levenberg"
 	}
 
 #	Prepare output
 	fit$counts <- y
-	if(prior.count>0) {
+	if (prior.count>0) {
 		fit$unshrunk.coefficients <- fit$coefficients
 		colnames(fit$unshrunk.coefficients) <- colnames(design)
 		rownames(fit$unshrunk.coefficients) <- rownames(y)
@@ -108,52 +137,67 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 }
 
 
-glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL)
+glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
 #	Tagwise likelihood ratio tests for DGEGLM
 #	Gordon Smyth, Davis McCarthy and Yunshun Chen.
 #	Created 1 July 2010.  Last modified 31 Oct 2017.
-{
+
 #	Check glmfit
-	if(!is(glmfit,"DGEGLM")) {
-		if(is(glmfit,"DGEList") && is(coef,"DGEGLM")) {
+	if (!is(glmfit,"DGEGLM")) {
+		if (is(glmfit,"DGEList") && is(coef,"DGEGLM")) {
 			stop("First argument is no longer required. Rerun with just the glmfit and coef/contrast arguments.")
 		}
 		stop("glmfit must be an DGEGLM object (usually produced by glmFit).")
 	}
-	if(is.null(glmfit$AveLogCPM)) glmfit$AveLogCPM <- aveLogCPM(glmfit)
+	if (is.null(glmfit$AveLogCPM)) {
+		glmfit$AveLogCPM <- aveLogCPM(glmfit)
+	}
 	nlibs <- ncol(glmfit)
 	
 #	Check design matrix
 	design <- as.matrix(glmfit$design)
 	nbeta <- ncol(design)
-	if(nbeta < 2) stop("Need at least two columns for design, usually the first is the intercept column")
+	if (nbeta < 2) {
+		stop("Need at least two columns for design, usually the first is the intercept column")
+	}
 	coef.names <- colnames(design)
 
 #	Evaluate logFC for coef to be tested
 #	Note that contrast takes precedence over coef: if contrast is given
 #	then reform design matrix so that contrast of interest is last column.
-	if(is.null(contrast)) {
-		if(length(coef) > 1) coef <- unique(coef)
-		if(is.character(coef)) {
+	if (is.null(contrast)) {
+		if (length(coef) > 1) {
+			coef <- unique(coef)
+		}
+		if (is.character(coef)) {
 			check.coef <- coef %in% colnames(design)
-			if(any(!check.coef)) stop("One or more named coef arguments do not match a column of the design matrix.")
+			if (any(!check.coef)) {
+				stop("One or more named coef arguments do not match a column of the design matrix.")
+			}
 			coef.name <- coef
 			coef <- match(coef, colnames(design))
 		}
-		else
+		else {
 			coef.name <- coef.names[coef]
+		}
 		logFC <- glmfit$coefficients[,coef,drop=FALSE]/log(2)
-	} else {
+	} 
+	else {
 		contrast <- as.matrix(contrast)
-		if(nrow(contrast) != ncol(glmfit$coefficients)) stop("contrast vector of wrong length, should be equal to number of coefficients in the linear model.")
+		if (nrow(contrast) != ncol(glmfit$coefficients)) {
+			stop("contrast vector of wrong length, should be equal to number of coefficients in the linear model.")
+		}
 		qrc <- qr(contrast)
 		ncontrasts <- qrc$rank
-		if(ncontrasts==0) stop("contrasts are all zero")
+		if (ncontrasts==0) {
+			stop("contrasts are all zero")
+		}
 		coef <- 1:ncontrasts
 		logFC <- (glmfit$coefficients %*% contrast)/log(2)
-		if(ncontrasts>1) {
+		if (ncontrasts>1) {
 			coef.name <- paste("LR test on",ncontrasts,"degrees of freedom")
-		} else {
+		} 
+		else {
 			contrast <- drop(contrast)
 			i <- contrast!=0
 			coef.name <- paste(paste(contrast[i],coef.names[i],sep="*"),collapse=" ")
@@ -163,7 +207,9 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL)
 		Q <- qr.Q(qrc,complete=TRUE,Dvec=Dvec)
 		design <- design %*% Q
 	}
-	if(length(coef)==1) logFC <- drop(logFC)
+	if (length(coef)==1) {
+		logFC <- drop(logFC)
+	}
 
 #	Null design matrix
 	design0 <- design[,-coef,drop=FALSE]
@@ -177,10 +223,12 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL)
 	LRT.pvalue <-  pchisq(LR, df=df.test, lower.tail = FALSE, log.p = FALSE)
 
 	rn <- rownames(glmfit)
-	if(is.null(rn))
+	if (is.null(rn)) {
 		rn <- 1:nrow(glmfit)
-	else
+	}
+	else {
 		rn <- make.unique(rn)
+	}
 	tab <- data.frame(
 		logFC=logFC,
 		logCPM=glmfit$AveLogCPM,

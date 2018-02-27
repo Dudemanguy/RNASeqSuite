@@ -1,21 +1,23 @@
 cpm <- function(y, ...)
 UseMethod("cpm")
 
-cpm.DataList <- function(y, normalized.lib.sizes=TRUE, log=FALSE, prior.count=0.25, ...)
+cpm.DataList <- function(y, normalized.lib.sizes=TRUE, log=FALSE, prior.count=0.25, ...) {
 #	Counts per million for a DGEList
 #	Davis McCarthy and Gordon Smyth.
 #	Created 20 June 2011. Last modified 10 July 2017
-{
+
 	lib.size <- y$samples$lib.size
-	if(normalized.lib.sizes) lib.size <- lib.size*y$samples$norm.factors
+	if (normalized.lib.sizes) {
+		lib.size <- lib.size*y$samples$norm.factors
+	}
 	cpm.default(y$counts,lib.size=lib.size,log=log,prior.count=prior.count)
 }
 
-cpm.default <- function(y, lib.size=NULL, log=FALSE, prior.count=0.25, ...)
+cpm.default <- function(y, lib.size=NULL, log=FALSE, prior.count=0.25, ...) {
 #	Counts per million for a matrix
 #	Davis McCarthy and Gordon Smyth.
 #	Created 20 June 2011. Last modified 10 July 2017.
-{
+
 #	Check y
 	y <- as.matrix(y)
 	if (any(dim(y)==0L)) {
@@ -23,8 +25,10 @@ cpm.default <- function(y, lib.size=NULL, log=FALSE, prior.count=0.25, ...)
 	}
   
 #	Check lib.size
-	if(is.null(lib.size)) lib.size <- colSums(y)
-	if(!is.double(lib.size)) {
+	if (is.null(lib.size)) {
+		lib.size <- colSums(y)
+	}
+	if (!is.double(lib.size)) {
 		if(!is.numeric(lib.size)) stop("lib.size must be numeric")
 		storage.mode(lib.size) <- "double"
 	}
@@ -36,10 +40,11 @@ cpm.default <- function(y, lib.size=NULL, log=FALSE, prior.count=0.25, ...)
     }
 
 #	Calculating in C++ for max efficiency
-	if(log) {
+	if (log) {
 		prior.count <- .compressPrior(y, prior.count)
 		out <- .Call(.cxx_calculate_cpm_log, y, lib.size, prior.count)
-	} else {
+	} 
+	else {
 		out <- .Call(.cxx_calculate_cpm_raw, y, lib.size)
 	}
 

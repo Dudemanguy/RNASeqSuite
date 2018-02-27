@@ -3,14 +3,15 @@
 equalizeLibSizes <- function(y, ...)
 UseMethod("equalizeLibSizes")
 
-equalizeLibSizes.DataList <- function(y, dispersion=NULL, ...)
+equalizeLibSizes.DataList <- function(y, dispersion=NULL, ...) {
 #	Yunshun Chen. Created 17 March 2016.
-{
 #	Check y
 	y <- validDataList(y)
 
 #	Check dispersion
-	if(is.null(dispersion)) dispersion <- getDispersion(y)
+	if (is.null(dispersion)) {
+		dispersion <- getDispersion(y)
+	}
 	
 	lib.size <- y$samples$lib.size * y$samples$norm.factors
 
@@ -31,16 +32,26 @@ equalizeLibSizes.default <- function(y, group=NULL, dispersion=NULL, lib.size=NU
 	nlibs <- ncol(y)
 
 #	Check group
-	if(is.null(group)) group <- rep(1, nlibs)
-	if(length(group)!=nlibs) stop("Incorrect length of group.")
+	if (is.null(group)) {
+		group <- rep(1, nlibs)
+		}
+	if (length(group)!=nlibs) {
+		stop("Incorrect length of group.")
+	}
 	group <- dropEmptyLevels(group)
 
 #	Check dispersion
-	if(is.null(dispersion)) dispersion <- 0.05
+	if (is.null(dispersion)) {
+		dispersion <- 0.05
+	}
 	
 #	Check lib.size
-	if(is.null(lib.size)) lib.size <- colSums(y)
-	if(length(lib.size)!=nlibs) stop("Incorrect length of lib.size.")
+	if (is.null(lib.size)) {
+		lib.size <- colSums(y)
+	}
+	if (length(lib.size)!=nlibs) {
+		stop("Incorrect length of lib.size.")
+	}
 		
 	common.lib.size <- exp(mean(log(lib.size)))
 	levs.group <- unique(group)

@@ -1,6 +1,5 @@
-
 cbind.DataList <- function(..., deparse.level=1)
-#  Combine samples from DGEList objects with same genelists
+#  Combine samples from DataList objects with same genelists
 #  Gordon Smyth
 #  20 June 2017
 {
@@ -19,7 +18,7 @@ cbind.DataList <- function(..., deparse.level=1)
 }
 
 rbind.DataList <- function(..., deparse.level=1)
-#  Combine genes from EList objects with same samples
+#  Combine genes from DataList objects with same samples
 #  Gordon Smyth
 #  20 June 2017
 {

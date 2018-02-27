@@ -34,10 +34,12 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 	
 	#Check group
 	if (is.null(group)) {
-		if (!is.null(samples))
+		if (!is.null(samples)) {
 			group <- samples[,1]
-		else
+		}
+		else {
 			group <- rep(1,ncol(counts))
+		}
 	}
 	group <- dropEmptyLevels(group)
 	if (nlib != length(group)) {

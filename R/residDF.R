@@ -1,11 +1,11 @@
-.comboGroups <- function(truths) 
+.comboGroups <- function(truths) {
 # Function that returns a list of vectors of indices,
 # where each vector refers to the rows with the same
 # combination of TRUE/FALSE values in 'truths'.
 # 
 # written by Aaron Lun
 # Created 24 October 2014
-{
+
 #	Integer packing will only work for 31 libraries at a time.	
 	assembly <- list()
 	collected <- 0L
@@ -37,11 +37,11 @@
 	return(output)
 }
 
-.residDF <- function(zero, design)
+.residDF <- function(zero, design) {
 #	Effective residual degrees of freedom after adjusting for exact zeros
 #	Gordon Smyth and Aaron Lun
 #	Created 6 Jan 2014.  Last modified 2 Sep 2014
-{
+
 	nlib <- ncol(zero)
 	ncoef <- ncol(design)
 	nzero <- as.integer(rowSums(zero))
@@ -54,7 +54,7 @@
 
 #	Anything in between?
 	somezero <- nzero>0L & nzero<nlib
-	if(any(somezero)) {
+	if (any(somezero)) {
 		zero2 <- zero[somezero,,drop=FALSE]
 		groupings <- .comboGroups(zero2)
 
