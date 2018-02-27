@@ -1,9 +1,36 @@
-DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factors=rep(1,ncol(counts)), samples=NULL, group=NULL, genes=NULL, remove.zeros=FALSE) {
+DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factors=rep(1,ncol(counts)), htsfilter=TRUE, cfilter=0, cutoff=0, samples=NULL, group=NULL, genes=NULL, remove.zeros=FALSE) {
 
 	#Check counts
-	counts <- as.matrix(counts)
 	nlib <- ncol(counts)
 	ntags <- nrow(counts)
+	if (!(is.null(group))) {
+		if (class(group) == "list") {
+			if (nlib != length(group$factor)) {
+				counts <- ctFilter(counts, group, htsfilter, cfilter, cutoff)
+				counts <- as.matrix(counts)
+				nlib <- ncol(counts)
+				ntags <- nrow(counts)
+				lib.size <- colSums(counts)
+				norm.factors=rep(1,ncol(counts))
+				group <- group$factor
+			}
+		}
+	}
+
+	#Check group
+	if (is.null(group)) {
+		counts <- as.matrix(counts)
+		if (!is.null(samples)) {
+			group <- samples[,1]
+		}
+		else {
+			group <- rep(1, ncol(data))
+		}
+	}
+
+	if (nlib != length(group)) {
+		stop("Length of 'group' must equal number of columns in 'counts'")
+	}
 	if (nlib>0L && is.null(colnames(counts))) {
 		colnames(counts) <- paste0("Sample",1L:nlib)
 	}
@@ -32,19 +59,6 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 		}
 	}
 	
-	#Check group
-	if (is.null(group)) {
-		if (!is.null(samples)) {
-			group <- samples[,1]
-		}
-		else {
-			group <- rep(1,ncol(counts))
-		}
-	}
-	group <- dropEmptyLevels(group)
-	if (nlib != length(group)) {
-		stop("Length of 'group' must equal number of columns in 'counts'")
-	}
 
 	#Make data frame of sample information
 	sam <- data.frame(group=group, lib.size=lib.size, norm.factors=norm.factors)
@@ -75,10 +89,10 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 	x
 }
 
-.isAllZero <- function(y) 
+.isAllZero <- function(y)  {
 # Function to check if all counts are zero in a memory-efficient manner.
 # Also checks and throws an error if NA or negative counts are present.
-{
+
     check.range <- suppressWarnings(range(y))
     if (any(is.na(check.range)) || check.range[1] < 0) {
         stop("counts must be positive finite values")
