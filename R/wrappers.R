@@ -1,3 +1,25 @@
+#obtains the group from a supplied tab-delimited list
+
+grpSelection <- function(frame, groupselect) {
+	check <- list(frame=frame, groupselect=groupselect)
+	ref <- c("data.frame", "character")
+	.argumentValid(check, ref)
+	if (!(.stringMatch(frame, 2, groupselect))) {
+		stop(paste("Error, some entries in", deparse(substitute(frame)), 
+					"do not match the arguments."))
+	}
+	else {
+		selection_grep <- sapply(groupselect, '==', frame[,2])
+		selection_list <- apply(selection_grep, 2, .select, frame)
+		selection <- do.call("rbind", selection_list)
+		getgroup <- list()
+		getgroup[["factor"]] <- selection[,2]
+		getgroup[["factor"]] <- factor(getgroup[["factor"]], levels=unique(getgroup[["factor"]]))
+		getgroup[["frame"]] <- selection
+		getgroup
+	}
+}
+
 #create subset of ct matrix based upon entered group
 
 ctSelection <- function(data, frame, group) {
@@ -14,26 +36,6 @@ ctSelection <- function(data, frame, group) {
 		columns <- as.vector(selection[,1])
 		matframe <- subset(data, select=eval(parse(text=list(columns))))
 		matframe
-	}
-}
-
-#obtains the group from a supplied tab-delimited list
-
-grpSelection <- function(frame, groupselect) {
-	check <- list(frame=frame, groupselect=groupselect)
-	ref <- c("data.frame", "character")
-	.argumentValid(check, ref)
-	if (!(.stringMatch(frame, 2, groupselect))) {
-		stop(paste("Error, some entries in", deparse(substitute(frame)), 
-					"do not match the arguments."))
-	}
-	else {
-		selection_grep <- sapply(groupselect, '==', frame[,2])
-		selection_list <- apply(selection_grep, 2, .select, frame)
-		selection <- do.call("rbind", selection_list)
-		getgroup <- selection[,2]
-		getgroup <- factor(getgroup, levels=unique(getgroup))
-		getgroup
 	}
 }
 
