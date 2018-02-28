@@ -12,8 +12,11 @@ grpSelection <- function(frame, groupselect) {
 		selection_grep <- sapply(groupselect, '==', frame[,2])
 		selection_list <- apply(selection_grep, 2, .select, frame)
 		selection <- do.call("rbind", selection_list)
+		rownames(selection) <- selection[,1]
+		selection <- selection[,2, drop=FALSE]
+		colnames(selection) <- c('group')
 		getgroup <- list()
-		getgroup[["factor"]] <- selection[,2]
+		getgroup[["factor"]] <- selection[,1]
 		getgroup[["factor"]] <- factor(getgroup[["factor"]], levels=unique(getgroup[["factor"]]))
 		getgroup[["frame"]] <- selection
 		getgroup
@@ -26,11 +29,11 @@ ctSelection <- function(data, group) {
 	check <- list(data=data, group=group)
 	ref <- c("data.frame", "list")
 	.argumentValid(check, ref)
-	if (!(.stringMatch(group$frame, 2, group$factor))) {
+	if (!(.stringMatch(group$frame, 1, group$factor))) {
 		stop(paste("Error, no entries in", deparse(substitute(group)), "match the arguments."))
 	}
 	else {
-		columns <- as.vector(group$frame[,1])
+		columns <- rownames(group$frame)
 		matframe <- subset(data, select=eval(parse(text=list(columns))))
 		matframe
 	}
