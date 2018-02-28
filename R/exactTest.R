@@ -136,10 +136,10 @@ exactTest <- function(object, pair=1:2, dispersion="auto", rejection.region="dou
 		"FDR" = order(de.out$FDR, decreasing=FALSE),
 		"none" = 1:nrow(de.out)
 	)
-	de.out <- de.out[o,]
 	object[["comparison"]] <- pair
 	object[["adjust.method"]] <- adjust.method
 	object[["et_results"]] <- de.out
+	object <- object[o,]
 	object
 }
 
