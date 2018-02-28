@@ -55,7 +55,6 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 	if (length(group)!=nlibs) {
 		stop("Incorrect length of group.")
 	}
-	group <- dropEmptyLevels(group)
 
 #	Check lib.size
 	if (is.null(lib.size)) {
@@ -100,14 +99,14 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 		
 		eq <- equalizeLibSizes(y, group=group, dispersion=0.01, lib.size=lib.size)
 		y.pseudo <- eq$pseudo.counts[sel, , drop=FALSE]
-		y.split <- splitIntoGroups(y.pseudo, group=group)
+		y.split <- ctSplit(y.pseudo, group=group)
 		delta <- optimize(commonCondLogLikDerDelta, interval=c(1e-4,100/(100+1)), tol=tol, maximum=TRUE, y=y.split, der=0)
 		delta <- delta$maximum
 		disp <- delta/(1-delta)
 
 		eq <- equalizeLibSizes(y, group=group, dispersion=disp, lib.size=lib.size)
 		y.pseudo <- eq$pseudo.counts[sel, , drop=FALSE]
-		y.split <- splitIntoGroups(y.pseudo, group=group)
+		y.split <- ctSplit(y.pseudo, group=group)
 	
 		for(j in 1:grid.length) for(i in 1:length(y.split)) 
 			l0[,j] <- condLogLikDerDelta(y.split[[i]], grid.vals[j], der=0) + l0[,j]

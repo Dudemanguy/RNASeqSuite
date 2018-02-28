@@ -38,7 +38,6 @@ equalizeLibSizes.default <- function(y, group=NULL, dispersion=NULL, lib.size=NU
 	if (length(group)!=nlibs) {
 		stop("Incorrect length of group.")
 	}
-	group <- dropEmptyLevels(group)
 
 #	Check dispersion
 	if (is.null(dispersion)) {
