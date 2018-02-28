@@ -130,31 +130,28 @@
 #fetch additional annotation from org R packages and insert into DGEList
 #TODO: remove hardcoded options for species and annotations
 
-.annotationFetch <- function(count, species) {
+annotationFetch <- function(count, species) {
 	selection <- paste("org.", species, ".eg.db", sep="")
 	library(selection, character.only=TRUE)
 	if (selection == 'org.Mm.eg.db') {
-		idfound <- count$genes$genes %in% mappedRkeys(org.Mm.egREFSEQ)
+		idfound <- rownames(count) %in% mappedRkeys(org.Mm.egREFSEQ)
 		count <- count[idfound,]
 		}
 		egREFSEQ <- toTable(org.Mm.egREFSEQ)
 	if (selection == 'org.Hs.eg.db') {
-		idfound <- count$genes$genes %in% mappedRkeys(org.Hs.egREFSEQ)
+		idfound <- rownames(count) %in% mappedRkeys(org.Hs.egREFSEQ)
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Hs.egREFSEQ)
 		}
 	if (species == 'org.Rn.eg.db') {
-		idfound <- count$genes$genes %in% mappedRkeys(org.Rn.egREFSEQ)
+		idfound <- rownames(count) %in% mappedRkeys(org.Rn.egREFSEQ)
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Rn.egREFSEQ)
 		}
-	m <- match(count$genes$genes, egREFSEQ$accession)
-	count$genes$EntrezGene <- egREFSEQ$gene_id[m]
-	egSYMBOL <- toTable(org.Mm.egSYMBOL)
-	m <- match(count$genes$EntrezGene, egSYMBOL$gene_id)
-	count$genes$Symbol <- egSYMBOL$symbol[m]
-	o <- order(count$table$PValue)
+	o <- order(count$et_results$FDR)
 	count <- count[o,]
+	m <- match(rownames(count), egREFSEQ$accession)
+	count$genes$EntrezGene <- egREFSEQ$gene_id[m]
 	d <- duplicated(count$genes$EntrezGene)
 	count <- count[!d,]
 	return(count)
