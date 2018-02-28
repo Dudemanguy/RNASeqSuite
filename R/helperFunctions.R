@@ -47,40 +47,6 @@
 	df_nozero <- df[rowSums(df) != 0,]
 }
 
-#split by group and seperate dataframe into lists
-
-.ctSplit <- function(data, frame, group) {
-	selection_grep <- sapply(levels(group), '==', frame[,2])
-	selection_list <- apply(selection_grep, 2, .select, frame)
-	selection <- do.call("rbind", selection_list)
-	columns <- as.vector(selection[,1])
-	matframe <- subset(data, select=eval(parse(text=list(columns))))
-	subframe <- data.frame()
-	sublist <- list()
-	j <- 1
-	k <- 0
-	for (i in 1:(nrow(selection))) {
-		if (i != nrow(selection)) {
-			if (selection[i, 2] == selection[i+1, 2]) {
-				j <- j+1
-				k <- k+1
-			}
-			if (!(selection[i, 2] == selection[i+1, 2])) {
-				subframe <- matframe[,(j-k):j]
-				sublist[[i]] <- subframe
-				j <- j+1
-				k <- 0
-			}
-		}
-		if (i == nrow(selection)) {
-			subframe <- matframe[,(j-k):j]
-			sublist[[i]] <- subframe
-		}
-	}
-	sublist[sapply(sublist, is.null)] <- NULL
-	return(sublist)
-}
-
 #use biomaRt to convert gene ids
 
 .idConvert <- function(gene, org, attr_in, attr_out) {
