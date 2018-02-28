@@ -191,6 +191,18 @@ idAdd <- function(dl, org, input_id, output_id) {
 	dl
 }
 
+#integrate goana analysis with DataList
+
+gopathway <- function(dl, org) {
+	check <- list(dl=dl, org=org)
+	ref <- c("DataList", "character")
+	.argumentValid(check, ref)
+	rownames(dl) <- dl$genes$EntrezGene
+	go <- goana.DataList(dl, species=org)
+	go <- topGO(go, n=Inf)
+	go
+}
+
 #make directory and output results
 
 write.output <- function(dl, directory, fdr=0.05) {
