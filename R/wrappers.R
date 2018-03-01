@@ -171,11 +171,11 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 #add annotations to DataList
 #TODO: Write a better way to rearrange table order
 
-idAdd <- function(dl, org, input_id, output_id) {
-	check <- list(dl=dl, org=org, input_id=input_id, output_id=output_id)
+idAdd <- function(dl, species, input_id, output_id) {
+	check <- list(dl=dl, species=species, input_id=input_id, output_id=output_id)
 	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(rownames(dl$et_results), org, input_id, output_id)
+	biomart <- .idConvert(rownames(dl$et_results), species, input_id, output_id)
 	if (is.null(dl$genes)) {
 		dl$genes <- data.frame(Symbol=rownames(dl$et_results))
 		rownames(dl$genes) <- rownames(dl$et_results)
@@ -193,14 +193,18 @@ idAdd <- function(dl, org, input_id, output_id) {
 
 #integrate goana analysis with DataList
 
-gopathway <- function(dl, org) {
-	check <- list(dl=dl, org=org)
-	ref <- c("DataList", "character")
+gopathway <- function(dl, species, fdr=0.05) {
+	check <- list(dl=dl, species=species, fdr=fdr)
+	ref <- c("DataList", "character", "numeric")
 	.argumentValid(check, ref)
 	rownames(dl) <- dl$genes$EntrezGene
-	go <- goana.DataList(dl, species=org)
-	go <- topGO(go, n=Inf)
-	go
+	go_list <- list()
+	go <- goana.DataList(dl, species=species)
+	go_up <- topGO(go, sort="Up", n=Inf)
+	go_list[["Up"]] <- go_up[go_up$P.Up <= fdr,]
+	go_down <- topGO(go, sort="Down", n=Inf)
+	go_list[["Down"]] <- go_down[go_down$P.Down <= fdr,]
+	go_list
 }
 
 #make directory and output results
