@@ -1,12 +1,11 @@
 Package: RNASeqSuite
-Version: 00.00.01
+Version: 00.00.02
 Title: Convienent R wrapper of popular RNAseq pipelines desgined to 
        simplify data analysis
 Author: <random342@airmail.cc>
 Maintainer: <random342@airmail.cc>
-Depends: methods
-Imports: edgeR, DESeq2, HTSFilter,
-    Rcpp
+Depends: limma
+Imports: DESeq2, HTSFilter, Rcpp, methods, locfit
 Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: Annotation
@@ -18,5 +17,5 @@ Description: In the world of bioinformatics, there are many different possible p
 			 RNAseq and different analyses on the fly.
 License: GPL (>= 2)
 LazyLoad: yes
-NeedsCompilation: no
+NeedsCompilation: yes
 LinkingTo: Rcpp
