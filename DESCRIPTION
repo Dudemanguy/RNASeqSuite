@@ -5,7 +5,7 @@ Title: Convienent R wrapper of popular RNAseq pipelines desgined to
 Author: <random342@airmail.cc>
 Maintainer: <random342@airmail.cc>
 Depends: limma
-Imports: DESeq2, HTSFilter, Rcpp, methods, locfit
+Imports: DESeq2, graphics, HTSFilter, locfit, methods, Rcpp, utils
 Suggests: annotate, BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: Annotation
