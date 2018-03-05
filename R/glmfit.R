@@ -3,7 +3,7 @@
 glmFit <- function(y, ...)
 UseMethod("glmFit")
 
-glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, start=NULL, ...) {
+glmFit.DataList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, start=NULL, ...) {
 #	Created 11 May 2011.  Last modified 13 Jul 2017.
 
 	if (is.null(design)) {
@@ -16,7 +16,7 @@ glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, s
 		dispersion <- getDispersion(y)
 	}
 	if (is.null(dispersion)) {
-		stop("No dispersion values found in DGEList object.")
+		stop("No dispersion values found in DataList object.")
 	}
 	offset <- getOffset(y)
 	if (is.null(y$AveLogCPM)) {
@@ -28,7 +28,7 @@ glmFit.DGEList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, s
 	fit$genes <- y$genes
 	fit$prior.df <- y$prior.df
 	fit$AveLogCPM <- y$AveLogCPM
-	new("DGEGLM",fit)
+	new("DataList",fit)
 }
 
 glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.size=NULL, weights=NULL, prior.count=0.125, start=NULL, ...) {
@@ -133,21 +133,21 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 	fit$dispersion <- dispersion
 	fit$weights <- weights
 	fit$prior.count <- prior.count
-	new("DGEGLM",fit)
+	new("DataList",fit)
 }
 
 
 glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
-#	Tagwise likelihood ratio tests for DGEGLM
+#	Tagwise likelihood ratio tests for DataGLM
 #	Gordon Smyth, Davis McCarthy and Yunshun Chen.
 #	Created 1 July 2010.  Last modified 31 Oct 2017.
 
 #	Check glmfit
-	if (!is(glmfit,"DGEGLM")) {
-		if (is(glmfit,"DGEList") && is(coef,"DGEGLM")) {
+	if (!is(glmfit,"DataGLM")) {
+		if (is(glmfit,"DataList") && is(coef,"DataGLM")) {
 			stop("First argument is no longer required. Rerun with just the glmfit and coef/contrast arguments.")
 		}
-		stop("glmfit must be an DGEGLM object (usually produced by glmFit).")
+		stop("glmfit must be an DataGLM object (usually produced by glmFit).")
 	}
 	if (is.null(glmfit$AveLogCPM)) {
 		glmfit$AveLogCPM <- aveLogCPM(glmfit)
@@ -240,6 +240,6 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
 	glmfit$table <- tab 
 	glmfit$comparison <- coef.name
 	glmfit$df.test <- df.test
-	new("DGELRT",unclass(glmfit))
+	new("DataList",unclass(glmfit))
 }
 
