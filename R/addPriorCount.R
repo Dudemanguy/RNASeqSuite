@@ -1,4 +1,4 @@
-addPriorCount <- function(y, lib.size=NULL, offset=NULL, prior.count=1) 
+addPriorCount <- function(y, lib.size=NULL, offset=NULL, prior.count=1) {
 # Add library size-adjusted prior counts to values of 'y'.
 # Also add twice the adjusted prior to the library sizes, 
 # which are provided as log-transformed values in 'offset'.
@@ -6,9 +6,11 @@ addPriorCount <- function(y, lib.size=NULL, offset=NULL, prior.count=1)
 # written by Aaron Lun
 # created 26 September 2016
 # last modified 21 June 2017    
-{
+
 #	Check y
-	if (!is.numeric(y)) stop('count matrix must be numeric')
+	if (!is.numeric(y)) {
+		stop('count matrix must be numeric')
+	}
 	y <- as.matrix(y)
 
 #	Check prior.count

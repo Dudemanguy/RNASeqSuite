@@ -138,16 +138,16 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 
 
 glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
-#	Tagwise likelihood ratio tests for DataGLM
+#	Tagwise likelihood ratio tests for DataList
 #	Gordon Smyth, Davis McCarthy and Yunshun Chen.
 #	Created 1 July 2010.  Last modified 31 Oct 2017.
 
 #	Check glmfit
-	if (!is(glmfit,"DataGLM")) {
-		if (is(glmfit,"DataList") && is(coef,"DataGLM")) {
+	if (!is(glmfit,"DataList")) {
+		if (is(glmfit,"DataList") && is(coef,"DataList")) {
 			stop("First argument is no longer required. Rerun with just the glmfit and coef/contrast arguments.")
 		}
-		stop("glmfit must be an DataGLM object (usually produced by glmFit).")
+		stop("glmfit must be an DataList object usually produced by glmFit.")
 	}
 	if (is.null(glmfit$AveLogCPM)) {
 		glmfit$AveLogCPM <- aveLogCPM(glmfit)
