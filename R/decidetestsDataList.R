@@ -1,15 +1,15 @@
 #  decideTestsData.R
 
-decideTests.DataList <- function(object,adjust.method="BH",p.value=0.05,lfc=0,...)
-{
+decideTests.DataList <- function(object,adjust.method="BH",p.value=0.05,lfc=0,...) {
+
 	decideTestsData(object=object,adjust.method=adjust.method,p.value=p.value,lfc=lfc)
 }
 
-decideTestsData <- function(object,adjust.method="BH",p.value=0.05,lfc=0)
+decideTestsData <- function(object,adjust.method="BH",p.value=0.05,lfc=0) {
 #	Accept or reject hypothesis tests across genes and contrasts
 #	edgeR team. Original author was Davis McCarthy.
 #	Created 15 August 2010. Last modified 14 Dec 2017.
-{
+
 #	Check object class
 	if (!(is(object,"DataList"))) {
 		stop("Need DataList object")
@@ -36,7 +36,7 @@ decideTestsData <- function(object,adjust.method="BH",p.value=0.05,lfc=0)
 	colnames(isDE) <- paste(object$comparison,collapse="+")
 
 #	Record possible values
-	if(FTest) {
+	if (FTest) {
 		attr(isDE,"levels") <- c(0L,1L)
 		attr(isDE,"labels") <- c("NotSig","Sig")
 	} 

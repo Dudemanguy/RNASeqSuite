@@ -10,7 +10,7 @@ estimateDisp.DataList <- function(y, design=NULL, prior.df=NULL, trend.method="l
 	group <- y$samples$group
 	lib.size <- y$samples$lib.size * y$samples$norm.factors
 
-	if(is.null(design)) {
+	if (is.null(design)) {
 		design <- y$design
 	}
 	else {
@@ -83,16 +83,16 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 	l0 <- matrix(0, sum(sel), grid.length)
 
 #	Classic edgeR
-	if(is.null(design)) {
+	if (is.null(design)) {
 		# One way
 		cat("Design matrix not provided. Switch to the classic mode.\n")
-		if(length(levels(group))==1) {
+		if (length(levels(group))==1) {
 			design <- matrix(1, nlibs, 1)
 		}
 		else {
 			design <- model.matrix(~group)
 		}
-		if( all(tabulate(group)<=1) ) {
+		if (all(tabulate(group)<=1)) {
 			warning("There is no replication, setting dispersion to NA.")
 			return(list(common.dispersion=NA, trended.dispersion=NA, tagwise.dispersion=NA))
 		}
@@ -114,7 +114,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 	# GLM edgeR 
 	else {
 		design <- as.matrix(design)
-		if(ncol(design) >= nlibs) {
+		if (ncol(design) >= nlibs) {
 			warning("No residual df: setting dispersion to NA")
 			return(list(common.dispersion=NA, trended.dispersion=NA, tagwise.dispersion=NA))
 		}
@@ -149,7 +149,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 
 			# Using the last fit to hot-start the next fit
 			last.beta <- NULL
-			for(i in seq_len(grid.length)) {
+			for (i in seq_len(grid.length)) {
 				out <- adjustedProfileLik(spline.disp[i], y=cury, design=redesign, 
 					offset=curo, weights=curw, start=last.beta, get.coef=TRUE)
 				l0[subg,i] <- out$apl
@@ -234,7 +234,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 		}
 	}
 
-	if(robust) {
+	if (robust) {
 		temp.df <- prior.df
 		temp.n <- prior.n
 		prior.df <- prior.n <- rep(Inf, ntags)

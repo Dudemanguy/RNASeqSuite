@@ -33,11 +33,11 @@ q2qpois <- function (x, input.mean, output.mean) {
 	(q1+q2)/2        
 }
 
-q2qnbinom <- function(x, input.mean, output.mean, dispersion=0)
+q2qnbinom <- function(x, input.mean, output.mean, dispersion=0) {
 #	Approximate quantile to quantile mapping between negative-binomial distributions
 #	with different means but same dispersion
 #	Original version, Gordon Smyth, 31 July 2009
-{
+
 	if (any(x<0)) {
 		stop("x must be non-negative")
 	}

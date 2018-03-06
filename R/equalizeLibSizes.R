@@ -55,7 +55,7 @@ equalizeLibSizes.default <- function(y, group=NULL, dispersion=NULL, lib.size=NU
 	common.lib.size <- exp(mean(log(lib.size)))
 	levs.group <- unique(group)
 	input.mean <- output.mean <- matrix(0, ntags, nlibs)
-	for(i in 1:length(levs.group)) {
+	for (i in 1:length(levs.group)) {
 		j <- group==levs.group[i]
 		beta <- mglmOneGroup(y[,j,drop=FALSE], dispersion=dispersion, offset=log(lib.size[j]))
 		lambda <- exp(beta)
