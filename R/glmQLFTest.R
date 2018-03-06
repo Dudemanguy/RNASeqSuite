@@ -74,7 +74,7 @@ glmQLFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.s
 }
 
 
-glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.bound=TRUE) {
+glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR") {
 #	Quasi-likelihood F-tests for Data glms.
 #	Davis McCarthy, Gordon Smyth, Aaron Lun.
 #	Created 18 Feb 2011. Last modified 04 Oct 2016.
@@ -107,11 +107,27 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 		}
 	}
 
+#	adjust.pvalues
+	FWER.methods <- c("holm", "hochberg", "hommel", "bonferroni")
+	FDR.methods <- c("BH", "BY", "fdr")
+	adjust.method <- match.arg(adjust.method,c(FWER.methods,FDR.methods,"none"))
+	adj.p.val <- p.adjust(F.pvalue, method=adjust.method)
+
 	out$table$LR <- out$table$PValue <- NULL
 	out$table$F <- F.stat
 	out$table$PValue <- F.pvalue
+	out$table$FDR <- adj.p.val
 	out$df.total <- df.total
 
+	o <- switch(sort.by,
+		"logFC" = order(out$table$logFC, decreasing=TRUE),
+		"logCPM" = order(out$table$logCPM, decreasing=TRUE),
+		"PValue" = order(out$table$PValue, decreasing=FALSE),
+		"FDR" = order(out$table$FDR, decreasing=FALSE),
+		"none" = 1:nrow(out)
+	)
+
+	out <- out[o,]
 	out
 }
 
