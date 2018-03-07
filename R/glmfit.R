@@ -24,11 +24,16 @@ glmFit.DataList <- function(y, design=NULL, dispersion=NULL, prior.count=0.125, 
 	}
 
 	fit <- glmFit(y=y$counts,design=design,dispersion=dispersion,offset=offset,lib.size=NULL,weights=y$weights,prior.count=prior.count,start=start,...)
-	fit$samples <- y$samples
-	fit$genes <- y$genes
-	fit$prior.df <- y$prior.df
-	fit$AveLogCPM <- y$AveLogCPM
-	new("DataList",fit)
+	y$unshrunk.coefficients <- fit$unshrunk.coefficients
+	y$coefficients <- fit$coefficients
+	y$fitted.values <- fit$fitted.values
+	y$deviance <- fit$deviance
+	y$method <- fit$method
+	y$df.residual <- fit$df.residual
+	y$weights <- fit$weights
+	y$prior.count <- fit$prior.count
+	y$offset <- fit$offset
+	y
 }
 
 glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.size=NULL, weights=NULL, prior.count=0.125, start=NULL, ...) {
@@ -128,12 +133,10 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 	dimnames(fit$fitted.values) <- dimnames(y)
 #	FIXME: we are not allowing missing values, so df.residual must be same for all tags
 	fit$df.residual <- rep(nlib-ncol(design),ntag)
-	fit$design <- design
 	fit$offset <- offset
-	fit$dispersion <- dispersion
 	fit$weights <- weights
 	fit$prior.count <- prior.count
-	new("DataList",fit)
+	fit
 }
 
 

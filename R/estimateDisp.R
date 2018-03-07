@@ -121,7 +121,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 
 		# Identify which observations have means of zero (weights aren't needed here).
 		glmfit <- glmFit(sely, design, offset=seloffset, dispersion=0.05, prior.count=0)
-		zerofit <- (glmfit$counts < 1e-4 & glmfit$fitted.values < 1e-4)
+		zerofit <- (y[[1]] < 1e-4 & glmfit[[2]] < 1e-4)
 		by.group <- .comboGroups(zerofit)
 
 		for (subg in by.group) { 
@@ -193,7 +193,8 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 		df.residual <- glmfit$df.residual
 
 		# Adjust df.residual for fitted values at zero
-		zerofit <- (glmfit$counts < 1e-4 & glmfit$fitted.values < 1e-4)
+		zerofit <- (y[[1]] < 1e-4 & glmfit[[2]] < 1e-4)
+		#zerofit <- (glmfit$counts < 1e-4 & glmfit$fitted.values < 1e-4)
 		df.residual <- .residDF(zerofit, design)
 
 		# Empirical Bayes squeezing of the quasi-likelihood variance factors
