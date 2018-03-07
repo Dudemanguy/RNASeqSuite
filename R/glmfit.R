@@ -140,7 +140,7 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 }
 
 
-glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
+glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL, adjust.method="BH", sort.by="FDR") {
 #	Tagwise likelihood ratio tests for DataList
 #	Gordon Smyth, Davis McCarthy and Yunshun Chen.
 #	Created 1 July 2010.  Last modified 31 Oct 2017.
@@ -217,8 +217,11 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
 #	Null design matrix
 	design0 <- design[,-coef,drop=FALSE]
 
+#	Get dispersion
+	dispersion <- getDispersion(glmfit)
+
 #	Null fit
-	fit.null <- glmFit(glmfit$counts,design=design0,offset=glmfit$offset,weights=glmfit$weights,dispersion=glmfit$dispersion,prior.count=0)
+	fit.null <- glmFit(glmfit$counts,design=design0,offset=glmfit$offset,weights=glmfit$weights,dispersion=dispersion,prior.count=0)
 
 #	Likelihood ratio statistic
 	LR <- fit.null$deviance - glmfit$deviance
@@ -232,17 +235,35 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL) {
 	else {
 		rn <- make.unique(rn)
 	}
+
+#	adjust.pvalues
+	FWER.methods <- c("holm", "hochberg", "hommel", "bonferroni")
+	FDR.methods <- c("BH", "BY", "fdr")
+	adjust.method <- match.arg(adjust.method,c(FWER.methods,FDR.methods,"none"))
+	adj.p.val <- p.adjust(LRT.pvalue, method=adjust.method)
 	tab <- data.frame(
 		logFC=logFC,
 		logCPM=glmfit$AveLogCPM,
 		LR=LR,
 		PValue=LRT.pvalue,
+		FDR=adj.p.val,
 		row.names=rn
 	)
-	glmfit$counts <- NULL
-	glmfit$table <- tab 
+
+	glmfit$LRT_results <- tab 
 	glmfit$comparison <- coef.name
 	glmfit$df.test <- df.test
-	new("DataList",unclass(glmfit))
+
+	o <- switch(sort.by,
+		"logFC" = order(glmfit$LRT_results$logFC, decreasing=TRUE),
+		"logCPM" = order(glmfit$LRT_results$logCPM, decreasing=TRUE),
+		"LR" = order(glmfit$LRT_results$LR, decreasing=TRUE),
+		"PValue" = order(glmfit$LRT_results$PValue, decreasing=FALSE),
+		"FDR" = order(glmfit$LRT_results$FDR, decreasing=FALSE),
+		"none" = 1:nrow(glmfit$LRT_results)
+	)
+
+	glmfit <- glmfit[o,]
+	glmfit
 }
 
