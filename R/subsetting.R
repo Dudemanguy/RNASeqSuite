@@ -10,7 +10,7 @@ function(object, i, j, keep.lib.sizes=TRUE) {
 
 #	Recognized components
 	IJ <- c("counts","pseudo.counts","offset","weights")
-	IX <- c("et_results","genes")
+	IX <- c("et_results","coefficients","fitted.values","unshrunk.coefficients","table","genes")
 	JX <- c("samples")
 	I  <- c("AveLogCPM","trended.dispersion","tagwise.dispersion","prior.n","prior.df")
 #	Obsolete <- c("conc","infos","all.zeros")

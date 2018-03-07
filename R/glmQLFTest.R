@@ -122,6 +122,7 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	o <- switch(sort.by,
 		"logFC" = order(out$table$logFC, decreasing=TRUE),
 		"logCPM" = order(out$table$logCPM, decreasing=TRUE),
+		"F" = order(out$table$F, decreasing=TRUE),
 		"PValue" = order(out$table$PValue, decreasing=FALSE),
 		"FDR" = order(out$table$FDR, decreasing=FALSE),
 		"none" = 1:nrow(out)
