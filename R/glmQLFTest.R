@@ -97,7 +97,7 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	out <- glmLRT(glmfit, coef=coef, contrast=contrast, sort.by="none")
 
 #	Compute the QL F-statistic
-	F.stat <- out$LRT_results$LR / out$df.test / glmfit$var.post
+	F.stat <- out$lrt_results$LR / out$df.test / glmfit$var.post
 	df.total <- glmfit$df.prior + glmfit$df.residual.zeros
 	max.df.residual <- ncol(glmfit$counts)-ncol(glmfit$design)
 	df.total <- pmin(df.total, nrow(glmfit)*max.df.residual)
@@ -112,7 +112,7 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 			pois.fit <- glmfit[i,]
 			pois.fit <- glmFit(pois.fit, start=pois.fit$unshrunk.coefficients, dispersion=0)
 			pois.res <- glmLRT(pois.fit, coef=coef, contrast=contrast, sort.by="none") 
-			F.pvalue[i] <- pmax(F.pvalue[i], pois.res$LRT_results$PValue)
+			F.pvalue[i] <- pmax(F.pvalue[i], pois.res$lrt_results$PValue)
 		}
 	}
 
@@ -131,8 +131,8 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	}
 
 	tab <- data.frame(
-		logFC=out$LRT_result$logFC,
-		logCPM=out$LRT_results$logCPM,
+		logFC=out$lrt_result$logFC,
+		logCPM=out$lrt_results$logCPM,
 		F=F.stat,
 		PValue=F.pvalue,
 		FDR=adj.p.val,

@@ -250,17 +250,17 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL, adjust.method=
 		row.names=rn
 	)
 
-	glmfit$LRT_results <- tab 
+	glmfit$lrt_results <- tab 
 	glmfit$comparison <- coef.name
 	glmfit$df.test <- df.test
 
 	o <- switch(sort.by,
-		"logFC" = order(glmfit$LRT_results$logFC, decreasing=TRUE),
-		"logCPM" = order(glmfit$LRT_results$logCPM, decreasing=TRUE),
-		"LR" = order(glmfit$LRT_results$LR, decreasing=TRUE),
-		"PValue" = order(glmfit$LRT_results$PValue, decreasing=FALSE),
-		"FDR" = order(glmfit$LRT_results$FDR, decreasing=FALSE),
-		"none" = 1:nrow(glmfit$LRT_results)
+		"logFC" = order(glmfit$lrt_results$logFC, decreasing=TRUE),
+		"logCPM" = order(glmfit$lrt_results$logCPM, decreasing=TRUE),
+		"LR" = order(glmfit$lrt_results$LR, decreasing=TRUE),
+		"PValue" = order(glmfit$lrt_results$PValue, decreasing=FALSE),
+		"FDR" = order(glmfit$lrt_results$FDR, decreasing=FALSE),
+		"none" = 1:nrow(glmfit$lrt_results)
 	)
 
 	glmfit <- glmfit[o,]
