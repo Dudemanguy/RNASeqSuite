@@ -171,23 +171,35 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 #add annotations to DataList
 #TODO: Write a better way to rearrange table order
 
-idAdd <- function(dl, species, input_id, output_id) {
+idAdd <- function(dl, species, input_id, output_id, qlf=TRUE) {
 	check <- list(dl=dl, species=species, input_id=input_id, output_id=output_id)
 	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(rownames(dl$et_results), species, input_id, output_id)
+	biomart <- .idConvert(rownames(dl), species, input_id, output_id)
 	if (is.null(dl$genes)) {
-		dl$genes <- data.frame(Symbol=rownames(dl$et_results))
-		rownames(dl$genes) <- rownames(dl$et_results)
+		dl$genes <- data.frame(Symbol=rownames(dl))
 		dl$genes$Symbol <- NULL
 	}
-	m <- match(rownames(dl$et_results), biomart[,1])
+	m <- match(rownames(dl), biomart[,1])
 	dl$genes$Symbol <- biomart$mgi_symbol[m]
 	dl$genes$Description <- biomart$description[m]
-	dl$et_results["Symbol"] <- dl$genes$Symbol
-	dl$et_results["Description"] <- dl$genes$Description
-	dl$et_results <- dl$et_results[,c(7, 8, 1, 2, 3, 4, 5, 6)]
-	dl$et_results <- dl$et_results[order(dl$et_results$FDR, decreasing=FALSE),]
+
+	#check for the existence of each statistical test and add to the data frame
+	if (!(is.null(dl$et_results))) {
+		dl$et_results["Symbol"] <- dl$genes$Symbol
+		dl$et_results["Description"] <- dl$genes$Description
+		dl$et_results <- dl$et_results[,c(7, 8, 1, 2, 3, 4, 5, 6)]
+	}
+	if (!(is.null(dl$lrt_results))) {
+		dl$lrt_results["Symbol"] <- dl$genes$Symbol
+		dl$lrt_results["Description"] <- dl$genes$Description
+		dl$lrt_results <- dl$lrt_results[,c(6, 7, 1, 2, 3, 4, 5)]
+	}
+	if (!(is.null(dl$qlf_results))) {
+		dl$qlf_results["Symbol"] <- dl$genes$Symbol
+		dl$qlf_results["Description"] <- dl$genes$Description
+		dl$qlf_results <- dl$qlf_results[,c(6, 7, 1, 2, 3, 4, 5)]
+	}
 	dl
 }
 
