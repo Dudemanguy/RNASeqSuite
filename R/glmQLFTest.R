@@ -94,10 +94,10 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	if (is.null(glmfit$var.post)) {
 		stop("need to run glmQLFit before glmQLFTest") 
 	}
-	out <- glmLRT(glmfit, coef=coef, contrast=contrast)
+	out <- glmLRT(glmfit, coef=coef, contrast=contrast, sort.by="none")
 
 #	Compute the QL F-statistic
-	F.stat <- out$table$LR / out$df.test / glmfit$var.post
+	F.stat <- out$LRT_results$LR / out$df.test / glmfit$var.post
 	df.total <- glmfit$df.prior + glmfit$df.residual.zeros
 	max.df.residual <- ncol(glmfit$counts)-ncol(glmfit$design)
 	df.total <- pmin(df.total, nrow(glmfit)*max.df.residual)
@@ -110,9 +110,9 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 		i <- .isBelowPoissonBound(glmfit)
 		if (any(i)) {
 			pois.fit <- glmfit[i,]
-			pois.fit <- glmFit(pois.fit$counts, design=pois.fit$design, offset=pois.fit$offset, weights=pois.fit$weights, start=pois.fit$unshrunk.coefficients, dispersion=0)
-			pois.res <- glmLRT(pois.fit, coef=coef, contrast=contrast) 
-			F.pvalue[i] <- pmax(F.pvalue[i], pois.res$table$PValue)
+			pois.fit <- glmFit(pois.fit, start=pois.fit$unshrunk.coefficients, dispersion=0)
+			pois.res <- glmLRT(pois.fit, coef=coef, contrast=contrast, sort.by="none") 
+			F.pvalue[i] <- pmax(F.pvalue[i], pois.res$LRT_results$PValue)
 		}
 	}
 
@@ -122,18 +122,32 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	adjust.method <- match.arg(adjust.method,c(FWER.methods,FDR.methods,"none"))
 	adj.p.val <- p.adjust(F.pvalue, method=adjust.method)
 
-	out$table$LR <- out$table$PValue <- NULL
-	out$table$F <- F.stat
-	out$table$PValue <- F.pvalue
-	out$table$FDR <- adj.p.val
+	rn <- rownames(glmfit)
+	if (is.null(rn)) {
+		rn <- 1:nrow(glmfit)
+	}
+	else {
+		rn <- make.unique(rn)
+	}
+
+	tab <- data.frame(
+		logFC=out$LRT_result$logFC,
+		logCPM=out$LRT_results$logCPM,
+		F=F.stat,
+		PValue=F.pvalue,
+		FDR=adj.p.val,
+		row.names=rn
+	)
+
+	out$qlf_results <- tab
 	out$df.total <- df.total
 
 	o <- switch(sort.by,
-		"logFC" = order(out$table$logFC, decreasing=TRUE),
-		"logCPM" = order(out$table$logCPM, decreasing=TRUE),
-		"F" = order(out$table$F, decreasing=TRUE),
-		"PValue" = order(out$table$PValue, decreasing=FALSE),
-		"FDR" = order(out$table$FDR, decreasing=FALSE),
+		"logFC" = order(out$qlf_results$logFC, decreasing=TRUE),
+		"logCPM" = order(out$qlf_results$logCPM, decreasing=TRUE),
+		"F" = order(out$qlf_results$F, decreasing=TRUE),
+		"PValue" = order(out$qlf_results$PValue, decreasing=FALSE),
+		"FDR" = order(out$qlf_results$FDR, decreasing=FALSE),
 		"none" = 1:nrow(out)
 	)
 
@@ -141,10 +155,10 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	out
 }
 
-.isBelowPoissonBound <- function(glmfit) 
+.isBelowPoissonBound <- function(glmfit) {
 # A convenience function to avoid generating temporary matrices.
-{
-    disp <- makeCompressedMatrix(glmfit$dispersion, dim(glmfit$counts), byrow=FALSE)
+	dispersion <- getDispersion(glmfit)
+    disp <- makeCompressedMatrix(dispersion, dim(glmfit$counts), byrow=FALSE)
     s2 <- makeCompressedMatrix(glmfit$var.post, dim(glmfit$counts), byrow=FALSE)
     out <- .Call(.cxx_check_poisson_bound, glmfit$fitted.values, disp, s2)
     return(out)
