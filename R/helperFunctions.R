@@ -3,12 +3,12 @@
 
 annotationFetch <- function(count, species) {
 	selection <- paste("org.", species, ".eg.db", sep="")
-	library(selection, character.only=TRUE)
+	suppressPackageStartupMessages(require(selection, character.only=TRUE))
 	if (selection == 'org.Mm.eg.db') {
 		idfound <- rownames(count) %in% mappedRkeys(org.Mm.egREFSEQ)
 		count <- count[idfound,]
-		}
 		egREFSEQ <- toTable(org.Mm.egREFSEQ)
+		}
 	if (selection == 'org.Hs.eg.db') {
 		idfound <- rownames(count) %in% mappedRkeys(org.Hs.egREFSEQ)
 		count <- count[idfound,]
@@ -19,8 +19,6 @@ annotationFetch <- function(count, species) {
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Rn.egREFSEQ)
 		}
-	o <- order(count$et_results$FDR)
-	count <- count[o,]
 	m <- match(rownames(count), egREFSEQ$accession)
 	count$genes$EntrezGene <- egREFSEQ$gene_id[m]
 	d <- duplicated(count$genes$EntrezGene)

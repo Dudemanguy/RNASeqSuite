@@ -3,6 +3,17 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 #  Gordon Smyth, Yifang Hu and Yunshun Chen
 #  Created 25 August 2014.  Last modified 4 June 2015.
 
+#	Detect the test used to generate PValues, prefer QLFTest over others
+	if (!(is.null(de$qlf_results))) {
+		results <- de$qlf_results
+	}
+	if (is.null(de$qlf_results) & (!(is.null(de$lrt_results)))) {
+		results <- de$lrt_results
+	}
+	if (!(is.null(de$et_results))) {
+		results <- de$et_results
+	}
+
 #	Avoid argument collision with default method
 	dots <- names(list(...))
 	if ("universe" %in% dots) {
@@ -35,7 +46,7 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 #	Can be logical, or a numeric vector of covariate values, or the name of the column containing the covariate values
 	if (is.logical(trend)) {
 		if (trend) {
-			covariate <- de$et_results$logCPM
+			covariate <- results$logCPM
 			if (is.null(covariate)) {
 				stop("logCPM not found in fit object")
 			}
@@ -75,10 +86,10 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 	}
 
 #	Get up and down DE genes
-	#fdr.coef <- p.adjust(de$et_results$PValue, method = "BH")
-	fdr.coef <- de$et_results$FDR
-	EG.DE.UP <- universe[fdr.coef < FDR & de$et_results$logFC > 0]
-	EG.DE.DN <- universe[fdr.coef < FDR & de$et_results$logFC < 0]
+	fdr.coef <- results$FDR
+	log.coef <- results$logFC
+	EG.DE.UP <- universe[fdr.coef < FDR & log.coef > 0]
+	EG.DE.DN <- universe[fdr.coef < FDR & log.coef < 0]
 	DEGenes <- list(Up=EG.DE.UP, Down=EG.DE.DN)
 
 #	If no DE genes, return data.frame with 0 rows
