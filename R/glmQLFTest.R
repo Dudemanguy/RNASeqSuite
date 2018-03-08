@@ -29,11 +29,20 @@ glmQLFit.DataList <- function(y, design=NULL, dispersion=NULL, abundance.trend=T
 
 	fit <- glmQLFit(y=y$counts, design=design, dispersion=dispersion, offset=offset, lib.size=NULL, abundance.trend=abundance.trend, 
 		AveLogCPM=y$AveLogCPM, robust=robust, winsor.tail.p=winsor.tail.p, weights=y$weights, ...)
-	fit$samples <- y$samples
-	fit$genes <- y$genes
-#	fit$prior.df <- y$prior.df
-	fit$AveLogCPM <- y$AveLogCPM
-	new("DataList",fit)
+	y$unshrunk.coefficients <- fit$unshrunk.coefficients
+	y$coefficients <- fit$coefficients
+	y$fitted.values <- fit$fitted.values
+	y$deviance <- fit$deviance
+	y$method <- fit$method
+	y$df.residual <- fit$df.residual
+	y$weights <- fit$weights
+	y$prior.count <- fit$prior.count
+	y$df.residual.zeros <- fit$df.residual.zeros
+	y$df.prior <- fit$df.prior
+	y$var.post <- fit$var.post
+	y$var.prior <- fit$var.prior
+	y$offset <- fit$offset
+	y
 }
 
 glmQLFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.size=NULL, weights=NULL, 
@@ -42,35 +51,35 @@ glmQLFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.s
 # 	Davis McCarthy, Gordon Smyth, Yunshun Chen, Aaron Lun.
 # 	Originally part of glmQLFTest, as separate function 15 September 2014. Last modified 03 October 2016.
 
-	glmfit <- glmFit(y, design=design, dispersion=dispersion, offset=offset, lib.size=lib.size, weights=weights,...)
+	fit <- glmFit(y, design=design, dispersion=dispersion, offset=offset, lib.size=lib.size, weights=weights,...)
 
 #	Setting up the abundances.
 	if (abundance.trend) {
 		if (is.null(AveLogCPM)) {
 			AveLogCPM <- aveLogCPM(y, lib.size=lib.size, weights=weights, dispersion=dispersion) 
 		}
-		glmfit$AveLogCPM <- AveLogCPM
+		fit$AveLogCPM <- AveLogCPM
 	} 
 	else {
 		AveLogCPM <- NULL
 	}
 
 #	Adjust df.residual for fitted values at zero
-	zerofit <- (glmfit$fitted.values < 1e-4) & (glmfit$counts < 1e-4)
-	df.residual <- .residDF(zerofit, glmfit$design)
+	zerofit <- (y < 1e-4) & (fit$fitted.values < 1e-4)
+	df.residual <- .residDF(zerofit, design)
 
 #	Empirical Bayes squeezing of the quasi-likelihood variance factors
-	s2 <- glmfit$deviance / df.residual
+	s2 <- fit$deviance / df.residual
 	s2[df.residual==0] <- 0
 	s2 <- pmax(s2,0)
 	s2.fit <- squeezeVar(s2,df=df.residual,covariate=AveLogCPM,robust=robust,winsor.tail.p=winsor.tail.p)
 
 #	Storing results
-	glmfit$df.residual.zeros <- df.residual
-	glmfit$df.prior <- s2.fit$df.prior
-	glmfit$var.post <- s2.fit$var.post
-	glmfit$var.prior <- s2.fit$var.prior
-	glmfit
+	fit$df.residual.zeros <- df.residual
+	fit$df.prior <- s2.fit$df.prior
+	fit$var.post <- s2.fit$var.post
+	fit$var.prior <- s2.fit$var.prior
+	fit
 }
 
 
