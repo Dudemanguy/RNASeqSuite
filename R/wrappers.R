@@ -127,21 +127,19 @@ exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	y
 }
 
-#preliminary wrapper for using the glmQLFTest
+#uses wrapper function around glmQLFTest to find differentially expressed genes and store them in a DataList object
 
-edgeRGLM <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
+qlfWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, robust=TRUE, coef=ncol(design), contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR") {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	y <- DataList(counts=data, group=group)
 	y <- calcNormFactors(y)
 	design <- model.matrix(~group$factor)
-	y <- estimateDisp(y, design, robust=TRUE)
-	fit <- glmQLFit(y, design, robust=TRUE)
-	qlf <- glmQLFTest(fit, coef=c(2, ncol(design)))
-	qlf_raw <- topTags(qlf, n=Inf)
-	qlf_frame <- qlf_raw[[1]]
-	qlf_frame
+	y <- estimateDisp(y, design, robust=robust)
+	y <- glmQLFit(y, design, robust=robust)	
+	y <- glmQLFTest(y, coef=coef, contrast=contrast, poisson.bound=poisson.bound, adjust.method=adjust.method, sort.by=sort.by)
+	y
 }
 
 #use DESeq2 to compute a Wald test and find differentially expressed genes
@@ -175,7 +173,14 @@ idAdd <- function(dl, species, input_id, output_id, qlf=TRUE) {
 	check <- list(dl=dl, species=species, input_id=input_id, output_id=output_id)
 	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
-	biomart <- .idConvert(rownames(dl), species, input_id, output_id)
+	#ugly hack for combining refseq_mra and refseq_ncra in biomaRt
+	if (input_id == 'refseq') {
+		biomart_mrna <- .idConvert(rownames(dl), species, "refseq_mrna", output_id)
+		biomart_ncrna <- .idConvert(rownames(dl), species, "refseq_ncrna", output_id)
+	}
+	else {
+		biomart <- .idConvert(rownames(dl), species, input_id, output_id)
+	}
 	if (is.null(dl$genes)) {
 		dl$genes <- data.frame(Symbol=rownames(dl))
 		dl$genes$Symbol <- NULL
