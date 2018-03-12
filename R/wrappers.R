@@ -1,26 +1,22 @@
 #obtains the group from a supplied tab-delimited list
 
-grpSelection <- function(frame, groupselect) {
+grpSelection <- function(frame, column, groupselect) {
 	check <- list(frame=frame, groupselect=groupselect)
 	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
-	if (!(.stringMatch(frame, 2, groupselect))) {
+	if (!(.stringMatch(frame, column, groupselect))) {
 		stop(paste("Error, some entries in", deparse(substitute(frame)), 
 					"do not match the arguments."))
 	}
-	else {
-		selection_grep <- sapply(groupselect, '==', frame[,2])
-		selection_list <- apply(selection_grep, 2, .select, frame)
-		selection <- do.call("rbind", selection_list)
-		rownames(selection) <- selection[,1]
-		selection <- selection[,2, drop=FALSE]
-		colnames(selection) <- c('group')
-		getgroup <- list()
-		getgroup[["factor"]] <- selection[,1]
-		getgroup[["factor"]] <- factor(getgroup[["factor"]], levels=unique(getgroup[["factor"]]))
-		getgroup[["frame"]] <- selection
-		getgroup
-	}
+	selection_grep <- sapply(groupselect, '==', frame[,column])
+	selection_list <- apply(selection_grep, 2, .select, frame)
+	names(selection_list) <- NULL
+	selection <- do.call("rbind", selection_list)
+	getgroup <- list()
+	getgroup$factor <- selection[,column]
+	getgroup$factor <- factor(getgroup$factor, levels=unique(getgroup$factor))
+	getgroup$frame <- selection
+	getgroup
 }
 
 #create subset of ct matrix based upon entered group
@@ -235,8 +231,8 @@ write.output <- function(dl, directory, fdr=0.05) {
 	sink("datalist_output")
 	print(dl)
 	sink()
-	write.table(dl$et_results, file="full_results", sep="\t", quote=FALSE)
-	dl_cutoff <- dl$et_results[which(dl$et_results$FDR<fdr),]
+	write.table(dl$qlf_results, file="full_results", sep="\t", quote=FALSE)
+	dl_cutoff <- dl$qlf_results[which(dl$qlf_results$FDR<fdr),]
 	write.table(dl_cutoff, file="significant_results", sep="\t", quote=FALSE)
 	setwd('..')
 }
