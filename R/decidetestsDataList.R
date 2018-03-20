@@ -16,11 +16,19 @@ decideTestsData <- function(object,adjust.method="BH",p.value=0.05,lfc=0) {
 	}
 
 #	Apply multiple testing
-	p <- object$et_results$FDR
-	isDE <- as.integer(p < p.value)
+	if (!(is.null(object$et_results$FDR))) {
+		p <- object$et_results$FDR
+		isDE <- as.integer(p < p.value)
 
-#	Extract logFC
-	logFC <- object$et_results$logFC
+	#	Extract logFC
+		logFC <- object$et_results$logFC
+	}
+
+	if (!(is.null(object$qlf_results$FDR))) {
+		p <- object$qlf_results$FDR
+		isDE <- as.integer(p < p.value)
+		logFC <- object$qlf_results$logFC
+	}
 
 #	Check for F-test with multiple logFC columns
 	FTest <- is.null(logFC)

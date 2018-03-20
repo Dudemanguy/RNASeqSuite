@@ -43,4 +43,34 @@ plotMD.DataList <- function(object, column=1, xlab=NULL, ylab=NULL, main=NULL, s
 
 		plotWithHighlights(x=object$et_results$logCPM,y=object$et_results$logFC,xlab=xlab,ylab=ylab,main=main,status=status,values=values,col=col,...)
 	}
+
+	if (!(is.null(object$qlf_results))) {
+
+		logFC <- object$qlf_results$logFC
+		FTest <- is.null(logFC)
+	
+		if(is.null(status)) {
+			status <- decideTestsData(object, adjust.method=adjust.method, p.value=p.value)
+			if(FTest) {
+				status <- c("non-DE", "DE")[status+1L]
+				values <- "DE"
+				col <- "red"
+			} 
+			else {
+				status <- c("Down", "non-DE", "Up")[status+2L]
+				values <- c("Up","Down")
+				col <- c("red","blue")
+			}
+		}
+
+	#	Multiple contrasts
+			if(FTest) {
+			sel <- grep("^logFC", names(object$qlf_results))[contrast]
+			if(is.na(sel)) stop("Selected contrast does not exist.")
+			logFC <- object$qlf_results[, sel]
+			contrast.name <- gsub("logFC[.]", "", names(object$qlf_results)[sel])
+			main <- paste0("Contrast ", contrast.name)
+		}
+		plotWithHighlights(x=object$qlf_results$logCPM,y=logFC,xlab=xlab,ylab=ylab,main=main,status=status,values=values,col=col, ...)
+	}
 }

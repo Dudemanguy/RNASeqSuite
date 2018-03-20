@@ -14,6 +14,8 @@ grpSelection <- function(frame, column, groupselect) {
 	selection <- do.call("rbind", selection_list)
 	getgroup <- list()
 	getgroup$factor <- selection[,column]
+	rownames(selection) <- selection[,1]
+	selection <- selection[-(1)]
 	getgroup$frame <- selection
 	getgroup
 }
