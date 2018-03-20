@@ -37,7 +37,7 @@
 #abstract selection operations for apply
 
 .select <- function(sub, whole) {
-	output <- whole[sub,]
+	output <- whole[sub,, drop=FALSE]
 	output
 }
 
