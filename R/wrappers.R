@@ -1,6 +1,6 @@
 #obtains the group from a supplied tab-delimited list
 
-grpSelection <- function(frame, column, groupselect) {
+grpSelection <- function(frame, groupselect, column=1, multi=FALSE) {
 	check <- list(frame=frame, groupselect=groupselect)
 	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
@@ -16,9 +16,14 @@ grpSelection <- function(frame, column, groupselect) {
 	names(selection_list) <- NULL
 	selection <- do.call("rbind", selection_list)
 	getgroup <- list()
-	getgroup$factor <- selection[,column]
-	rownames(selection) <- selection[,1]
-	selection <- selection[-(1)]
+	if (multi == TRUE) {
+		output <- do.call(paste, selection)
+		output <- factor(gsub(" ", ".", output))
+		getgroup$factor <- output
+	}
+	else {
+		getgroup$factor <- selection[,column]
+	}
 	getgroup$frame <- selection
 	getgroup
 }
