@@ -34,13 +34,9 @@ ctSelection <- function(data, group) {
 	check <- list(data=data, group=group)
 	ref <- c("data.frame", "list")
 	.argumentValid(check, ref)
-	if (!(.stringMatch(group$frame, 1, group$factor))) {
-		stop(paste("Error, no entries in", deparse(substitute(group)), "match the arguments."))
-	}
-	else {
-		matframe <- data[colnames(data) %in% rownames(group$frame),]
-		matframe
-	}
+	columns <- rownames(group$frame)
+	matframe <- subset(data, select=eval(parse(text=list(columns))))
+	matframe
 }
 
 #Custom filter function based around standard deviation of normalized vectors
