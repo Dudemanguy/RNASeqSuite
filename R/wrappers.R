@@ -30,8 +30,7 @@ ctSelection <- function(data, group) {
 		stop(paste("Error, no entries in", deparse(substitute(group)), "match the arguments."))
 	}
 	else {
-		columns <- rownames(group$frame)
-		matframe <- subset(data, select=eval(parse(text=list(columns))))
+		matframe <- data[colnames(data) %in% rownames(group$frame),]
 		matframe
 	}
 }

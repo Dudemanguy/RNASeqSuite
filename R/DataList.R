@@ -3,17 +3,16 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 	#Check counts
 	nlib <- ncol(counts)
 	ntags <- nrow(counts)
+
 	if (!(is.null(group))) {
 		if (class(group) == "list") {
-			if (nlib != length(group$factor)) {
-				counts <- ctFilter(counts, group, htsfilter, cfilter, cutoff)
-				counts <- as.matrix(counts)
-				nlib <- ncol(counts)
-				ntags <- nrow(counts)
-				lib.size <- colSums(counts)
-				norm.factors=rep(1,ncol(counts))
-				group <- group$factor
-			}
+			counts <- ctFilter(counts, group, htsfilter, cfilter, cutoff)
+			counts <- as.matrix(counts)
+			nlib <- ncol(counts)
+			ntags <- nrow(counts)
+			lib.size <- colSums(counts)
+			norm.factors=rep(1,ncol(counts))
+			group <- group$factor
 		}
 	}
 
