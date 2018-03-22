@@ -4,6 +4,9 @@ grpSelection <- function(frame, column, groupselect) {
 	check <- list(frame=frame, groupselect=groupselect)
 	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
+	if (groupselect == "all") {
+		groupselect <- unique(as.character(frame[,column]))
+	}
 	if (!(.stringMatch(frame, column, groupselect))) {
 		stop(paste("Error, some entries in", deparse(substitute(frame)), 
 					"do not match the arguments."))
