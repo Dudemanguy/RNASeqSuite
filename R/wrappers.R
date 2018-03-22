@@ -173,7 +173,7 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 #add annotations to DataList
 #TODO: Write a better way to rearrange table order
 
-idAdd <- function(dl, species, input_id, output_id, qlf=TRUE) {
+idAdd <- function(dl, species, input_id, output_id) {
 	check <- list(dl=dl, species=species, input_id=input_id, output_id=output_id)
 	ref <- c("DataList", "character", "character", "character")
 	.argumentValid(check, ref)
