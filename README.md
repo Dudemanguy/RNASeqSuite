@@ -8,7 +8,7 @@ RNASeqSuite is intended to be a handy cli wrapper in R around common RNASeq proc
 Using the R package, ``devtools`` run ``devtools::install_github("Dudemanguy911/RNASeqSuite")``.
 
 ## Quick Usage
-To use RNASeqSuite, one only needs a data frame of read counts and data frame of sample/group information. `featureCounts` in the `subread` package is recommended for generating a read count matrix. Creating a simple, tab-delimited list with one column containing the columns in the read count matrix and the other column containing the corresponding group is also recommended. To quickly perform a Fisher's Exact Test, one only needs to do the following.
+To use RNASeqSuite, one only needs a data frame of read counts and data frame of sample/group information. `featureCounts` in the `subread` package is recommended for generating a read count matrix. Creating a simple, tab-delimited list with one column containing the columns in the read count matrix and the other column containing the corresponding group is also recommended. The rownames for the group data frame need to be the names of the samples for ``grpSelection`` to work properly. To quickly perform a Fisher's Exact Test, one only needs to do the following.
 
 ```
 data <- read.table('/path/to/count/matrix')
