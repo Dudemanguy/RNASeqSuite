@@ -8,7 +8,7 @@ annotationFetch <- function(count, species, symbol=FALSE) {
 		idfound <- rownames(count) %in% mappedRkeys(org.Mm.egREFSEQ)
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Mm.egREFSEQ)
-		if (symbol) {
+		if (symbol == TRUE) {
 			egSYMBOL <- toTable(org.Mm.egSYMBOL)
 		}
 	}
@@ -16,7 +16,7 @@ annotationFetch <- function(count, species, symbol=FALSE) {
 		idfound <- rownames(count) %in% mappedRkeys(org.Hs.egREFSEQ)
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Hs.egREFSEQ)
-		if (symbol) {
+		if (symbol == TRUE) {
 			egSYMBOL <- toTable(org.Hs.egSYMBOL)
 		}
 	}
@@ -24,13 +24,13 @@ annotationFetch <- function(count, species, symbol=FALSE) {
 		idfound <- rownames(count) %in% mappedRkeys(org.Rn.egREFSEQ)
 		count <- count[idfound,]
 		egREFSEQ <- toTable(org.Rn.egREFSEQ)
-		if (symbol) {
+		if (symbol == TRUE) {
 			egSYMBOL <- toTable(org.Rn.egSYMBOL)
 		}
 	}
 	m <- match(rownames(count), egREFSEQ$accession)
 	count$genes$EntrezGene <- egREFSEQ$gene_id[m]
-	if (symbol) {
+	if (symbol == TRUE) {
 		m <- match(count$genes$EntrezGene, egSYMBOL$gene_id)
 		count$genes$Symbol <- egSYMBOL$symbol[m]
 	}

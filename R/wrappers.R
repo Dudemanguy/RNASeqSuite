@@ -177,6 +177,9 @@ idAdd <- function(dl, species, input_id, output_id) {
 	if (input_id == 'refseq') {
 		biomart_mrna <- .idConvert(rownames(dl), species, "refseq_mrna", output_id)
 		biomart_ncrna <- .idConvert(rownames(dl), species, "refseq_ncrna", output_id)
+		colnames(biomart_mrna) <- c("refseq", output_id, "description")
+		colnames(biomart_ncrna) <- c("refseq", output_id, "description")
+		biomart <- rbind(biomart_mrna, biomart_ncrna)
 	}
 	else {
 		biomart <- .idConvert(rownames(dl), species, input_id, output_id)

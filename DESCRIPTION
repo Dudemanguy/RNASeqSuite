@@ -1,6 +1,6 @@
 Package: RNASeqSuite
 Version: 00.00.02
-Title: Convienent R wrapper of popular RNAseq pipelines desgined to 
+Title: Convenient R wrapper of popular RNAseq pipelines designed to 
        simplify data analysis
 Author: <random342@airmail.cc>
 Maintainer: <random342@airmail.cc>
