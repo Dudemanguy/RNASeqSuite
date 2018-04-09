@@ -213,18 +213,28 @@ idAdd <- function(dl, species, input_id, output_id) {
 
 #integrate goana analysis with DataList
 
-gopathway <- function(dl, species, fdr=0.05) {
-	check <- list(dl=dl, species=species, fdr=fdr)
-	ref <- c("DataList", "character", "numeric")
+gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
+	check <- list(dl=dl, species=species, fdr=fdr, separate=separate)
+	ref <- c("DataList", "character", "numeric", "logical")
 	.argumentValid(check, ref)
 	rownames(dl) <- dl$genes$EntrezGene
 	go_list <- list()
-	go <- goana.DataList(dl, species=species)
-	go_up <- topGO(go, sort="Up", n=Inf)
-	go_list[["Up"]] <- go_up[go_up$P.Up <= fdr,]
-	go_down <- topGO(go, sort="Down", n=Inf)
-	go_list[["Down"]] <- go_down[go_down$P.Down <= fdr,]
-	go_list
+	go <- goana.DataList(dl, species=species, separate=separate)
+	if (isTRUE(separate)) {
+		go_up <- topGO(go, sort="Up", n=Inf)
+		go_up
+		go_list[["Up"]] <- go_up[go_up$P.Up <= fdr,]
+		go_down <- topGO(go, sort="Down", n=Inf)
+		go_list[["Down"]] <- go_down[go_down$P.Down <= fdr,]
+		return (go_list)
+	}
+	if (!isTRUE(separate)) {
+		go <- topGO(go, n=Inf)
+		go <- go[-(7)]
+		colnames(go) <- c("Term","Ont","N","Up","Down","P")
+		go <- go[go$P <= fdr,]
+		return (go)
+	}
 }
 
 #make directory and output results

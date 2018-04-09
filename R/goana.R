@@ -1,4 +1,4 @@
-goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE, ...) {
+goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE, separate = TRUE, ...) {
 #  Gene ontology analysis of DE genes from linear model fit
 #  Gordon Smyth, Yifang Hu and Yunshun Chen
 #  Created 25 August 2014.  Last modified 4 June 2015.
@@ -88,9 +88,16 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 #	Get up and down DE genes
 	fdr.coef <- results$FDR
 	log.coef <- results$logFC
-	EG.DE.UP <- universe[fdr.coef < FDR & log.coef > 0]
-	EG.DE.DN <- universe[fdr.coef < FDR & log.coef < 0]
-	DEGenes <- list(Up=EG.DE.UP, Down=EG.DE.DN)
+	if (isTRUE(separate)) {
+		EG.DE.UP <- universe[fdr.coef < FDR & log.coef > 0]
+		EG.DE.DN <- universe[fdr.coef < FDR & log.coef < 0]
+		DEGenes <- list(Up=EG.DE.UP, Down=EG.DE.DN)
+	}
+	if (!isTRUE(separate)) {
+		EG.DE.UP <- universe[fdr.coef < FDR]
+		EG.DE.DN <- universe[fdr.coef < FDR]
+		DEGenes <- list(Up=EG.DE.UP, Down=EG.DE.DN)
+	}
 
 #	If no DE genes, return data.frame with 0 rows
 	if (length(EG.DE.UP)==0 && length(EG.DE.DN)==0) {
