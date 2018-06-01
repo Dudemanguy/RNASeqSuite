@@ -59,8 +59,7 @@ glmQLFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.s
 			AveLogCPM <- aveLogCPM(y, lib.size=lib.size, weights=weights, dispersion=dispersion) 
 		}
 		fit$AveLogCPM <- AveLogCPM
-	} 
-	else {
+	} else {
 		AveLogCPM <- NULL
 	}
 
@@ -125,8 +124,7 @@ glmQLFTest <- function(glmfit, coef=ncol(glmfit$design), contrast=NULL, poisson.
 	rn <- rownames(glmfit)
 	if (is.null(rn)) {
 		rn <- 1:nrow(glmfit)
-	}
-	else {
+	} else {
 		rn <- make.unique(rn)
 	}
 
@@ -182,8 +180,7 @@ plotQLDisp <- function(glmfit, xlab="Average Log2 CPM", ylab="Quarter-Root Mean 
 	points(A, sqrt(sqrt(glmfit$var.post)), pch=pch, cex=cex, col=col.shrunk)
 	if (length(glmfit$var.prior)==1L) { 
 		abline(h=sqrt(sqrt(glmfit$var.prior)), col=col.trend)
-	}
-	else {
+	} else {
 		o <- order(A)
 		lines(A[o], sqrt(sqrt(glmfit$var.prior[o])), col=col.trend, lwd=2)
 	}

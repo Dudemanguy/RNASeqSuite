@@ -33,8 +33,7 @@ plotSmear <- function (object, pair=NULL, de.tags=NULL, xlab="Average logCPM", y
 		i <- i[!is.na(i)]
 		
 		maPlot( x, y, xlab=xlab, ylab=ylab, pch=pch, cex=cex, smearWidth=smearWidth, de.tags=i, panel.first=panel.first, smooth.scatter=smooth.scatter, lowess=lowess, ...)
-	} 
-	else {
+	} else {
 		if(is.null(object$table$logFC)) {
 			stop("table$logFC slot in DGELRT object is NULL. We cannot produce an MA (smear) plot if more than one coefficient from the GLM is being tested in the likelihood ratio test as this results in more one logFC value per gene---one for each coefficient.\n")
 		}

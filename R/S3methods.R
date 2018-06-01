@@ -5,8 +5,7 @@ as.matrix.DataList <- function(x, ...) {
 dim.DataList <- function(x) {
 	if (is.null(x$counts)) {
 		c(0,0) 
-	}
-	else {
+	} else {
 		dim(as.matrix(x$counts))
 	}
 }

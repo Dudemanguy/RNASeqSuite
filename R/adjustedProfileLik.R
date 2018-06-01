@@ -38,8 +38,7 @@ adjustedProfileLik <- function(dispersion, y, design, offset, weights=NULL, adju
 #	Deciding what to return.
 	if (get.coef) { 
 		return(list(apl=apl, beta=fit$coefficients))
-	} 
-	else {
+	} else {
 		return(apl)
 	}
 }

@@ -21,8 +21,7 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 		counts <- as.matrix(counts)
 		if (!is.null(samples)) {
 			group <- samples[,1]
-		}
-		else {
+		} else {
 			group <- rep(1, ncol(data))
 		}
 	}
@@ -68,8 +67,7 @@ DataList <- function(counts=matrix(0,0,0), lib.size=colSums(counts), norm.factor
 	if (anyDuplicated(colnames(counts))) {
 		message("Repeated column names found in count matrix")
 		row.names(samples) <- 1L:nlib
-	} 
-	else {
+	} else {
 		row.names(samples) <- colnames(counts)
 	}
 

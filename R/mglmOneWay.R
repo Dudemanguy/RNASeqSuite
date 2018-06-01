@@ -31,13 +31,11 @@ mglmOneWay <- function(y,design=NULL,group=NULL,dispersion=0,offset=0,weights=NU
 	if (is.null(group)) {
 		if (is.null(design)) {
 			group <- factor(rep_len(1L,nlibs))
-		} 
-		else {
+		} else {
 			design <- as.matrix(design)
 			group <- designAsFactor(design)
 		}
-	} 
-	else {
+	} else {
 		group <- as.factor(group)
 	}
 
@@ -86,8 +84,7 @@ mglmOneWay <- function(y,design=NULL,group=NULL,dispersion=0,offset=0,weights=NU
 	if (!is.null(design)) {
 		beta <- t(solve(designunique,t(beta)))
 		rownames(beta) <- rownames(y)
-	} 
-	else {
+	} else {
 		dimnames(beta) <- list(rownames(y),levg)
 	}
 

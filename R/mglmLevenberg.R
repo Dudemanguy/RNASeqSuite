@@ -38,8 +38,7 @@ mglmLevenberg <- function(y, design, dispersion=0, offset=0, weights=NULL, coef.
 	if (is.null(coef.start)) {
 		start.method <- match.arg(start.method, c("null","y"))
 		beta <- .Call(.cxx_get_levenberg_start, y, offset, dispersion, weights, design, start.method=="null")
-	} 
-	else {
+	} else {
 		beta <- as.matrix(coef.start)
 	}
 

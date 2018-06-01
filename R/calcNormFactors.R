@@ -85,15 +85,13 @@ calcNormFactors.default <- function(object, lib.size=NULL, method=c("TMM","RLE",
 
 	if (is.null(libsize.obs)) {
 		nO <- sum(obs) 
-	}
-	else {
+	} else {
 		nO <- libsize.obs
 	}
 
 	if (is.null(libsize.ref)) { 
 		nR <- sum(ref) 
-	}
-	else {
+	} else {
 		nR <- libsize.ref
 	}
 	
@@ -126,8 +124,7 @@ calcNormFactors.default <- function(object, lib.size=NULL, method=c("TMM","RLE",
 
 	if (doWeighting) {
 		f <- sum(logR[keep]/v[keep], na.rm=TRUE) / sum(1/v[keep], na.rm=TRUE)
-	}
-	else {
+	} else {
 		f <- mean(logR[keep], na.rm=TRUE)
 	}
 

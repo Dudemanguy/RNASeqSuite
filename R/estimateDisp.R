@@ -12,8 +12,7 @@ estimateDisp.DataList <- function(y, design=NULL, prior.df=NULL, trend.method="l
 
 	if (is.null(design)) {
 		design <- y$design
-	}
-	else {
+	} else {
 		y$design <- design
 	}
 
@@ -88,8 +87,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 		cat("Design matrix not provided. Switch to the classic mode.\n")
 		if (length(levels(group))==1) {
 			design <- matrix(1, nlibs, 1)
-		}
-		else {
+		} else {
 			design <- model.matrix(~group)
 		}
 		if (all(tabulate(group)<=1)) {
@@ -110,9 +108,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 	
 		for(j in 1:grid.length) for(i in 1:length(y.split)) 
 			l0[,j] <- condLogLikDerDelta(y.split[[i]], grid.vals[j], der=0) + l0[,j]
-	}
-	# GLM edgeR 
-	else {
+	} else { #GLM edgeR
 		design <- as.matrix(design)
 		if (ncol(design) >= nlibs) {
 			warning("No residual df: setting dispersion to NA")
@@ -133,8 +129,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 			# Removing samples with zero means from design, to avoid attempts to converge to -Inf.
 			if (all(cur.nzero)) { 
 				redesign <- design
-			}
-			else {
+			} else {
 				redesign <- design[cur.nzero,,drop=FALSE]
 				QR <- qr(redesign)
 				redesign <- redesign[,QR$pivot[1:QR$rank],drop=FALSE]
@@ -172,8 +167,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 		disp.trend <- 0.1 * 2^out.1$trend
 		trended.dispersion <- rep( disp.trend[which.min(AveLogCPM[sel])], ntags )
 		trended.dispersion[sel] <- disp.trend
-	}
-	else {
+	} else {
 		AveLogCPM <- NULL
 		m0 <- matrix(colMeans(l0), ntags, length(spline.pts), byrow=TRUE)
 		disp.trend <- common.dispersion
@@ -210,8 +204,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 	# Initiate tagwise dispersions
 	if (trend.method!="none") {
 		tagwise.dispersion <- trended.dispersion
-	}
-	else {
+	} else {
 		tagwise.dispersion <- rep(common.dispersion, ntags)
 	}
 
@@ -229,8 +222,7 @@ estimateDisp.default <- function(y, design=NULL, group=NULL, lib.size=NULL, offs
 
 		if (!robust) { 
 			tagwise.dispersion[sel] <- 0.1 * 2^out.2$individual
-		}
-		else {
+		} else {
 			tagwise.dispersion[sel][!too.large] <- 0.1 * 2^out.2$individual[!too.large]
 		}
 	}
@@ -262,8 +254,7 @@ WLEB <- function(theta, loglik, prior.n=5, covariate=NULL, trend.method="locfit"
 #	Check covariate and trend
 	if (is.null(covariate)) {
 		trend.method <- "none"
-	}
-	else {
+	} else {
 		trend.method <- match.arg(trend.method, c("none", "loess", "locfit", "movingave"))
 	}
 
@@ -275,8 +266,7 @@ WLEB <- function(theta, loglik, prior.n=5, covariate=NULL, trend.method="locfit"
 	if (is.null(span)) {
 		if (ntags<=50) { 
 			span <- 1 
-		}
-		else {
+		} else {
 			span <- 0.25+0.75*(50/ntags)^0.5
 		}
 	}
@@ -369,8 +359,7 @@ WLEB <- function(theta, loglik, prior.n=5, covariate=NULL, trend.method="locfit"
 	if (isokay) {
 		# Avoids copying if no modification incurred.
 		return(x)
-	} 
-	else {
+	} else {
 		return(x[i,j,drop=FALSE])
 	}
 }

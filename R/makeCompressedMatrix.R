@@ -13,20 +13,17 @@ makeCompressedMatrix <- function(x, dims, byrow=TRUE) {
 			return(x)
 		}
         dims <- dim(x)
-	} 
-	else if (length(x)==1L) {
+	} else if (length(x)==1L) {
         repeat.row <- repeat.col <- TRUE
 		x <- matrix(x)
-	} 
-	else {
+	} else {
 		if (!byrow) {
             if (dims[1]!=length(x)) { 
                 stop("'dims[1]' should equal length of 'x'")
             }
 			x <- cbind(x)
             repeat.col <- TRUE
-		} 
-		else {
+		} else {
 			x <- rbind(x)
             if (dims[2]!=length(x)) { 
                 stop("'dims[2]' should equal length of 'x'")
@@ -128,8 +125,7 @@ length.CompressedMatrix <- function(x) {
 
     if (nargs() < 4L) {
         ref[i] <- value
-    }
-	else {
+    } else {
         ref[i,j] <- value
     }
     makeCompressedMatrix(ref, attr(x, "Dims"), TRUE)
@@ -148,11 +144,9 @@ as.matrix.CompressedMatrix <- function(x, ...) {
 
     if (row.status) {
         raw.mat <- matrix(raw.mat, nrow(x), ncol(x), byrow=TRUE)                
-    }
-	else if (col.status) {
+    } else if (col.status) {
         raw.mat <- matrix(raw.mat, nrow(x), ncol(x))
-    }
-	else {
+    } else {
         raw.mat <- as.matrix(raw.mat)
     }
     return(raw.mat)
@@ -305,8 +299,7 @@ Ops.CompressedMatrix <- function(e1, e2) {
         e2 <- as.vector(.strip_to_matrix(e2))
         outcome <- NextMethod(.Generic)
         outcome <- makeCompressedMatrix(outcome, new.dim, byrow=row.rep)
-    } 
-	else {
+    } else {
         e1 <- as.matrix(e1)
         e2 <- as.matrix(e2)
         outcome <- NextMethod(.Generic)

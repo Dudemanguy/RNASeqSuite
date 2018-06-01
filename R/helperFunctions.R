@@ -75,8 +75,7 @@ getOffset <- function(y) {
 	
 	if (!is.null(offset)) {
 		return(offset)
-	} 
-	else {		
+	} else {		
 		if (!is.null(norm.factors)) {
 			lib.size <- lib.size*norm.factors
 		}
@@ -92,8 +91,7 @@ condLogLikDerSize <- function(y, r, der=1L) {
 #	Vector interpreted as matrix of one row, i.e., one gene
 	if (is.vector(y)) {
 		y <- matrix(y,nrow=1)
-	} 
-	else {
+	} else {
 		y <- as.matrix(y)
 	}
 
@@ -127,8 +125,7 @@ condLogLikDerDelta <- function(y,delta,der=1L) {
 #	Vector interpreted as matrix of one row, i.e., one gene
 	if (is.vector(y)) {
 		y <- matrix(y,nrow=1)
-	} 
-	else {
+	} else {
 		y <- as.matrix(y)
 	}
 	if ( !(length(delta)==1 | length(delta)==nrow(y)) ) {
@@ -151,18 +148,15 @@ getDispersion <- function(y) {
 	if (!is.null(y$tagwise.dispersion)) {
 		dispersion <- y$tagwise.dispersion
 		attr(dispersion,"type") <- "tagwise"
-	} 
-	else {
+	} else {
 		if (!is.null(y$trended.dispersion)) {
 			dispersion <- y$trended.dispersion
 			attr(dispersion,"type") <- "trended"
-		} 
-		else {
+		} else {
 			if (!is.null(y$common.dispersion)) {
 				dispersion <- y$common.dispersion
 				attr(dispersion,"type") <- "common"
-			} 
-			else {
+			} else {
 				dispersion <- NULL
 			}
 		}
@@ -203,8 +197,7 @@ maximizeInterpolant <- function(x, y) {
     }
     if (length(x)!=ncol(y)) { 
         stop("number of columns must equal number of spline points")
-    } 
-	else if (is.unsorted(x) || anyDuplicated(x)) {
+    } else if (is.unsorted(x) || anyDuplicated(x)) {
         stop("spline points must be unique and sorted")
     }
 

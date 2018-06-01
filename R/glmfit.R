@@ -55,8 +55,7 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 		design <- matrix(1,ncol(y),1)
 		rownames(design) <- colnames(y)
 		colnames(design) <- "Intercept"
-	}
-	else {
+	} else {
 		design <- as.matrix(design)
 		if (nrow(design) != nlib) {
 			stop("nrow(design) disagrees with ncol(y)")
@@ -86,8 +85,7 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 			if (length(offset) != 1L && length(offset) != nlib) {
 				stop("offset has wrong length. As a vector, it should agree with ncol(y)")
 			}
-		} 
-		else {
+		} else {
 			if (!all(dim(offset)==dim(y))) {
 				stop("Dimensions of offset don't agree with dimensions of y")
 			}
@@ -114,8 +112,7 @@ glmFit.default <- function(y, design=NULL, dispersion=NULL, offset=NULL, lib.siz
 		fit <- mglmOneWay(y,design=design,group=group,dispersion=dispersion.mat,offset=offset,weights=weights,coef.start=start)
 		fit$deviance <- nbinomDeviance(y=y,mean=fit$fitted.values,dispersion=dispersion.mat,weights=weights)
 		fit$method <- "oneway"
-	} 
-	else {
+	} else {
 		fit <- mglmLevenberg(y,design=design,dispersion=dispersion.mat,offset=offset,weights=weights,coef.start=start,maxit=250)
 		fit$method <- "levenberg"
 	}
@@ -179,13 +176,11 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL, adjust.method=
 			}
 			coef.name <- coef
 			coef <- match(coef, colnames(design))
-		}
-		else {
+		} else {
 			coef.name <- coef.names[coef]
 		}
 		logFC <- glmfit$coefficients[,coef,drop=FALSE]/log(2)
-	} 
-	else {
+	} else {
 		contrast <- as.matrix(contrast)
 		if (nrow(contrast) != ncol(glmfit$coefficients)) {
 			stop("contrast vector of wrong length, should be equal to number of coefficients in the linear model.")
@@ -199,8 +194,7 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL, adjust.method=
 		logFC <- (glmfit$coefficients %*% contrast)/log(2)
 		if (ncontrasts>1) {
 			coef.name <- paste("LR test on",ncontrasts,"degrees of freedom")
-		} 
-		else {
+		} else {
 			contrast <- drop(contrast)
 			i <- contrast!=0
 			coef.name <- paste(paste(contrast[i],coef.names[i],sep="*"),collapse=" ")
@@ -231,8 +225,7 @@ glmLRT <- function(glmfit,coef=ncol(glmfit$design),contrast=NULL, adjust.method=
 	rn <- rownames(glmfit)
 	if (is.null(rn)) {
 		rn <- 1:nrow(glmfit)
-	}
-	else {
+	} else {
 		rn <- make.unique(rn)
 	}
 

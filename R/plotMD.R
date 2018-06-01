@@ -55,8 +55,7 @@ plotMD.DataList <- function(object, column=1, xlab=NULL, ylab=NULL, main=NULL, s
 				status <- c("non-DE", "DE")[status+1L]
 				values <- "DE"
 				col <- "red"
-			} 
-			else {
+			} else {
 				status <- c("Down", "non-DE", "Up")[status+2L]
 				values <- c("Up","Down")
 				col <- c("red","blue")

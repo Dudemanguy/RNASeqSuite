@@ -47,8 +47,7 @@ decideTestsData <- function(object,adjust.method="BH",p.value=0.05,lfc=0) {
 	if (FTest) {
 		attr(isDE,"levels") <- c(0L,1L)
 		attr(isDE,"labels") <- c("NotSig","Sig")
-	} 
-	else {
+	} else {
 		attr(isDE,"levels") <- c(-1L,0L,1L)
 		attr(isDE,"labels") <- c("Down","NotSig","Up")
 	}		

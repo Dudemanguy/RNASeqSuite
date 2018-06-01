@@ -20,8 +20,7 @@ grpSelection <- function(frame, groupselect, column=1, multi=FALSE) {
 		output <- do.call(paste, selection)
 		output <- factor(gsub(" ", ".", output))
 		getgroup$factor <- output
-	}
-	else {
+	} else {
 		getgroup$factor <- selection[,column]
 	}
 	getgroup$frame <- selection
@@ -47,8 +46,7 @@ cFilter <- function(dflist, sd) {
 	.argumentValid(check, ref)
 	if (sd < 0) {
 		stop(paste("Error,", deparse(substitute(sd)), "must be positive."))
-	}
-	else {
+	} else {
 		combine <- do.call("cbind", dflist)
 		combine_nozero <- .removeZeros(combine)
 		gene_vector <- rownames(combine_nozero)
@@ -180,8 +178,7 @@ idAdd <- function(dl, species, input_id, output_id) {
 		colnames(biomart_mrna) <- c("refseq", output_id, "description")
 		colnames(biomart_ncrna) <- c("refseq", output_id, "description")
 		biomart <- rbind(biomart_mrna, biomart_ncrna)
-	}
-	else {
+	} else {
 		biomart <- .idConvert(rownames(dl), species, input_id, output_id)
 	}
 	if (is.null(dl$genes)) {

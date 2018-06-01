@@ -63,8 +63,7 @@ plotMDS.DataList <- function (x,top=500,labels=NULL,pch=NULL,cex=1,dim.plot=c(1,
 		twd <- estimateTagwiseDisp(estimateCommonDisp(x), grid.length = 100) 
 		o <- order(twd$tagwise.dispersion, decreasing = TRUE)[1:top]
 		subdata <- x$counts[o,,drop=FALSE]
-	} 
-	else {
+	} else {
 		subdata <- x$counts
 	}
 
@@ -98,8 +97,7 @@ plotMDS.DataList <- function (x,top=500,labels=NULL,pch=NULL,cex=1,dim.plot=c(1,
 	mds$axislabel <- "BCV distance"
 	if (plot) {
 		plotMDS(mds,labels=labels,pch=pch,cex=cex,xlab=xlab,ylab=ylab,...)
-	}
-	else {
+	} else {
 		mds
 	}
 }

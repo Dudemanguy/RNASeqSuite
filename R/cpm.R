@@ -43,8 +43,7 @@ cpm.default <- function(y, lib.size=NULL, log=FALSE, prior.count=0.25, ...) {
 	if (log) {
 		prior.count <- .compressPrior(y, prior.count)
 		out <- .Call(.cxx_calculate_cpm_log, y, lib.size, prior.count)
-	} 
-	else {
+	} else {
 		out <- .Call(.cxx_calculate_cpm_raw, y, lib.size)
 	}
 

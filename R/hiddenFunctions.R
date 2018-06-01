@@ -53,17 +53,13 @@
 	ensembl <- useMart("ensembl")
 	if (org == "mouse") {
 		ensembl <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
-	}
-	else if (org == "human") {
+	} else if (org == "human") {
 		ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
-	}
-	else if (org == "rat") {
+	} else if (org == "rat") {
 		ensembl <- useMart("ensembl", dataset="rnorvegicus_gene_ensembl")
-	}
-	else if (org %in% listDatasets(ensembl)$dataset) {
+	} else if (org %in% listDatasets(ensembl)$dataset) {
 		ensembl <- useMart("ensembl", dataset=org)
-	}
-	else {
+	} else {
 		print("Invalid organism input. Please choose 'mouse', 'human', 'rat' or the exact dataset name from biomaRt.")
 		stop()
 	}
@@ -72,15 +68,13 @@
 
 	if (attr_in %in% attr_matrix$name) {
 		id_input <- attr_in
-	}
-	else {
+	} else {
 		attr_in_grep <- grep(attr_in, attr_matrix$name, ignore.case=TRUE)
 		attr_in_filtered <- attr_matrix[attr_in_grep,]
 		if (nrow(attr_in_filtered) == 0) {
 			print("No results found for attribute input. Please try again.")
 			stop()
-		}
-		else {
+		} else {
 			if (nrow(attr_in_filtered) > nrow(head(attr_in_filtered))) {
 				print(head(attr_in_filtered))
 				id_input <- readline("Type in the name of the input id from the list. Type 'show' to see full matrix. \n")
@@ -88,8 +82,7 @@
 					print(attr_in_filtered)
 					id_input <- readline("Type in the name of the input id from the list. \n")
 				}
-			}
-			else {
+			} else {
 				print(attr_in_filtered)
 				id_input <- readline("Type in the name of the input id from the list. \n")
 			}
@@ -99,15 +92,13 @@
 	#handle the output attribute
 	if (attr_out %in% attr_matrix$name) {
 		id_output <- attr_out
-	}
-	else {
+	} else {
 		attr_out_grep <- grep(attr_out, attr_matrix$name, ignore.case=TRUE)
 		attr_out_filtered <- attr_matrix[attr_out_grep,]
 		if (nrow(attr_out_filtered) == 0) {
 			print("No results found for attribute output. Please try again.")
 			stop()
-		}
-		else {
+		} else {
 			if (nrow(attr_out_filtered) > nrow(head(attr_out_filtered))) {
 				print(head(attr_in_filtered))
 				id_output <- readline("Type in the name of the output id from the list. Type 'show' to see full matrix. \n")
@@ -115,8 +106,7 @@
 					print(attr_out_filtered)
 					id_output <- readline("Type in the name of the output id from the list. \n")
 				}
-			}
-			else {
+			} else {
 				print(attr_out_filtered)
 				id_output <- readline("Type in the name of the output id from the list. \n")
 			}

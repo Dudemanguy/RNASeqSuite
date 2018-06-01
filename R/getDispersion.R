@@ -6,18 +6,15 @@ getDispersion <- function(y) {
 	if (!is.null(y$tagwise.dispersion)) {
 		dispersion <- y$tagwise.dispersion
 		attr(dispersion,"type") <- "tagwise"
-	} 
-	else {
+	} else {
 		if (!is.null(y$trended.dispersion)) {
 			dispersion <- y$trended.dispersion
 			attr(dispersion,"type") <- "trended"
-		} 
-		else {
+		} else {
 			if (!is.null(y$common.dispersion)) {
 				dispersion <- y$common.dispersion
 				attr(dispersion,"type") <- "common"
-			} 
-			else {
+			} else {
 				dispersion <- NULL
 			}
 		}

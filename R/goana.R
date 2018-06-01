@@ -29,15 +29,13 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 	geneid <- as.character(geneid)
 	if (length(geneid) == ngenes) {
 		universe <- geneid
-	} 
-	else {
+	} else {
 		if (length(geneid) == 1L) {
 			universe <- de$genes[[geneid]]
 			if (is.null(universe)) {
 				stop("Column ",geneid," not found in de$genes")
 			}
-		} 
-		else {
+		} else {
 			stop("geneid of incorrect length")
 		}
 	}
@@ -51,16 +49,14 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 				stop("logCPM not found in fit object")
 			}
 		}
-	} 
-	else {
+	} else {
 		if (is.numeric(trend)) {
 			if (length(trend) != ngenes) {
 				stop("If trend is numeric, then length must equal nrow(de)")
 			}
 			covariate <- trend
 			trend <- TRUE
-		} 
-		else {
+		} else {
 			if (is.character(trend)) {
 				if (length(trend) != 1L) {
 					stop("If trend is character, then length must be 1")
@@ -70,8 +66,7 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 					stop("Column ",trend," not found in de$genes")
 				}
 				trend <- TRUE
-			} 
-			else {
+			} else {
 				stop("trend is neither logical, numeric nor character")
 			}
 		}
@@ -107,8 +102,7 @@ goana.DataList <- function(de, geneid = rownames(de), FDR = 0.05, trend = FALSE,
 
 	if (trend) {
 		goana(de=DEGenes, universe = universe, covariate=covariate, ...)
-	}
-	else {
+	} else {
 		goana(de=DEGenes, universe = universe, ...)
 	}
 }

@@ -14,8 +14,7 @@ maPlot <- function(x,y, logAbundance=NULL, logFC=NULL, normalize=FALSE, plot.it=
 			M[w] <- sign(M[w]) * (abs(M[w]) - shift)
 		}
 		
-	} 
-	else {
+	} else {
 		if (normalize) {
 			x <- x/sum(x)
 			y <- y/sum(y)
@@ -45,8 +44,7 @@ maPlot <- function(x,y, logAbundance=NULL, logFC=NULL, normalize=FALSE, plot.it=
 			grid()
 			if (any(w) | any(v))
 				points(A[w | v], M[w | v], col=lowCol, ...)
-		}
-		else {
+		} else {
 			plot(A,M,col=col,...)
 		}
 		points(A[de.tags],M[de.tags],col=deCol,...)
