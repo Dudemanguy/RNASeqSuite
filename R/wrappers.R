@@ -112,26 +112,26 @@ ctFilter <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	allfilter
 }
 
-#uses wrapper function around the exactTest to find differentially expressed genes and store them in a DataList object
+#uses wrapper function around the exactTest to find differentially expressed genes and store them in a DGEList object
 
 exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
-	y <- DataList(counts=data, group=group)
+	y <- DGEList(counts=data, group=group)
 	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
 	y <- exactTest(y)
 	y
 }
 
-#uses wrapper function around glmQLFTest to find differentially expressed genes and store them in a DataList object
+#uses wrapper function around glmQLFTest to find differentially expressed genes and store them in a DGEList object
 
 qlfWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, robust=TRUE, coef=ncol(design), contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR") {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
-	y <- DataList(counts=data, group=group)
+	y <- DGEList(counts=data, group=group)
 	y <- calcNormFactors(y)
 	design <- model.matrix(~group$factor)
 	y <- estimateDisp(y, design, robust=robust)
@@ -164,11 +164,11 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	resOrder
 }
 
-#add annotations to DataList
+#add annotations to DGEList
 
 idAdd <- function(dl, species, input_id, output_id) {
 	check <- list(dl=dl, species=species, input_id=input_id, output_id=output_id)
-	ref <- c("DataList", "character", "character", "character")
+	ref <- c("DGEList", "character", "character", "character")
 	.argumentValid(check, ref)
 	genes <- rownames(dl)
 	values <- convert(genes, species, input_id, output_id)
@@ -192,15 +192,14 @@ idAdd <- function(dl, species, input_id, output_id) {
 	dl
 }
 
-#integrate goana analysis with DataList
+#integrate goana analysis with DGEList
 
 gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 	check <- list(dl=dl, species=species, fdr=fdr, separate=separate)
-	ref <- c("DataList", "character", "numeric", "logical")
+	ref <- c("DGEList", "character", "numeric", "logical")
 	.argumentValid(check, ref)
-	rownames(dl) <- dl$genes$EntrezGene
 	go_list <- list()
-	go <- goana.DataList(dl, species=species, separate=separate)
+	go <- goana.DGEList(dl, species=species, separate=separate)
 	if (isTRUE(separate)) {
 		go_up <- topGO(go, sort="Up", n=Inf)
 		go_up
@@ -214,6 +213,7 @@ gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 		go <- go[-(7)]
 		colnames(go) <- c("Term","Ont","N","Up","Down","P")
 		go <- go[go$P <= fdr,]
+		go <- go[order(go$P),]
 		return (go)
 	}
 }
@@ -222,7 +222,7 @@ gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 
 write.output <- function(dl, directory, fdr=0.05) {
 	check <- list(dl=dl, directory=directory, fdr=fdr)
-	ref <- c("DataList", "character", "numeric")
+	ref <- c("DGEList", "character", "numeric")
 	.argumentValid(check, ref)
 	dir.create(directory)
 	setwd(directory)

@@ -39,7 +39,7 @@ annotationFetch <- function(count, species, symbol=FALSE) {
 	count
 }
 
-validDataList <- function(y) {
+validDGEList <- function(y) {
 #	Check for standard components of DGEList object
 #	Gordon Smyth
 #	20 Nov 2013
