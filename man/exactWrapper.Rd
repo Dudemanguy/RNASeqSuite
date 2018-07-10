@@ -3,7 +3,7 @@
 
 \title{Wrapper function to easily perform an exactTest analysis on genes}
 \description{
-Performs an exactTest and stores the results in a DataList object.
+Performs an exactTest and stores the results in a DGEExact object.
 }
 \usage{
 exactWrapper(data, frame, group, htsfilter=TRUE, cfilter=0, cutoff=0)
