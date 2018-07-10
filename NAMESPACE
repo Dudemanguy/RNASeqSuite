@@ -3,5 +3,7 @@ exportPattern("^[^\\.]")
 exportMethods("show")
 
 import(HTSFilter)
+import(edgeR)
+import(DESeq2)
 import(geneConvert)
 import(methods)
