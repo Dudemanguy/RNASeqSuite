@@ -1,4 +1,4 @@
-#general functions to check argument input types and ensure they are valid
+#general function to check argument input types and ensure they are valid
 .argumentValid <- function(classnames, refnames) {
 	classframe <- data.frame(names(classnames[]))
 	classlist <- list()

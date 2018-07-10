@@ -1,9 +1,9 @@
 \name{idAdd}
 \alias{idAdd}
 
-\title{Adds additional columns to qlf or et results containing gene descriptions.}
+\title{Adds additional gene annotiations to a DGEList.}
 \description{
-Adds a column of gene output with its description to the DGEList using biomaRt.
+Adds a column of gene output with its description to the DGEList using geneConvert.
 }
 \usage{
 idAdd(dl, species, input_id, output_id)

@@ -1,12 +1,12 @@
-\name{exactWrapper}
-\alias{exactWrapper}
+\name{qlfWrapper}
+\alias{qlfWrapper}
 
-\title{Wrapper function to easily perform an exactTest analysis on genes}
+\title{Wrapper function to easily perform a glmQLFTest analysis on genes}
 \description{
-Performs an exactTest and stores the results in a DGEExact object.
+Performs a glmQLFTest and stores the results in a DGELRT object.
 }
 \usage{
-exactWrapper(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE)
+qlfWrapper(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE)
 }
 
 \arguments{
@@ -29,5 +29,5 @@ exactWrapper(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH
 }
 
 \examples{
-y <- exactWrapper(data, group, htsfilter=TRUE, cfilter=2, cutoff=100)
+y <- qlfWrapper(data, group, htsfilter=TRUE, cfilter=2, cutoff=100)
 }
