@@ -104,22 +104,21 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 }
 
 #wrapper function around the exactTest to find differentially expressed genes and return them
-exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR") {
+exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE) {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	y <- quickDGE(data, group=group)
-	y <- calcNormFactors(y)
 	y <- estimateDisp(y)
 	dge <- exactTest(y)
 	adj.p.val <- p.adjust(dge$table$PValue, method=adjust.method)
 	dge$table$FDR <- adj.p.val
 	o <- switch(sort.by,
-		"logFC" = order(dge$table$logFC, decreasing=TRUE),
-		"logCPM" = order(dge$table$logCPM, decreasing=TRUE),
-		"F" = order(dge$table$F, decreasing=TRUE),
-		"PValue" = order(dge$table$PValue, decreasing=FALSE),
-		"FDR" = order(dge$table$FDR, decreasing=FALSE),
+		"logFC" = order(dge$table$logFC, decreasing=decreasing),
+		"logCPM" = order(dge$table$logCPM, decreasing=decreasing),
+		"F" = order(dge$table$F, decreasing=decreasing),
+		"PValue" = order(dge$table$PValue, decreasing=decreasing),
+		"FDR" = order(dge$table$FDR, decreasing=decreasing),
 		"none" = 1:nrow(dge)
 	)
 	dge <- dge[o,]
@@ -209,7 +208,7 @@ idAdd <- function(dl, species, input_id, output_id) {
 #wrapper function around glmQLFTest to find differentially expressed genes and return them
 #TODO: Make the select argument work properly
 qlfWrapper <- function(data, group, select=NULL, htsfilter=TRUE, cfilter=0, cutoff=0, robust=TRUE, coef=ncol(design),
-					   contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR") {
+					   contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR", decreasing=FALSE) {
 	check <- list(data=data, group=group, select=select, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "character", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
@@ -229,11 +228,11 @@ qlfWrapper <- function(data, group, select=NULL, htsfilter=TRUE, cfilter=0, cuto
 	adj.p.val <- p.adjust(lrt$table$PValue, method=adjust.method)
 	lrt$table$FDR <- adj.p.val
 	o <- switch(sort.by,
-		"logFC" = order(lrt$table$logFC, decreasing=TRUE),
-		"logCPM" = order(lrt$table$logCPM, decreasing=TRUE),
-		"F" = order(lrt$table$F, decreasing=TRUE),
-		"PValue" = order(lrt$table$PValue, decreasing=FALSE),
-		"FDR" = order(lrt$table$FDR, decreasing=FALSE),
+		"logFC" = order(lrt$table$logFC, decreasing=decreasing),
+		"logCPM" = order(lrt$table$logCPM, decreasing=decreasing),
+		"F" = order(lrt$table$F, decreasing=decreasing),
+		"PValue" = order(lrt$table$PValue, decreasing=decreasing),
+		"FDR" = order(lrt$table$FDR, decreasing=decreasing),
 		"none" = 1:nrow(lrt)
 	)
 	lrt <- lrt[o,]
