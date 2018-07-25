@@ -151,7 +151,7 @@ gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 }
 
 #obtains the group from a supplied tab-delimited list
-grpSelection <- function(frame, groupselect, column=1, multi=FALSE) {
+grpSelection <- function(frame, groupselect, column=2, multi=FALSE) {
 	check <- list(frame=frame, groupselect=groupselect)
 	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
@@ -249,6 +249,7 @@ quickDGE <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 	y <- calcNormFactors(y)
 	y
 }
+
 #make directory and output results
 write.output <- function(dl, directory, fdr=0.05) {
 	check <- list(dl=dl, directory=directory, fdr=fdr)
