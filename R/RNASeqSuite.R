@@ -166,6 +166,8 @@ grpSelection <- function(frame, groupselect, column=2, multi=FALSE) {
 	selection_list <- apply(selection_grep, 2, .select, frame)
 	names(selection_list) <- NULL
 	selection <- do.call("rbind", selection_list)
+	rownames(selection) <- selection[,1]
+	selection <- selection[,-1, drop=FALSE]
 	getgroup <- list()
 	if (multi == TRUE) {
 		output <- do.call(paste, selection)
@@ -188,18 +190,11 @@ idAdd <- function(dl, species, input_id, output_id) {
 	m <- match(rownames(dl), values[[input_id]])
 	dl$genes <- values[output_id][m,]
 
-	#check for the existence of each statistical test and add to the data frame
-	if (!(is.null(dl$et_results))) {
-		dl$et_results <- data.frame(values[output_id][m,], dl$et_results)
-		rownames(dl$et_results) <- genes
+	if (identical(class(dl)[1], "DGEExact")) {
+		dl$table <- data.frame(values[output_id][m,], dl$table)
 	}
-	if (!(is.null(dl$lrt_results))) {
-		dl$lrt_results <- data.frame(values[output_id][m,], dl$lrt_results)
-		rownames(dl$lrt_results) <- genes
-	}
-	if (!(is.null(dl$qlf_results))) {
-		dl$qlf_results <- data.frame(values[output_id][m,], dl$qlf_results)
-		rownames(dl$qlf_results) <- genes
+	if (identical(class(dl)[1], "DGELRT")) {
+		dl$table <- data.frame(values[output_id][m,], dl$table)
 	}
 	rownames(dl) <- genes
 	dl
@@ -255,13 +250,14 @@ write.output <- function(dl, directory, fdr=0.05) {
 	check <- list(dl=dl, directory=directory, fdr=fdr)
 	ref <- c("DGEList", "character", "numeric")
 	.argumentValid(check, ref)
-	dir.create(directory)
+	dir.create(directory, recursive=TRUE)
+	origin <- getwd()
 	setwd(directory)
 	sink("datalist_output")
 	print(dl)
 	sink()
-	write.table(dl$qlf_results, file="full_results", sep="\t", quote=FALSE)
-	dl_cutoff <- dl$qlf_results[which(dl$qlf_results$FDR<fdr),]
+	write.table(dl$table, file="full_results", sep="\t", quote=FALSE)
+	dl_cutoff <- dl$table[which(dl$table$FDR<fdr),]
 	write.table(dl_cutoff, file="significant_results", sep="\t", quote=FALSE)
-	setwd('..')
+	setwd(origin)
 }
