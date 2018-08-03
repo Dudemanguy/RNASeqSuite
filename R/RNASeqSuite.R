@@ -151,7 +151,7 @@ gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 }
 
 #obtains the group from a supplied tab-delimited list
-grpSelection <- function(frame, groupselect, column=2, multi=FALSE) {
+grpSelection <- function(frame, groupselect, column=1, multi=FALSE) {
 	check <- list(frame=frame, groupselect=groupselect)
 	ref <- c("data.frame", "character")
 	.argumentValid(check, ref)
@@ -166,8 +166,6 @@ grpSelection <- function(frame, groupselect, column=2, multi=FALSE) {
 	selection_list <- apply(selection_grep, 2, .select, frame)
 	names(selection_list) <- NULL
 	selection <- do.call("rbind", selection_list)
-	rownames(selection) <- selection[,1]
-	selection <- selection[,-1, drop=FALSE]
 	getgroup <- list()
 	if (multi == TRUE) {
 		output <- do.call(paste, selection)
