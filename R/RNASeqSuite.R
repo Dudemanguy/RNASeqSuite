@@ -131,7 +131,7 @@ gopathway <- function(dl, species, fdr=0.05, separate=TRUE) {
 	ref <- c("DGEList", "character", "numeric", "logical")
 	.argumentValid(check, ref)
 	go_list <- list()
-	go <- goana.DGEList(dl, species=species, separate=separate)
+	go <- goana.DGELRT(dl, species=species, separate=separate)
 	if (isTRUE(separate)) {
 		go_up <- topGO(go, sort="Up", n=Inf)
 		go_up
