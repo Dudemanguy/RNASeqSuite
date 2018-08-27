@@ -172,7 +172,7 @@ grpSelection <- function(frame, groupselect, column=1, multi=FALSE) {
 		output <- factor(gsub(" ", ".", output))
 		getgroup$factor <- output
 	} else {
-		getgroup$factor <- selection[,column]
+		getgroup$factor <- factor(selection[,column])
 	}
 	getgroup$frame <- selection
 	getgroup
