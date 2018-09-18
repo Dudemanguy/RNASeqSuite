@@ -104,7 +104,7 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 }
 
 #wrapper function around the exactTest to find differentially expressed genes and return them
-exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE) {
+exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE, split=TRUE) {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
@@ -113,6 +113,20 @@ exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjus
 	dge <- exactTest(y)
 	adj.p.val <- p.adjust(dge$table$PValue, method=adjust.method)
 	dge$table$FDR <- adj.p.val
+	if (split) {
+		split_group <- .ctSplit(data, group$factor)
+		cpms <- list()
+		for (i in seq_along(split_group)) {
+			z <- DGEList(split_group[[i]])
+			z <- calcNormFactors(z)
+			cpms[[i]] <- data.frame(rowMeans(cpm(z)))
+
+		}
+		names(cpms) <- levels(group$factor)
+		for (i in seq_along(cpms)) {
+			dge$table[[names(cpms[i])]] <- cpms[[i]][rownames(cpms[[i]]) %in% rownames(y),]
+		}
+	}
 	o <- switch(sort.by,
 		"logFC" = order(dge$table$logFC, decreasing=decreasing),
 		"logCPM" = order(dge$table$logCPM, decreasing=decreasing),
@@ -201,7 +215,7 @@ idAdd <- function(dl, species, input_id, output_id) {
 #wrapper function around glmQLFTest to find differentially expressed genes and return them
 #TODO: Make the select argument work properly
 qlfWrapper <- function(data, group, select=NULL, htsfilter=TRUE, cfilter=0, cutoff=0, robust=TRUE, coef=ncol(design),
-					   contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR", decreasing=FALSE) {
+					   contrast=NULL, poisson.bound=TRUE, adjust.method="BH", sort.by="FDR", decreasing=FALSE, split=TRUE) {
 	check <- list(data=data, group=group, select=select, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "character", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
@@ -220,6 +234,20 @@ qlfWrapper <- function(data, group, select=NULL, htsfilter=TRUE, cfilter=0, cuto
 	lrt <- glmQLFTest(glm, coef=coef, contrast=contrast, poisson.bound=poisson.bound)
 	adj.p.val <- p.adjust(lrt$table$PValue, method=adjust.method)
 	lrt$table$FDR <- adj.p.val
+	if (split) {
+		split_group <- .ctSplit(data, group$factor)
+		cpms <- list()
+		for (i in seq_along(split_group)) {
+			z <- DGEList(split_group[[i]])
+			z <- calcNormFactors(z)
+			cpms[[i]] <- data.frame(rowMeans(cpm(z)))
+
+		}
+		names(cpms) <- levels(group$factor)
+		for (i in seq_along(cpms)) {
+			lrt$table[[names(cpms[i])]] <- cpms[[i]][rownames(cpms[[i]]) %in% rownames(y),]
+		}
+	}
 	o <- switch(sort.by,
 		"logFC" = order(lrt$table$logFC, decreasing=decreasing),
 		"logCPM" = order(lrt$table$logCPM, decreasing=decreasing),

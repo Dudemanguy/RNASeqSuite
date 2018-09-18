@@ -20,7 +20,7 @@
 .ctSplit <- function(data, group)
 UseMethod(".ctSplit")
 
-.ctSplit.DataList <- function(data) {
+.ctSplit.DGEList <- function(data) {
 	group <- data$samples$group
 	ctSplit(data$counts, group=group)
 }
