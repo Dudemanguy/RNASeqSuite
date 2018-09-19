@@ -124,6 +124,7 @@ exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjus
 		}
 		names(cpms) <- levels(group$factor)
 		for (i in seq_along(cpms)) {
+			m <- match(rownames(cpms[[i]], rownames(y)))
 			dge$table[[names(cpms[i])]] <- cpms[[i]][rownames(cpms[[i]]) %in% rownames(y),]
 		}
 	}
@@ -235,17 +236,14 @@ qlfWrapper <- function(data, group, select=NULL, htsfilter=TRUE, cfilter=0, cuto
 	adj.p.val <- p.adjust(lrt$table$PValue, method=adjust.method)
 	lrt$table$FDR <- adj.p.val
 	if (split) {
-		split_group <- .ctSplit(data, group$factor)
-		cpms <- list()
-		for (i in seq_along(split_group)) {
-			z <- DGEList(split_group[[i]])
-			z <- calcNormFactors(z)
-			cpms[[i]] <- data.frame(rowMeans(cpm(z)))
-
-		}
-		names(cpms) <- levels(group$factor)
-		for (i in seq_along(cpms)) {
-			lrt$table[[names(cpms[i])]] <- cpms[[i]][rownames(cpms[[i]]) %in% rownames(y),]
+		z <- quickDGE(data, group)
+		cpms <- cpm(z)
+		for (i in rev(seq_along(select))) {
+			cols <- rownames(lrt$samples[lrt$samples$group == select[i],])
+			sub_cpms <- cpms[,cols]
+			avg_cpms <- data.frame(rowMeans(sub_cpms))
+			m <- match(rownames(y), rownames(avg_cpms))
+			lrt$table[[select[i]]] <- avg_cpms[m,]
 		}
 	}
 	o <- switch(sort.by,
