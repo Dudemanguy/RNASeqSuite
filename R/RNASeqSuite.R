@@ -104,28 +104,24 @@ DESeq2 <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0) {
 }
 
 #wrapper function around the exactTest to find differentially expressed genes and return them
-exactWrapper <- function(data, group, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE, split=TRUE) {
+exactWrapper <- function(data, group, pair=1:2, htsfilter=TRUE, cfilter=0, cutoff=0, adjust.method="BH", sort.by="FDR", decreasing=FALSE, split=TRUE) {
 	check <- list(data=data, group=group, htsfilter=htsfilter, cfilter=cfilter, cutoff=cutoff)
 	ref <- c("data.frame", "list", "logical", "numeric", "numeric")
 	.argumentValid(check, ref)
 	y <- quickDGE(data, group=group)
 	y <- estimateDisp(y)
-	dge <- exactTest(y)
+	dge <- exactTest(y, pair=pair)
 	adj.p.val <- p.adjust(dge$table$PValue, method=adjust.method)
 	dge$table$FDR <- adj.p.val
 	if (split) {
-		split_group <- .ctSplit(data, group$factor)
-		cpms <- list()
-		for (i in seq_along(split_group)) {
-			z <- DGEList(split_group[[i]])
-			z <- calcNormFactors(z)
-			cpms[[i]] <- data.frame(rowMeans(cpm(z)))
-
-		}
-		names(cpms) <- levels(group$factor)
-		for (i in seq_along(cpms)) {
-			m <- match(rownames(cpms[[i]], rownames(y)))
-			dge$table[[names(cpms[i])]] <- cpms[[i]][rownames(cpms[[i]]) %in% rownames(y),]
+		z <- quickDGE(data, group)
+		cpms <- cpm(z)
+		for (i in seq_along(dge$comparison)) {
+			cols <- rownames(group$frame[group$frame$group == dge$comparison[i], ,drop=FALSE])
+			sub_cpms <- cpms[,cols]
+			avg_cpms <- data.frame(rowMeans(sub_cpms))
+			m <- match(rownames(dge), rownames(avg_cpms))
+			dge$table[[dge$comparison[i]]] <- avg_cpms[m,]
 		}
 	}
 	o <- switch(sort.by,
