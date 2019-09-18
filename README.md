@@ -26,4 +26,4 @@ y <- exactWrapper(data, group)
 This outputs the console output of the object, the full results table from the exact test, and the significant results table from the exact test to separate files within the specified directory. The fdr is merely a cutoff for the significant results file. It defaults to 0.05, but can be specified to something else.
 
 ## License
-GPLv2 or later.
+GPLv3
