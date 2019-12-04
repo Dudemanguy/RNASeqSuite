@@ -273,11 +273,11 @@ write.output <- function(dl, directory, fdr=0.05) {
 	dir.create(directory, recursive=TRUE)
 	origin <- getwd()
 	setwd(directory)
-	sink("datalist_output")
+	sink("datalist_output.txt")
 	print(dl)
 	sink()
-	write.table(dl$table, file="full_results", sep="\t", quote=FALSE)
+	write.table(dl$table, file="full_results.txt", sep="\t", quote=FALSE)
 	dl_cutoff <- dl$table[which(dl$table$FDR<fdr),]
-	write.table(dl_cutoff, file="significant_results", sep="\t", quote=FALSE)
+	write.table(dl_cutoff, file="significant_results.txt", sep="\t", quote=FALSE)
 	setwd(origin)
 }
