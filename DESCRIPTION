@@ -15,7 +15,7 @@ Description: In the world of bioinformatics, there are many different possible p
 			 work. The aim of RNAseqsuite is to provide a convienent cli wrapper over 
 			 popular RNAseq software and algorithms to simplify the process for performing
 			 RNAseq and different analyses on the fly.
-License: GPL (>= 2)
+License: GPL-3
 LazyLoad: yes
 NeedsCompilation: yes
 LinkingTo: Rcpp
