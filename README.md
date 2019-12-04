@@ -1,9 +1,9 @@
 ## RNASeqSuite
 
-RNASeqSuite is a set of handy cli wrapper functions in R around common RNASeq processing libraries to ease the workflow, simplify user input, and allow for quick, on-the-fly switching of algorithms and statistical tests. The main focus is on differential gene expression. RNASeqSuite depends on edgeR, DESeq2, and HTSFilter for statistical backends. Additionally, RNASeqSuite uses [geneConvert](https://github.com/Dudemanguy911/geneConvert), an integrated XML parsing and SQL database builder, for internal conversion of gene annotations for further analysis.
+RNASeqSuite is a set of handy cli wrapper functions in R around common RNASeq processing libraries to ease the workflow, simplify user input, and allow for quick, on-the-fly switching of algorithms and statistical tests. The main focus is on differential gene expression. RNASeqSuite depends on edgeR, DESeq2, and HTSFilter for statistical backends. Additionally, RNASeqSuite uses [geneConvert](https://github.com/Dudemanguy/geneConvert), an integrated XML parsing and SQL database builder, for internal conversion of gene annotations for further analysis.
 
 ## Installation
-Using the R package, ``devtools`` run ``devtools::install_github("Dudemanguy911/RNASeqSuite")``.
+Using the R package, ``devtools`` run ``devtools::install_github("Dudemanguy/RNASeqSuite")``.
 
 ## Quick Usage
 To use RNASeqSuite, one only needs a data frame of read counts and data frame of sample/group information. `featureCounts` in the `subread` package is recommended for generating a read count matrix. Creating a simple, tab-delimited list with one column containing the columns in the read count matrix and the other column containing the corresponding group is also recommended. The rownames for the group data frame need to be the names of the samples for ``grpSelection`` to work properly. To quickly perform a Fisher's Exact Test, one only needs to do the following.
@@ -19,7 +19,7 @@ y <- exactWrapper(data, group)
 
 `` y <- idAdd(y, species, input, output)``
 
-``idAdd`` uses geneConvert for gene conversions. Out of the box, it has support for human, mouse, and rat genes. However, other organisms can be added. See the geneConvert [page](https://github.com/Dudemanguy911/geneConvert) for more details. To write results to a file, use the write.output wrapper.
+``idAdd`` uses geneConvert for gene conversions. Out of the box, it has support for human, mouse, and rat genes. However, other organisms can be added. See the geneConvert [page](https://github.com/Dudemanguy/geneConvert) for more details. To write results to a file, use the write.output wrapper.
 
 ``write.output(y, Directory, fdr)``
 
